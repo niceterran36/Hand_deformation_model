@@ -1,11 +1,16 @@
-function skinning_ui_D1_axis()
+function test_skinning_ui_newhand_D1()
 
     % Register gptoolbox
     addpath(genpath('external'));
-
-    % Load mesh
-    mesh = load('mesh/neutral.mat');
+    mesh = load('hy_mesh.mat');
+%     mesh = load('mesh/neutral.mat');
     mesh = mesh.mesh;
+
+%     % Load mesh
+%     mesh.vertices = vertices;
+%     mesh.faces = faces;
+%     mesh.weights = weights;
+%     mesh.normals = getNormals(vertices,faces);  
     
     % Compute axis and initial transforms
     transforms = cell(1, 18);
@@ -114,7 +119,7 @@ function skinning_ui_D1_axis()
     function update(varargin) % index finger 
         transforms{3} = matrix_rotation( ... % D1 CMC
             get(sliders{1}, 'Value'), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
-            matrix_apply(transforms{2}, axes{3}(1 : 3, 2)', 0), ... % axis1: red; axis2: green; axis3: blue
+            matrix_apply(transforms{2}, axes{3}(1 : 3, 1)', 0), ... % axis1: red; axis2: green; axis3: blue
             matrix_apply(transforms{2}, axes{3}(1 : 3, 4)') ... % center
         ) * transforms{2};
         transforms{4} = matrix_rotation( ... % D1 MCP
