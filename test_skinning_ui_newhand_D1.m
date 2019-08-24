@@ -160,7 +160,7 @@ function test_skinning_ui_newhand_D1()
  
         transforms{9} = matrix_rotation( ...  % D3 MCP
             get(sliders{7}, 'Value'), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
-            matrix_apply(transforms{2}, axes{9}(1 : 3, 2)', 0), ... % axis - 1: supination, pronation; 2: flexion/extension; 3: abduction/adduction
+            matrix_apply(transforms{2}, axes{9}(1 : 3, 3)', 0), ... % axis - 1: supination, pronation; 2: flexion/extension; 3: abduction/adduction
             matrix_apply(transforms{2}, axes{9}(1 : 3, 4)') ... % center
         ) * transforms{2};
         transforms{10} = matrix_rotation( ... % D3 PIP
