@@ -153,8 +153,12 @@ hold on
 axis equal
 axis off
 %scatter3(transformed.vertices(:,1), transformed.vertices(:,2), transformed.vertices(:,3), '.', 'MarkerEdgeColor',[25/255, 25/255, 25/255])
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 1);
         lighting gouraud;
+    view([-90, 0]);
+    camlight;
+    view([90, 0]);
+    camlight;
 hold off
 
 %% registration trial
