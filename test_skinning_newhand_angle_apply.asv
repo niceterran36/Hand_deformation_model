@@ -148,18 +148,25 @@ transformed = mesh;
 transformed = skin_linear(transformed, transforms);
 
 %% visualization
-figure(1)
+figure(2)
 hold on
 axis equal
 axis off
-scatter3(transformed.vertices(:,1), transformed.vertices(:,2), transformed.vertices(:,3), '.', 'MarkerEdgeColor',[25/255, 25/255, 25/255])
+%scatter3(transformed.vertices(:,1), transformed.vertices(:,2), transformed.vertices(:,3), '.', 'MarkerEdgeColor',[25/255, 25/255, 25/255])
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+        lighting gouraud;
 hold off
 
 %% registration trial
-
-[vertices, faces, FaceB, Header] = function_loading_ply_file('YG.ply');
-
-[registered,targetV,targetF] = nonrigidICP(targetV,sourceV,targetF,sourceF,iterations,flag_prealligndata)
+% 
+% [targetV, targetF, targetFB, target_Header] = function_loading_ply_file('YG_hand_grip.ply');
+% targetV(:,4:6) = [];
+% sourceV = transformed.vertices;
+% sourceF = transformed.faces;
+% 
+% iterations = 10;
+% flag_prealligndata = 0;
+% [registered,targetV,targetF] = nonrigidICP(targetV,sourceV,targetF,sourceF,iterations,flag_prealligndata)
 
 
 

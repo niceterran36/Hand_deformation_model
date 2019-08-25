@@ -3,8 +3,8 @@ function test_skinning_ui_newhand_D1()
     % Register gptoolbox
     addpath(genpath('external'));
     addpath 'functions';
-    mesh = load('hy_mesh.mat');
-%     mesh = load('mesh/neutral.mat');
+%    mesh = load('hy_mesh.mat');
+     mesh = load('mesh/neutral.mat');
     mesh = mesh.mesh;
 
 %     % Load mesh
@@ -22,7 +22,7 @@ function test_skinning_ui_newhand_D1()
     
     % translate the axes vector from origin to each axis center 
     axes_t = axes;
-    for i = 1:18;
+    for i = 1:18
     axes_t{1,i}(1:3,1:3) = axes_t{1,i}(1:3,1:3)+axes_t{1,i}(1:3,4);
     end     
     
