@@ -3,15 +3,20 @@ function test_skinning_ui_newhand_D1()
     % Register gptoolbox
     addpath(genpath('external'));
     addpath 'functions';
-    mesh = load('hy_mesh.mat');
+    mesh = load('hy_mesh_n.mat');
 %    mesh = load('mesh/neutral.mat');
     mesh = mesh.mesh;
 
+%     vertices = mesh.vertices;
+%     faces = mesh.faces;
+%     N = per_vertex_normals(vertices,faces);
+%     mesh.normals = N;
+    
 %     % Load mesh
 %     mesh.vertices = vertices;
 %     mesh.faces = faces;
 %     mesh.weights = weights;
-%     mesh.normals = getNormals(vertices,faces);  
+%     mesh.normals = per_vertex_normals(vertices,faces);   
     
     % Compute axis and initial transforms
     transforms = cell(1, 18);
