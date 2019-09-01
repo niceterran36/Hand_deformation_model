@@ -4,7 +4,7 @@ function test_skinning_ui_newhand_D1()
     addpath(genpath('external'));
     addpath 'functions';
     mesh = load('hy_mesh.mat');
-%    mesh = load('mesh/neutral.mat');
+%    mesh2 = load('mesh/neutral.mat');
     mesh = mesh.mesh;
 
 %     % Load mesh
