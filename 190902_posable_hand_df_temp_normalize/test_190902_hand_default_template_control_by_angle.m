@@ -1,15 +1,8 @@
-clc;
-clear all;
-
 addpath(genpath('external'));
 addpath 'functions';
-mesh = load('mesh/neutral.mat');
-% mesh = load('hy_mesh.mat');
-mesh = mesh.mesh;
-% load('angle.mat');
-% angle(16:19,1) = 0;
-% angle(17) = -0.1;
-angle = zeros(1,19);
+
+mesh = load('tr_mesh.mat');
+mesh = mesh.transformed;
 
 transforms = cell(1, 18);
 for i = 1 : 18
@@ -22,25 +15,44 @@ for i = 1 : 4
     transforms_ad{i} = eye(4);
 end 
 
-% axes_t = axes;
-% for i = 1:18;
-% axes_t{1,i}(1:3,1:3) = axes_t{1,i}(1:3,1:3)+axes_t{1,i}(1:3,4);
-% end     
-% 
-% % variables of axis end-point & center-point 
-% axes_x_pt = zeros(18,3); axes_y_pt = zeros(18,3); axes_z_pt = zeros(18,3); axes_center_pt = zeros(18,3);
-%     for i = 1:18
-%     axes_x_pt(i,:) = axes_t{1,i}(1:3)';
-% end
-% for i = 1:18
-%     axes_y_pt(i,:) = axes_t{1,i}(5:7)';
-% end
-% for i = 1:18
-%     axes_z_pt(i,:) = axes_t{1,i}(9:11)';
-% end
-% for i = 1:18
-%     axes_center_pt(i,:) = axes_t{1,i}(13:15)';
-% end  
+%% angle apply
+angle = zeros(19,1);
+
+% Digit 1 flexion(+)/extension(-) 
+angle(1) = 0
+angle(2) = 0
+angle(3) = 0
+
+% Digit 2 flexion(+)/extension(-) 
+angle(4) = 0;
+angle(5) = 0;
+angle(6) = 0;
+
+% Digit 3 flexion(+)/extension(-) 
+angle(7) = 0
+angle(8) = 0;
+angle(9) = 0;
+
+% Digit 4 flexion(+)/extension(-) 
+angle(10) = 0;
+angle(11) = 0;
+angle(12) = 0;
+
+% Digit 5 flexion(+)/extension(-) 
+angle(13) = 0; % 
+angle(14) = 0; %
+angle(15) = 0; %
+ 
+% MCP Abduction/adduction
+ angle(16) = 0; %D2
+ angle(17) = 0; %D3
+ angle(18) = 0; %D4
+ angle(19) = 0; %D5
+
+
+% disp([angle_1 angle_2 angle_3; angle_4 angle_5 angle_6; angle_7 angle_8 angle_9; angle_10 angle_11 angle_12;...
+% angle_13 angle_14 angle_15;])
+
 %% MCP abduction/adduction motion
 transforms_ad{1} = matrix_rotation( ... % D2 MCP -ab/ad
     angle(16), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
@@ -63,7 +75,7 @@ transforms_ad{4} = matrix_rotation( ... % D5 MCP - ab/ad
     matrix_apply(transforms{2}, axes{16}(1 : 3, 4)') ... % center
 ) * transforms{2};
 
-%% 
+%% Flexion/extension of fingers 
 transforms{3} = matrix_rotation( ... % D1 CMC
     angle(1), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.
     matrix_apply(transforms{2}, axes{3}(1 : 3, 1)', 0), ... % axis1: red; axis2: green; axis3: blue
@@ -144,61 +156,20 @@ transforms{18} = matrix_rotation( ... % D5 DIP
     matrix_apply(transforms{17}, axes{18}(1 : 3, 4)') ...
 ) * transforms{17};
 
+%% Apply new hand posture by angle & render 3D model   
 
-%% skinning
 transformed = mesh;
 transformed = skin_linear(transformed, transforms);
+% transformed = skin_dualquat(transformed, transforms);
 
-%% visualization
-figure(2)
-hold on
+figure(1)
+hold on;
 axis equal
-axis off
-%scatter3(transformed.vertices(:,1), transformed.vertices(:,2), transformed.vertices(:,3), '.', 'MarkerEdgeColor',[25/255, 25/255, 25/255])
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 1);
-        lighting gouraud;
-    view([-90, 0]);
-    camlight;
-    view([90, 0]);
-    camlight;
-hold off
-
-%% registration trial
-% 
-% [targetV, targetF, targetFB, target_Header] = function_loading_ply_file('YG_hand_grip.ply');
-% targetV(:,4:6) = [];
-% sourceV = transformed.vertices;
-% sourceF = transformed.faces;
-% 
-% iterations = 10;
-% flag_prealligndata = 0;
-% [registered,targetV,targetF] = nonrigidICP(targetV,sourceV,targetF,sourceF,iterations,flag_prealligndata)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off;
