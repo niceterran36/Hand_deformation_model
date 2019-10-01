@@ -18,30 +18,63 @@ end
 %% angle apply
 angle = zeros(19,1);
 
+%% posture 1 = half grasping
+%  degree information: 1.5 = 90 deg., 0.1 = 6 deg, 1/60 = 1 deg.
+
 % Digit 1 flexion(+)/extension(-) 
-angle(1) = 0
-angle(2) = 0
-angle(3) = 0
+% angle(1) = 10/60;
+% angle(2) = -10/60;
+% angle(3) = 45/60;
+% 
+% % Digit 2 flexion(+)/extension(-) 
+% angle(4) = 30/60; 
+% angle(5) = 45/60;
+% angle(6) = 45/60;
+% 
+% % Digit 3 flexion(+)/extension(-) 
+% angle(7) = 30/60;
+% angle(8) = 45/60;
+% angle(9) = 45/60;
+% 
+% % Digit 4 flexion(+)/extension(-) 
+% angle(10) = 30/60;
+% angle(11) = 45/60;
+% angle(12) = 45/60;
+% 
+% % Digit 5 flexion(+)/extension(-) 
+% angle(13) = 30/60; % 
+% angle(14) = 45/60; %
+% angle(15) = 45/60; %
+
+%% posture 2 = neutral 
+% degree information: 1.5 = 90 deg., 0.1 = 6 deg, 1/60 = 1 deg.
+
+% Digit 1 flexion(+)/extension(-) 
+angle(1) = 0/60;
+angle(2) = 0/60;
+angle(3) = 0/60;
 
 % Digit 2 flexion(+)/extension(-) 
-angle(4) = 0;
-angle(5) = 0;
-angle(6) = 0;
+angle(4) = 0/60; 
+angle(5) = 0/60;
+angle(6) = 0/60;
 
 % Digit 3 flexion(+)/extension(-) 
-angle(7) = 0
-angle(8) = 0;
-angle(9) = 0;
+angle(7) = 0/60;
+angle(8) = 0/60;
+angle(9) = 0/60;
 
 % Digit 4 flexion(+)/extension(-) 
-angle(10) = 0;
-angle(11) = 0;
-angle(12) = 0;
+angle(10) = 0/60;
+angle(11) = 0/60;
+angle(12) = 0/60;
 
 % Digit 5 flexion(+)/extension(-) 
-angle(13) = 0; % 
-angle(14) = 0; %
-angle(15) = 0; %
+angle(13) = 0/60;
+angle(14) = 0/60;
+angle(15) = 0/60;
+
+%%
  
 % MCP Abduction/adduction
  angle(16) = 0; %D2
@@ -165,7 +198,8 @@ transformed = skin_linear(transformed, transforms);
 figure(1)
 hold on;
 axis equal
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+axis off
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
 lighting gouraud;
 view([-90, 0]);

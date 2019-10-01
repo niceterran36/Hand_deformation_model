@@ -3,8 +3,8 @@ clear all;
 
 addpath(genpath('external'));
 addpath 'functions';
-mesh = load('mesh/neutral.mat');
-% mesh = load('hy_mesh.mat');
+% mesh = load('mesh/neutral.mat');
+mesh = load('hy_mesh.mat');
 mesh = mesh.mesh;
 % load('angle.mat');
 % angle(16:19,1) = 0;
