@@ -10,7 +10,7 @@ A = vertices;
 B = centers;
 
 
-[a, b, c, d] = generate_plane_3point(p1, p2, p3) % ax+by+cz+d = 0
+%[a, b, c, d] = generate_plane_3point(p1, p2, p3) % ax+by+cz+d = 0
 
 % generate plane from D5 Dip joint near points
 % load('pointondip.mat')
