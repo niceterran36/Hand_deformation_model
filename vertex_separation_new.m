@@ -25,12 +25,12 @@ TT = find(Compare); % find indices of non-zero vertex
 
 Sorted_V = A(TT,:);
  
-% Distance calculation 
-P0 = p3; % point on the plane 
-Q = [-74.72, -16.89, 71.51]; % any point Q above the plane
-v_n = [a, b, c]; % othogornal vector of plane 
-v_b = Q - P0;  % vector between P0 and Q
-Dstc = sqrt((dot(v_n, v_b))^2)/sqrt(a^2+b^2+c^2) % distance function between Plane and Q
+% Distance calculation - 1 vertex
+% P0 = p3; % point on the plane 
+% Q = [-74.72, -16.89, 71.51]; % any point Q above the plane
+% v_n = [a, b, c]; % othogornal vector of plane 
+% v_b = Q - P0;  % vector between P0 and Q
+% Dstc = sqrt((dot(v_n, v_b))^2)/sqrt(a^2+b^2+c^2) % distance function between Plane and Q
 
 % Distance calculation between selected vertex(vi) and Plane 
 P0 = p3;
