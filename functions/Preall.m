@@ -4,9 +4,9 @@ function [Prealligned_source,Prealligned_target,transformtarget ]=Preall(target,
 
 % Initial positioning of the data is based on alligning the coordinates of the objects -which are assumed to be close/similar in shape- following principal component analysis
 
-[COEFF,Prealligned_source] = princomp(source);
+[COEFF,Prealligned_source] = pca(source);
 
-[COEFF,Prealligned_target] = princomp(target);
+[COEFF,Prealligned_target] = pca(target);
 
 % the direction of the axes is than evaluated and corrected if necesarry.
 Maxtarget=max(Prealligned_source)-min(Prealligned_source);
