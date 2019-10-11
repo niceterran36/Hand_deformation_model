@@ -66,4 +66,54 @@ scatter3(AO(:,1),AO(:,2),AO(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/2
 % scatter3(Sorted_V(1,1),Sorted_V(1,2),Sorted_V(1,3), '*', 'MarkerEdgeColor',[1, 0, 0])
 hold off
 
+%% Prepare Scan
+
+rng('default');
+rng(42);
+
+[pointsAllScan,confidenceScan,facesScan] = read_ply('S01_hand_binary.ply') % read_ply works only for binary type PLY
+pointsAllScan = m2mm(pointsAllScan); % unit update (if unit is meter, convert to millimeter 
+
+nPointsSample = min(5297,size(pointsAllScan,1));
+fprintf('nPointsSample: %d/%d\n',nPointsSample,size(pointsAllScan,1));
+pointsIdxsScan = randperm(size(pointsAllScan,1),nPointsSample);
+points = pointsAllScan(pointsIdxsScan(1:nPointsSample),:);
+
+normalsScan = getNormals(pointsAllScan,facesScan); % compute normal
+
+scan.points = points;
+scan.normals = normalsScan;
+scan.faces = facesScan;
+scan.confidence = confidenceScan;
+scan.pointsIdxs = pointsIdxsScan;
+
+
+A = points;
+B = pointsAllScan;
+
+figure(2) % point cloud 3D plotting
+hold on
+axis equal
+scatter3(A(:,1),A(:,2),A(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
+scatter3(V2(:,1),V2(:,2),V2(:,3),'.', 'MarkerEdgeColor',[255/255, 221/255, 221/255])
+hold off
+
+%% Register
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
