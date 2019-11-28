@@ -99,7 +99,7 @@ hold off
 
 
 %%  vertex seperation
-
+tic
 for vertexIdx = 1:size(V,1);
 
 F2 = F;
@@ -171,7 +171,7 @@ else
 end
 
 end
-
+toc
 %% Assign tip near points to the edge segments
 
 S_edge = [8; 11; 14; 17; 20; 21]; % S_edge(1) = thumb, ~ S_edge(5) = little, S_edge(6) = wrist
@@ -198,27 +198,28 @@ dist_v_eg(6) = norm(V_seg(i,2:4)-edge_points(6,:));
 dist_v_eg_min = min(dist_v_eg(:,1));
 [row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
 
-if dist_v_eg_min <= 20
+if dist_v_eg_min <= 50
    if row == 1
-      V_seg(i,5) = 8 
+      V_seg(i,5) = 8;
    elseif row == 2
-      V_seg(i,5) = 11
+      V_seg(i,5) = 11;
    elseif row == 3
-      V_seg(i,5) = 14 
+      V_seg(i,5) = 14; 
    elseif row == 4
-      V_seg(i,5) = 17 
+      V_seg(i,5) = 17;
    elseif row == 5
-       V_seg(i,5) = 20 
+       V_seg(i,5) = 20;
    else
-       V_seg(i,5) = 21
+       V_seg(i,5) = 21;
    end
 else   
-   V_seg(i,5) = 22  
+   V_seg(i,5) = 22;  
 end 
 
 end 
 
-%%
+%% finger tip assignment modification 
+
 S_edge = [8; 11; 14; 17; 20]; % S_edge(1) = thumb, ~ S_edge(5) = little, S_edge(6) = wrist
 edge_points = zeros(size(S_edge,1),3);
 for i = 1:size(S_edge,1);
