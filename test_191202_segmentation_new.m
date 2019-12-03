@@ -17,6 +17,8 @@ load('finger_segment.mat');
 load('bone_segment.mat')
 
 %% Visualization test
+vertexIdx = 1;
+
 A = centers_new;
 figure(1) % point cloud 3D plotting
 hold on
@@ -74,7 +76,7 @@ else
     current_finger = 0;
 end
 
-LIF = Sf(:,2) == current_finger; %angle condition1
+LIF = Sf(:,2) == current_finger;
 Sf_1 = Sf(:,1); Sf_2 = Sf(:,2);
 Sf_2 = [Sf_1(LIF) Sf_2(LIF)];
 
@@ -116,6 +118,14 @@ end
 
 Sj = Sf_2;
 
+LIX = Sj(:,5)>=0; %angle condition1
+Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
+Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
+
+LIX = Sj(:,5)<1; % angle condition2
+Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
+Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
+
 LIX = Sj(:,3)>=0; % cut with delta 
 Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
 Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
@@ -125,10 +135,10 @@ Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
 Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
 
 if size(Sj,1) == 0;
-    %v_segment(vertexIdx,1) = 22;
-    v_mindist = min(Sf_2(:,4));
-    [row,col] = find(Sf_2(:,4) == v_mindist);
-    v_segment(vertexIdx,1) = Sf_2(row,1);
+    v_segment(vertexIdx,1) = 22;
+%     v_mindist = min(Sf_2(:,4));
+%     [row,col] = find(Sf_2(:,4) == v_mindist);
+%     v_segment(vertexIdx,1) = Sf_2(row,1);
 else
     v_mindist = min(Sj(:,3));
     [row,col] = find(Sj(:,3) == v_mindist); % searching min distance
