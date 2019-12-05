@@ -17,7 +17,7 @@ load('finger_segment.mat');
 load('bone_segment.mat')
 
 %% Visualization test
-vertexIdx = 1;
+vertexIdx = 900;
 
 A = centers_new;
 figure(1) % point cloud 3D plotting
@@ -118,13 +118,13 @@ end
 
 Sj = Sf_2;
 
-LIX = Sj(:,5)>=0; %angle condition1
-Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
-Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
-
-LIX = Sj(:,5)<1; % angle condition2
-Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
-Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
+% LIX = Sj(:,5)>=0; %angle condition1
+% Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
+% Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
+% 
+% LIX = Sj(:,5)<1; % angle condition2
+% Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
+% Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
 
 LIX = Sj(:,3)>=0; % cut with delta 
 Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
@@ -135,10 +135,10 @@ Sj_1 = Sj(:,1); Sj_2 = Sj(:,2); Sj_3 = Sj(:,3); Sj_4 = Sj(:,4); Sj_5 = Sj(:,5);
 Sj = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
 
 if size(Sj,1) == 0;
-    v_segment(vertexIdx,1) = 22;
-%     v_mindist = min(Sf_2(:,4));
-%     [row,col] = find(Sf_2(:,4) == v_mindist);
-%     v_segment(vertexIdx,1) = Sf_2(row,1);
+%    v_segment(vertexIdx,1) = 22;
+     v_mindist = min(Sf_2(:,4));
+     [row,col] = find(Sf_2(:,4) == v_mindist);
+     v_segment(vertexIdx,1) = Sf_2(row,1);
 else
     v_mindist = min(Sj(:,3));
     [row,col] = find(Sj(:,3) == v_mindist); % searching min distance
@@ -148,8 +148,8 @@ end
 
 end 
 
-Assign_finger = zeros(size(V,1),1);
-Assign_finger(vertexIdx) = centers_new(row_1,4); 
+% Assign_finger = zeros(size(V,1),1);
+% Assign_finger(vertexIdx) = centers_new(row_1,4); 
 
 
 
@@ -199,6 +199,100 @@ for vertexIdx = 1:size(V,1);
     end
     
 end
+
+%% Assign tip near points to the edge segments
+
+S_edge = [8; 11; 14; 17; 20; 21]; % S_edge(1) = thumb, ~ S_edge(5) = little, S_edge(6) = wrist
+edge_points = zeros(size(S_edge,1),3);
+for i = 1:size(S_edge,1);
+edge_points(i,:) = centers_new(S(S_edge(i),2),1:3);
+end 
+
+V_idx = [1:size(V,1)]';
+V_seg = [V_idx, V, v_segment];
+LIX = v_segment == 22; % 22 segment
+Vseg_1 = V_seg(:,1); Vseg_2 = V_seg(:,2); Vseg_3 = V_seg(:,3); Vseg_4 = V_seg(:,4); Vseg_5 = V_seg(:,5);
+V_seg = [Vseg_1(LIX) Vseg_2(LIX) Vseg_3(LIX) Vseg_4(LIX) Vseg_5(LIX)];
+dist_v_eg = zeros(6,1);
+
+for i = 1:size(V_seg,1)
+
+dist_v_eg(1) = norm(V_seg(i,2:4)-edge_points(1,:));
+dist_v_eg(2) = norm(V_seg(i,2:4)-edge_points(2,:));
+dist_v_eg(3) = norm(V_seg(i,2:4)-edge_points(3,:));
+dist_v_eg(4) = norm(V_seg(i,2:4)-edge_points(4,:));
+dist_v_eg(5) = norm(V_seg(i,2:4)-edge_points(5,:));
+dist_v_eg(6) = norm(V_seg(i,2:4)-edge_points(6,:));
+dist_v_eg_min = min(dist_v_eg(:,1));
+[row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
+
+if dist_v_eg_min <= 50
+   if row == 1
+      V_seg(i,5) = 8;
+   elseif row == 2
+      V_seg(i,5) = 11;
+   elseif row == 3
+      V_seg(i,5) = 14; 
+   elseif row == 4
+      V_seg(i,5) = 17;
+   elseif row == 5
+       V_seg(i,5) = 20;
+   else
+       V_seg(i,5) = 21;
+   end
+else   
+   V_seg(i,5) = 22;  
+end 
+
+end 
+%% finger tip assignment modification 
+
+S_edge = [8; 11; 14; 17; 20]; % S_edge(1) = thumb, ~ S_edge(5) = little, S_edge(6) = wrist
+edge_points = zeros(size(S_edge,1),3);
+for i = 1:size(S_edge,1);
+edge_points(i,:) = centers_new(S(S_edge(i),2),1:3);
+end 
+
+V_idx = [1:size(V,1)]';
+V_seg = [V_idx, V, v_segment];
+dist_v_eg = zeros(5,1);
+
+tic
+for i = 1:size(V_seg,1)
+
+dist_v_eg(1) = norm(V_seg(i,2:4)-edge_points(1,:));
+dist_v_eg(2) = norm(V_seg(i,2:4)-edge_points(2,:));
+dist_v_eg(3) = norm(V_seg(i,2:4)-edge_points(3,:));
+dist_v_eg(4) = norm(V_seg(i,2:4)-edge_points(4,:));
+dist_v_eg(5) = norm(V_seg(i,2:4)-edge_points(5,:));
+dist_v_eg_min = min(dist_v_eg(:,1));
+[row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
+
+if dist_v_eg_min <= 10
+   if row == 1
+      V_seg(i,5) = 8;
+   elseif row == 2
+      V_seg(i,5) = 11;
+   elseif row == 3
+      V_seg(i,5) = 14;
+   elseif row == 4
+      V_seg(i,5) = 17;
+   elseif row == 5
+       V_seg(i,5) = 20; 
+   else
+       V_seg(i,5) = 21;
+   end
+else   
+   V_seg(i,5) = V_seg(i,5);
+end 
+
+end 
+toc
+%% v_segment update 
+
+for i = 1:size(V_seg,1)
+    v_segment(V_seg(i,1),1) = V_seg(i,5);
+end 
 
 %% Visualization
 
