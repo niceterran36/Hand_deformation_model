@@ -18,7 +18,7 @@ V2 = V;
 VLI = [];
 
 %% Visualization of hand
-vertexIdx = 42;
+vertexIdx = 2159;
 
 A = centers;
 figure() % point cloud 3D plotting
@@ -250,6 +250,7 @@ for i = 1:size(Sg22,1)
         dv = av - dot(av,bv)/norm(bv)^2 * bv; % projection vector
         dv2 = norm(dv);
         Sz(segment,2) = dv2;
+        Sz(segment,4) = delta;
         
         % min-distance (Sz(:,3))
         if delta >= 0 && delta <= 1
@@ -270,7 +271,7 @@ for i = 1:size(Sg22,1)
         v_segment(vertexIdx,1) = Sz(row3,1);
     else
         v22_mindist2 = [Sz(row3(1),2); Sz(row3(end),2)];
-        v22_mindist2 = min(v22_mindist2);
+        v22_mindist2 = max(v22_mindist2);
         [row4,col4] = find(Sz(:,2) == v22_mindist2);
         v_segment(vertexIdx,1) = Sz(row4,1);
     end
