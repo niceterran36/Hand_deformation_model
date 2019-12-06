@@ -219,11 +219,11 @@ Sj_c = Sj;
 % Sj_c = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
 
 end
-toc
+
 
 % segment 22 treatment 
 % Sg22 = [idx, x, y, z]
-tic
+
 Sg22 = []; 
 temLI = v_segment == 22;  Sg22(:,2:4) =  V2(temLI,:);
 Sg22(:,1) = V_idx(temLI);
@@ -277,7 +277,7 @@ for i = 1:size(Sg22,1)
     end
     
 end     
-
+toc
 
 %% Assign tip near points to the edge segments
 
