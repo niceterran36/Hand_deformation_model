@@ -21,9 +21,9 @@ angle(3) = -0.6;
 
 angle(4) = -0.15;
 angle(5) = -0.35;
-angle(6) = -0.1 ;
+angle(6) = -0.1;
 
-angle(7) = -0.3
+angle(7) = -0.3;
 angle(8) = -0.25;
 angle(9) = -0.15;
 
@@ -152,6 +152,7 @@ transforms{18} = matrix_rotation( ... % D5 DIP
 
 transformed = mesh;
 transformed = skin_linear(transformed, transforms);
+axes = bone_axes(transformed.spheres);
 
 figure(1)
 hold on;
@@ -164,3 +165,36 @@ camlight;
 view([90, 0]);
 camlight;
 hold off;
+
+
+%% visualization with CoR
+
+V = transformed.vertices;
+F = transformed.faces;
+centers = zeros(30,3);
+
+for i = 1:size(axes,2)
+centers(i,:) = (axes{1,i}(1:3,4))';
+end
+
+A = centers;
+figure() % point cloud 3D plotting
+hold on
+axis equal
+plot3(A(:,1),A(:,2),A(:,3),'b*') % CoR plotting
+% Link between CoRs
+plot3(A(1:2,1), A(1:2,2), A(1:2,3),'k-')
+plot3(A(2:5,1), A(2:5,2), A(2:5,3),'b-')
+plot3(A(6:8,1), A(6:8,2), A(6:8,3),'k-')
+plot3(A(9:11,1), A(9:11,2), A(9:11,3),'k-')
+plot3(A(12:14,1), A(12:14,2), A(12:14,3),'k-')
+plot3(A(16:18,1), A(16:18,2), A(16:18,3),'k-')
+plot3(A([2 6],1),A([2 6],2),A([2 6],3),'b-')
+plot3(A([2 9],1),A([2 9],2),A([2 9],3),'b-')
+plot3(A([2 12],1),A([2 12],2),A([2 12],3),'b-')
+plot3(A([2 16],1),A([2 16],2),A([2 16],3),'b-')
+
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
+hold off
+
+
