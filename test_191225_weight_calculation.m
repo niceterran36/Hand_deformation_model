@@ -52,7 +52,7 @@ hold off
 
 %% vertex id finder % drawer
 
-pick = [4.0035 -14.7856 42.0156]
+pick = [7.2863 -13.8959 40.9572]
 
 t = zeros(size(V,1),2); 
 for i = 1:size(V,1)
@@ -66,41 +66,108 @@ fprintf('VertexIdx = %.0f, Current segment = %.0f\n',vertexIdx, main_segment)
 
 if main_segment == 1
     SgV = Sg1;
-    jna = centers(22,:); 
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
 elseif main_segment == 2
     SgV = Sg2;
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
 elseif main_segment == 3
     SgV = Sg3;
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
 elseif main_segment == 4
     SgV = Sg4;
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
 elseif main_segment == 5
     SgV = Sg5;
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
 elseif main_segment == 6
     SgV = Sg6;
+    jna = centers(20,:);
+    jnb = centers(19,:);
+    jna_p = centers(22,:);
 elseif main_segment == 7
     SgV = Sg7;
-elseif main_segment == 8
+    jna = centers(19,:);
+    jnb = centers(18,:);
+    jna_p = centers(20,:);
+elseif main_segment == 8 % thumb tip
     SgV = Sg8;
+    jna = centers(18,:);
+    jnb = centers(17,:);
+    jna_p = centers(19,:);
 elseif main_segment == 9
     SgV = Sg9;
+    jna = centers(16,:);
+    jnb = centers(15,:);
+    jna_p = centers(22,:);
 elseif main_segment == 10
     SgV = Sg10;
+    jna = centers(15,:);
+    jnb = centers(14,:);
+    jna_p = centers(16,:);
 elseif main_segment == 11
     SgV = Sg11;
+    jna = centers(14,:);
+    jnb = centers(13,:);
+    jna_p = centers(25,:);
 elseif main_segment == 12
     SgV = Sg12;
+    jna = centers(12,:);
+    jnb = centers(11,:);
+    jna_p = centers(22,:);
 elseif main_segment == 13
     SgV = Sg13;
+    jna = centers(11,:);
+    jnb = centers(10,:);
+    jna_p = centers(12,:);
 elseif main_segment == 14
     SgV = Sg14;
+    jna = centers(10,:);
+    jnb = centers(9,:);
+    jna_p = centers(11,:);
 elseif main_segment == 15
-    SgV = Sg15;   
+    SgV = Sg15;
+    jna = centers(8,:);
+    jnb = centers(7,:);
+    jna_p = centers(22,:);
 elseif main_segment == 16
     SgV = Sg16;
+    jna = centers(7,:);
+    jnb = centers(6,:);
+    jna_p = centers(8,:);
 elseif main_segment == 17
     SgV = Sg17;
+    jna = centers(6,:);
+    jnb = centers(5,:);
+    jna_p = centers(7,:);
 elseif main_segment == 18
     SgV = Sg18;
+    jna = centers(4,:);
+    jnb = centers(3,:);
+    jna_p = centers(22,:);
+elseif main_segment == 19
+    SgV = Sg19;
+    jna = centers(3,:);
+    jnb = centers(2,:);
+    jna_p = centers(4,:);
+elseif main_segment == 20
+    SgV = Sg20;
+    jna = centers(2,:);
+    jnb = centers(1,:);
+    jna_p = centers(3,:);
+elseif main_segment == 21
+    SgV = Sg21;
+    jna = centers(27,:);
+    jnb = centers(22,:);
 else
     SgV = [];
 end
