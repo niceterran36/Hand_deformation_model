@@ -5,8 +5,9 @@ addpath 'functions';
 
 %% load data
 mesh = load('tr_mesh.mat');
-V = transformed.vertices;
-F = transformed.faces;
+V = mesh.transformed.vertices;
+F = mesh.transformed.faces;
+axes = bone_axes(mesh.transformed.spheres);
 
 % CoR Information
 centers = zeros(30,3);
@@ -43,7 +44,7 @@ hold off
 %% Segment visualization
 V2 = V;
 VLI = [];
-v_segment = transformed.assignments;
+v_segment = mesh.transformed.assignments;
 for segment=1:18
 temLI = v_segment == segment;
 VLI = [VLI temLI];
@@ -95,7 +96,8 @@ hold off
 
 %% vertex id finder % drawer
 
-pick = [-5.0153 0.92919 0.38081]
+% pick = [-5.3197 2.7587 2.5665] % w = 1
+pick = [-4.4061 0.6770 2.0835]
 
 t = zeros(size(V,1),2); 
 for i = 1:size(V,1)
@@ -104,12 +106,12 @@ for i = 1:size(V,1)
 end 
 mindist_pt = min(t(:,2));
 [vertexIdx ,col] = find(t(:,2) == mindist_pt);
-main_segment = transformed.assignments(vertexIdx);
+main_segment = mesh.transformed.assignments(vertexIdx);
 fprintf('VertexIdx = %.0f, Current segment = %.0f\n',vertexIdx, main_segment)
 
 % row and column information of target, wc_t = weight column for target
 wc_t = zeros(18,2); wc_t(:,1) = [1:18]';
-wc_t(:,2) = transformed.weights(vertexIdx,:)';
+wc_t(:,2) = mesh.transformed.weights(vertexIdx,:)';
 LIX = wc_t(:,2) > 0;
 wc_t = wc_t(LIX,:);
 
