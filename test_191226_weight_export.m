@@ -5,22 +5,23 @@ addpath 'functions';
 
 %% load data
 mesh = load('tr_mesh.mat');
+load('sg_mesh.mat');
+S = sg_mesh.bonestructure;
 V = mesh.transformed.vertices;
 F = mesh.transformed.faces;
 axes = bone_axes(mesh.transformed.spheres);
 
-% CoR Information
+% CoR Information - existing template' axes format (18 x 1, COR only)
 centers = zeros(30,3);
 for i = 1:size(axes,2)
 centers(i,:) = (axes{1,i}(1:3,4))';
 end
 
-% Wrist = centers(2,:)
-% Digit1 CMC, IP, DIP = centers(3,4,5,:)
-% Digit2 MCP, PIP, DIP = centers(6,7,8,:)
-% Digit3 MCP, PIP, DIP = centers(9,10,11,:)
-% Digit4 MCP, PIP, DIP = centers(12,13,14,:)
-% Digit5 MCP, PIP, DIP = centers(16,17,18,:)
+% CoR Information - New template CoR format (30 x 1, all centers)
+for i=1:30
+    T(i,:) = mesh.transformed.spheres{1,i}.center;
+end
+
 
 A = centers;
 figure() % point cloud 3D plotting
@@ -97,7 +98,7 @@ hold off
 %% vertex id finder % drawer
 
 % pick = [-5.3197 2.7587 2.5665] % w = 1
-pick = [0.436113000000000,0.368269000000000,-3.627700000000000]
+pick = [-4.4061 0.6770 2.0835]
 
 t = zeros(size(V,1),2); 
 for i = 1:size(V,1)
@@ -181,40 +182,162 @@ plot3(A([2 6],1),A([2 6],2),A([2 6],3),'b-')
 plot3(A([2 9],1),A([2 9],2),A([2 9],3),'b-')
 plot3(A([2 12],1),A([2 12],2),A([2 12],3),'b-')
 plot3(A([2 16],1),A([2 16],2),A([2 16],3),'b-')
-scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
+%scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
 scatter3(V(vertexIdx,1),V(vertexIdx,2),V(vertexIdx,3), 'o', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
 scatter3(A(wc_t(:,1),1),A(wc_t(:,1),2),A(wc_t(:,1),3), 'o', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
 scatter3(SgV(:,1),SgV(:,2),SgV(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
 hold off
 
-
-
-
 %%
 
-for i = 1:3045
-    if FaceColor_mx(i,1) == 14
-       FaceColor_mx(i,2:4) = [242 62 27];
-    else
-       FaceColor_mx(i,2:4) = [0 0 0];
+%v_Sg6 = [-7.1254 0.9868	2.0109];
+% v_Sg6 = [];
+
+vertexIdx_list = zeros(size(v_Sg6,1),1);
+weight_list = zeros(size(v_Sg6,1)+1,18); weight_list(1,:) = [1:18];
+delta_list = zeros(size(v_Sg6,1),1);
+
+
+for ii = 1:size(v_Sg6,1)
+pick = v_Sg6(ii,:);
+
+t = zeros(size(V,1),2); 
+    for i = 1:size(V,1)
+        t(i,1) = i;
+        t(i,2) = norm(V(i,1:3)-pick);
     end 
+mindist_pt = min(t(:,2));
+[vertexIdx ,col] = find(t(:,2) == mindist_pt);
+main_segment = mesh.transformed.assignments(vertexIdx);
+fprintf('VertexIdx = %.0f, Current segment = %.0f\n',vertexIdx, main_segment)
+vertexIdx_list(ii,:) = vertexIdx;
+
+% finding jna, jnb using existing template's CoR coordination
+
+centers = T;
+
+if main_segment == 1
+    SgV = Sg1;
+    jna = centers(22,:);
+    jnb = centers(20,:);
+    jna_p = centers(27,:);
+    wc_t = [22; 27];
+elseif main_segment == 2
+    SgV = Sg2;
+    jna = centers(22,:);
+    jnb = centers(12,:);
+    jna_p = centers(27,:);
+    wc_t = [22; 27];
+elseif main_segment == 3
+    SgV = Sg3;
+    jna = centers(20,:);
+    jnb = centers(19,:);
+    jna_p = centers(22,:);
+    wc_t = [20; 22];
+elseif main_segment == 4
+    SgV = Sg4;
+    jna = centers(19,:);
+    jnb = centers(18,:);
+    jna_p = centers(20,:);
+    wc_t = [19; 20];
+elseif main_segment == 5
+    SgV = Sg5;
+    jna = centers(18,:);
+    jnb = centers(17,:);
+    jna_p = centers(19,:);
+    wc_t = [18; 19];
+elseif main_segment == 6
+    SgV = Sg9;
+    jna = centers(16,:);
+    jnb = centers(15,:);
+    jna_p = centers(22,:);
+    wc_t = [16; 22];
+elseif main_segment == 7
+    SgV = Sg10;
+    jna = centers(15,:);
+    jnb = centers(14,:);
+    jna_p = centers(16,:);
+    wc_t = [15; 16];
+elseif main_segment == 8
+    SgV = Sg11;
+    jna = centers(14,:);
+    jnb = centers(13,:);
+    jna_p = centers(25,:);
+    wc_t = [14; 25];
+elseif main_segment == 9
+    SgV = Sg12;
+    jna = centers(12,:);
+    jnb = centers(11,:);
+    jna_p = centers(22,:);
+    wc_t = [12; 22];
+elseif main_segment == 10
+    SgV = Sg13;
+    jna = centers(11,:);
+    jnb = centers(10,:);
+    jna_p = centers(12,:);
+    wc_t = [11; 12];
+elseif main_segment == 11
+    SgV = Sg14;
+    jna = centers(10,:);
+    jnb = centers(9,:);
+    jna_p = centers(11,:);
+    wc_t = [10; 11];
+elseif main_segment == 12
+    SgV = Sg15;
+    jna = centers(8,:);
+    jnb = centers(7,:);
+    jna_p = centers(22,:);
+    wc_t = [8; 22];
+elseif main_segment == 13
+    SgV = Sg16;
+    jna = centers(7,:);
+    jnb = centers(6,:);
+    jna_p = centers(8,:);
+    wc_t = [7; 8];
+elseif main_segment == 14
+    SgV = Sg17;
+    jna = centers(6,:);
+    jnb = centers(5,:);
+    jna_p = centers(7,:);
+    wc_t = [6; 7];
+elseif main_segment == 15
+    SgV = Sg21;
+    jna = centers(22,:);
+    jnb = centers(4,:);
+    wc_t = [22];
+elseif main_segment == 16
+    SgV = Sg18;
+    jna = centers(4,:);
+    jnb = centers(3,:);
+    jna_p = centers(22,:);
+    wc_t = [4; 22];
+elseif main_segment == 17
+    SgV = Sg19;
+    jna = centers(3,:);
+    jnb = centers(2,:);
+    jna_p = centers(4,:);
+    wc_t = [3; 4];
+elseif main_segment == 18
+    SgV = Sg20;
+    jna = centers(2,:);
+    jnb = centers(1,:);
+    jna_p = centers(3,:);
+    wc_t = [2; 3];
+else
+    SgV = [];
+end
+
+fprintf('jna = %.2f, jnb = %.2f, jna_p = %.2f\n',jna, jnb, jna_p)
+
+vt = V(vertexIdx,:);
+vt_jna = vt - jna;
+jnb_jna = jnb - jna;
+delta1 = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
+
+weight_list(ii+1,:) = mesh.transformed.weights(vertexIdx,:);
+delta_list(ii,:) = delta1;
 end 
 
-FaceColor_mx_n = FaceColor_mx(:,2:4);
-
-
-h1 = trisurf(F, V(:,1), V(:,2), V(:,3));
-    set(h1, 'FaceColor',[1 0.88 0.77]) %face color matrix 생성하여 개별값 삽입 가능
-    set(h1, 'EdgeColor', 'none');
-    set(h1, 'facealpha', 1);
-    
-    view(2);
-    axis equal;
-    light('Position', [3 5 7], 'Style', 'infinite');
-    lighting gouraud;
-    material dull;
-    
-    hold on;
 
 
 

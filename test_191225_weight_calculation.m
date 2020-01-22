@@ -73,25 +73,25 @@ if main_segment == 1
 elseif main_segment == 2
     SgV = Sg2;
     jna = centers(22,:);
-    jnb = centers(20,:);
+    jnb = centers(16,:);
     jna_p = centers(27,:);
     wc_t = [22; 27];
 elseif main_segment == 3
     SgV = Sg3;
     jna = centers(22,:);
-    jnb = centers(20,:);
+    jnb = centers(12,:);
     jna_p = centers(27,:);
     wc_t = [22; 27];
 elseif main_segment == 4
     SgV = Sg4;
     jna = centers(22,:);
-    jnb = centers(20,:);
+    jnb = centers(8,:);
     jna_p = centers(27,:);
     wc_t = [22; 27];
 elseif main_segment == 5
     SgV = Sg5;
     jna = centers(22,:);
-    jnb = centers(20,:);
+    jnb = centers(4,:);
     jna_p = centers(27,:);
     wc_t = [22; 27];
 elseif main_segment == 6
@@ -233,6 +233,7 @@ hold off
 %%
 % function, initial parameter setting
 a = 1.3; c = 0.25;
+x = delta;
 fx = a*exp(-((x-0.5)^2)/(2*c^2));
 
 W = zeros(size(V,1),21);

@@ -197,4 +197,14 @@ plot3(A([2 16],1),A([2 16],2),A([2 16],3),'b-')
 scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
 hold off
 
+% transformed CoR
+for i=1:30
+    T(i,:) = transformed.spheres{1,i}.center;
+end
 
+figure() % point cloud 3D plotting
+hold on
+axis equal
+plot3(T(:,1),T(:,2),T(:,3),'b*') % CoR plotting
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
+hold off
