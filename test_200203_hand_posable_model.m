@@ -37,7 +37,7 @@ for i = 1:8
 end
 
 %% Axes defining
-axes = bone_axes(mesh.spheres);
+axes = bone_axes_new(centers);
 
 
 
