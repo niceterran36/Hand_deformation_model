@@ -2,7 +2,10 @@ clc; clear all;
 addpath functions;
 addpath(genpath('external'));
 load('sg_mesh.mat');
-centers = sg_mesh.centers; v_segment = sg_mesh.assignment; V = sg_mesh.vertices; F = sg_mesh.faces;
+load('weights_1.mat');
+load('weights_2.mat');
+centers = sg_mesh.centers; v_segment = sg_mesh.assignment; 
+V = sg_mesh.vertices; F = sg_mesh.faces;
 S = sg_mesh.bonestructure;
 
 %% visualization
@@ -28,13 +31,48 @@ hold off
 
 %%
 
-transforms = cell(1, 18);
-for i = 1 : 18
+transforms = cell(1, 4);
+for i = 1:8
     transforms{i} = eye(4);
 end
+
+%% Axes defining
 axes = bone_axes(mesh.spheres);
 
-transforms_ad = cell(1,4);
-for i = 1 : 4
-    transforms_ad{i} = eye(4);
-end 
+
+
+
+
+
+%%
+
+axes_t = axes;
+for i = 1:8
+    axes_t{1,i}(1:3,1:3) = axes_t{1,i}(1:3,1:3)+axes_t{1,i}(1:3,4);
+end     
+
+% variables of axis end-point & center-point 
+axes_x_pt = zeros(8,3); 
+axes_y_pt = zeros(8,3); 
+axes_z_pt = zeros(8,3); 
+axes_center_pt = zeros(8,3);
+
+for i = 1:8
+    axes_x_pt(i,:) = axes_t{1,i}(1:3)';
+end
+
+for i = 1:8
+    axes_y_pt(i,:) = axes_t{1,i}(5:7)';
+end
+
+for i = 1:8
+    axes_z_pt(i,:) = axes_t{1,i}(9:11)';
+end
+
+for i = 1:8
+    axes_center_pt(i,:) = axes_t{1,i}(13:15)';
+end  
+
+
+
+
