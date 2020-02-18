@@ -15,6 +15,7 @@ V_idx = [1:size(V,1)]'; V2 = V; VLI = []; C = COR_new; A = V; % initial setting
 % set right arm link structure
 S_RA = zeros(3,2); S_RA = [18 19; 19 20; 20 21];
 S_LA = zeros(3,2); S_LA = [14 15; 15 16; 16 17];
+S_TL = zeros(11,2); S_TL = [1 2; 1 6; 1 10; 10 12; 12 13; 2 3; 3 4; 4 5; 6 7; 7 8; 8 9];
 
 
 %% Initial visualization
@@ -511,13 +512,18 @@ clear cosTH cv delta dv dv2 av bv
 
 %% segmentation - torso & legs
 
-% TO DO: separation torso, legs vertex from V all (V - right arm - left arm)
+% separation torso and leg vertices from the left & right arm
+temLI = v_segment == 0;
+v_torso_leg(:,2:4) =  V(temLI,:); 
+v_torso_leg(:,1) = V_idx(temLI);
 
-for vertexIdx = 1:size(V,1)
+
+for xx = 1:size(v_torso_leg,1) 
+  vertexIdx = v_torso_leg(xx,1);
 
 F2 = F;
 LI = F2 == vertexIdx;
-[row2, col2] = find(LI);
+[row2, ~] = find(LI);
 F2 = F2(row2,:);
 
     for i = 1:size(F2,1)*3
@@ -536,12 +542,12 @@ F2 = F2(row2,:);
     normals_F = normals_F/norm(normals_F);
     vni = normals_F; % weighted normal vector of vi
 
-    Sj = zeros(20,5); Sj(1:20,1) = [1:20]';
+    Sj = zeros(11,5); Sj(1:11,1) = [1:11]';
 
-    for segment=1:20
+    for segment=1:11
 
         vt = V(vertexIdx,:);
-        jna = C(S(segment,1),:); jnb = C(S(segment,2),:); 
+        jna = C(S_TL(segment,1),:); jnb = C(S_TL(segment,2),:);
         vt_jna = vt - jna;
         jnb_jna = jnb - jna;
         delta = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
@@ -589,43 +595,39 @@ Sj_c = Sj;
                     Sj_c = Sj_c(LIX,:);
                                         
                     if size(Sj_c,1) ~= 0
-                        LIX = Sj_c(:,5)<17; % cut with distance
+                        LIX = Sj_c(:,5)<100; % cut with distance
                         Sj_c = Sj_c(LIX,:);
                         
                         if size(Sj_c,1) == 0
-                            v_segment(vertexIdx,1) = 21;
+                            v_segment(vertexIdx,1) = 18;
                         else
                             v_mindist = min(Sj_c(:,3));
-                            [row,col] = find(Sj_c(:,3) == v_mindist); % searching min distance
+                            [row,~] = find(Sj_c(:,3) == v_mindist); % searching min distance
                             v_delta = Sj_c(row,2); % final delta of vi
                             v_segment(vertexIdx,1) = Sj_c(row,1); % final segment of vi
                         end
                         
                     else
-                        v_segment(vertexIdx,1) = 21;
+                        v_segment(vertexIdx,1) = 18;
                     end
                     
                 else
-                    v_segment(vertexIdx,1) = 21;
+                    v_segment(vertexIdx,1) = 18;
                 end
                 
             else
-                v_segment(vertexIdx,1) = 21;
+                v_segment(vertexIdx,1) = 18;
             end
             
         else
-            v_segment(vertexIdx,1) = 21;
+            v_segment(vertexIdx,1) = 18;
         end
 
     else
-        v_segment(vertexIdx,1) = 21;
+        v_segment(vertexIdx,1) = 18;
     end  
     
  v_mindist_s = min(Sj(:,5)); % cut with distance
-% [row,col] = find(Sj(:,5) == v_mindist_s);
-% LIX = Sj_c(:,5) == v_mindist_s;
-% Sj_1 = Sj_c(:,1); Sj_2 = Sj_c(:,2); Sj_3 = Sj_c(:,3); Sj_4 = Sj_c(:,4); Sj_5 = Sj_c(:,5);
-% Sj_c = [Sj_1(LIX) Sj_2(LIX) Sj_3(LIX) Sj_4(LIX) Sj_5(LIX)];
 
 end
 
@@ -633,23 +635,23 @@ end
 % segment 21 treatment 
 % Sg21 = [idx, x, y, z]
 
-Sg21 = []; 
-temLI = v_segment == 21;  Sg21(:,2:4) =  V2(temLI,:);
-Sg21(:,1) = V_idx(temLI);
+Sg18 = []; 
+clear temLI
+temLI = v_segment == 18;  Sg18(:,2:4) =  V2(temLI,:);
+Sg18(:,1) = V_idx(temLI);
 
 
-for i = 1:size(Sg21,1)
+for i = 1:size(Sg18,1)
 
-    vertexIdx = Sg21(i);
-%     vertexIdx = 17
+    vertexIdx = Sg18(i);
 
-        Sz = zeros(20,3); Sz(1:20,1) = [1:20]';
+        Sz = zeros(11,3); Sz(1:11,1) = [1:11]';
 
-    for segment=1:20
+    for segment=1:11
 
         % projection-distance (Sz(:,2))
         vt = V(vertexIdx,:);
-        jna = C(S(segment,1),:); jnb = C(S(segment,2),:); 
+        jna = C(S_TL(segment,1),:); jnb = C(S_TL(segment,2),:); 
         vt_jna = vt - jna;
         jnb_jna = jnb - jna;
         delta = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
@@ -674,33 +676,38 @@ for i = 1:size(Sg21,1)
     end
     
     v22_mindist1 = min(Sz(:,3));
-    [row3,col3] = find(Sz(:,3) == v22_mindist1);
+    [row3,~] = find(Sz(:,3) == v22_mindist1);
         
     if size(row3,1) == 1
         v_segment(vertexIdx,1) = Sz(row3,1);
     else
         v22_mindist2 = [Sz(row3(1),2); Sz(row3(end),2)];
         v22_mindist2 = max(v22_mindist2);
-        [row4,col4] = find(Sz(:,2) == v22_mindist2);
+        [row4,~] = find(Sz(:,2) == v22_mindist2);
         v_segment(vertexIdx,1) = Sz(row4,1);
     end
     
 end     
 
+clear Sg18 Sj Sj_c Sz temLI v22_mindist1 v22_mindist2 v_delta v_mindist v_mindist_s vni vt vt_jna
+clear jna jnb jnb_jna LI LIX min_d normals normals_F nv row row2 row3 row4 v VLI
+clear cosTH cv delta dv dv2 av bv
 
 %% Assign edge near points to the edge segments
 
-S_edge = [6; 11; 14; 17; 20]; % S_edge(1) = head, S_edge(2) = left foot, S_edge(3) = right foot, S_edge(4) = left hand, S_edge(5) = right hand
+S_edge = [5; 8; 11; 14; 17]; % S_edge(1) = head, S_edge(2) = left foot, S_edge(3) = right foot, S_edge(4) = left hand, S_edge(5) = right hand
 edge_points = zeros(size(S_edge,1),3);
 for i = 1:size(S_edge,1)
-edge_points(i,:) = C(S(S_edge(i),2),:);
+edge_points(i,:) = C(S_edge(i),:);
 end 
 
 V_idx = [1:size(V,1)]';
 V_seg = [V_idx, V, v_segment];
-LIX = v_segment == 21; % 21 segment
-Vseg_1 = V_seg(:,1); Vseg_2 = V_seg(:,2); Vseg_3 = V_seg(:,3); Vseg_4 = V_seg(:,4); Vseg_5 = V_seg(:,5);
-V_seg = [Vseg_1(LIX) Vseg_2(LIX) Vseg_3(LIX) Vseg_4(LIX) Vseg_5(LIX)];
+LIX = v_segment == 18; % 18 segment
+
+V_seg = V_seg(LIX,:);
+% Vseg_1 = V_seg(:,1); Vseg_2 = V_seg(:,2); Vseg_3 = V_seg(:,3); Vseg_4 = V_seg(:,4); Vseg_5 = V_seg(:,5);
+% V_seg = [Vseg_1(LIX) Vseg_2(LIX) Vseg_3(LIX) Vseg_4(LIX) Vseg_5(LIX)];
 dist_v_eg = zeros(6,1);
 
 for i = 1:size(V_seg,1)
@@ -713,23 +720,25 @@ dist_v_eg(5) = norm(V_seg(i,2:4)-edge_points(5,:));
 dist_v_eg_min = min(dist_v_eg(:,1));
 [row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
 
-if dist_v_eg_min <= 75
+if dist_v_eg_min <= 100
    if row == 1
-      V_seg(i,5) = 6;
+      V_seg(i,5) = 5;
    elseif row == 2
-      V_seg(i,5) = 11;
+      V_seg(i,5) = 8;
    elseif row == 3
-      V_seg(i,5) = 14; 
+      V_seg(i,5) = 11; 
    elseif row == 4
-      V_seg(i,5) = 17;
+      V_seg(i,5) = 14;
    else
-       V_seg(i,5) = 21;
+       V_seg(i,5) = 17;
    end
 else   
-   V_seg(i,5) = 20;  
+   V_seg(i,5) = 18;  
 end 
 
 end 
+
+clear dist_v_eg 
 
 %% V_segment update
  
@@ -771,13 +780,13 @@ hold on
 axis equal
 scatter3(Sg1(:,1),Sg1(:,2),Sg1(:,3),'.', 'MarkerEdgeColor',[16/255, 241/255, 255/255])
 scatter3(Sg2(:,1),Sg2(:,2),Sg2(:,3),'.', 'MarkerEdgeColor',[213/255, 42/255, 219/255])
-scatter3(Sg3(:,1),Sg3(:,2),Sg3(:,3),'.', 'MarkerEdgeColor',[233/255, 30/255, 68/255])
-scatter3(Sg4(:,1),Sg4(:,2),Sg4(:,3),'.', 'MarkerEdgeColor',[179/255, 59/255, 235/255])
-scatter3(Sg5(:,1),Sg5(:,2),Sg5(:,3),'.', 'MarkerEdgeColor',[69/255, 204/255, 104/255])
-scatter3(Sg6(:,1),Sg6(:,2),Sg6(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])
+scatter3(Sg3(:,1),Sg3(:,2),Sg3(:,3),'.', 'MarkerEdgeColor',[69/255, 204/255, 104/255])     % lower torso
+scatter3(Sg4(:,1),Sg4(:,2),Sg4(:,3),'.', 'MarkerEdgeColor',[233/255, 30/255, 68/255])      % upper torso
+scatter3(Sg5(:,1),Sg5(:,2),Sg5(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 255/255])
+scatter3(Sg6(:,1),Sg6(:,2),Sg6(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])      % left thigh
 scatter3(Sg7(:,1),Sg7(:,2),Sg7(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
 scatter3(Sg8(:,1),Sg8(:,2),Sg8(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg9(:,1),Sg9(:,2),Sg9(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 255/255])
+scatter3(Sg9(:,1),Sg9(:,2),Sg9(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])      % right thigh
 scatter3(Sg10(:,1),Sg10(:,2),Sg10(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
 scatter3(Sg11(:,1),Sg11(:,2),Sg11(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
 scatter3(Sg12(:,1),Sg12(:,2),Sg12(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])   % upper arm
@@ -788,6 +797,14 @@ scatter3(Sg16(:,1),Sg16(:,2),Sg16(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255,
 scatter3(Sg17(:,1),Sg17(:,2),Sg17(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])      % right hand
 scatter3(Sg18(:,1),Sg18(:,2),Sg18(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 hold off
+
+% [191/255, 247/255, 255/255] Skyblue ÇÏ´Ã»ö
+% [16/255, 241/255, 255/255] Cyan
+% [69/255, 204/255, 104/255] Green
+% [233/255, 30/255, 68/255] Red
+% [179/255, 59/255, 235/255] Purple
+% [213/255, 42/255, 219/255] Magenta
+
 %%
 figure()
 hold on
