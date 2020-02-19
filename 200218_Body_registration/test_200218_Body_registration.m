@@ -2,6 +2,7 @@ clc
 clear all
 addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath(genpath('external'));
+%addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
 
 load('Body_temp.mat');
 V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
@@ -22,7 +23,6 @@ plot3(C(18:21,1),C(18:21,2),C(18:21,3), 'k-');
 plot3(C([14 11 18],1),C([14 11 18],2),C([14 11 18],3), 'k-');
 hold off
 
-
 %% Transform matrix setting
 
 transforms = cell(1, 21);
@@ -32,27 +32,30 @@ end
 axes = bone_axes_body(COR);
 
 %%
-
+angle = zeros(4,1);
 % 1 rad = 57.3 deg.
-angle0 = 0;
-angle1 = 1;
-angle2 = 0;
-angle3 = 0;
+angle(1) = 0;
+angle(2) = 1;
+angle(3) = 0;
+angle(4) = 0;
 
-transforms{11} = matrix_rotation(angle0, axes{11}(1 : 3, 3)',C(11,:));
-
+transforms{11} = matrix_rotation(...
+    angle(1), ... % rotation angle  
+    matrix_apply(transforms{10}, axes{11}(1 : 3, 1)'), ... % axis1: XX; axis2: XX; axis3: XXe
+    matrix_apply(transforms{10}, axes{11}(1 : 3, 4)') ... % center
+) * transforms{10};
 transforms{14} = matrix_rotation( ... % left shoulder
-    angle1, ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
-    matrix_apply(transforms{11}, axes{14}(1 : 3, 1)'), ... % axis1: red; axis2: green; axis3: blue
+    angle(2), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+    matrix_apply(transforms{11}, axes{14}(1 : 3, 1)'), ... % axis1: flex/ext; axis2: green; axis3: blue
     matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
 ) * transforms{11};
 transforms{15} = matrix_rotation( ... % left elbow
-    angle2, ...
+    angle(3), ...
     matrix_apply(transforms{14}, axes{15}(1 : 3, 2)'), ... % axis1: red; axis2: green; axis3: blue
     matrix_apply(transforms{14}, axes{15}(1 : 3, 4)') ...
 ) * transforms{14};
 transforms{16} = matrix_rotation( ... % left wrist
-    angle3, ...
+    angle(4), ...
     matrix_apply(transforms{15}, axes{16}(1 : 3, 2)'), ... % axis1: red; axis2: green; axis3: blue
     matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
 ) * transforms{15};
@@ -65,6 +68,39 @@ transformed = Body_temp;
 transformed = skin_linear_body(transformed, transforms);
 axes = bone_axes_body(transformed.COR);
 
+%% Plotting joint 14 influence weights
+
+weight14 = weights(:,14);
+LI = weight14 ~= 0;
+LII = weight14 == 0;
+V14 = V(LI,:);
+V14_n = V(LII,:);
+
+figure()
+hold on
+axis equal
+scatter3(V14(:,1),V14(:,2),V14(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
+scatter3(V14_n(:,1),V14_n(:,2),V14_n(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+hold off
+
+
+
+%% after transformation
+
+C = transformed.COR;
+V = transformed.V;
+figure()
+hold on
+axis equal
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+plot3(C(:,1),C(:,2),C(:,3),'b*')
+plot3(C([1 10 11 12 13],1),C([1 10 11 12 13],2),C([1 10 11 12 13],3), 'k-');
+plot3(C(1:5,1),C(1:5,2),C(1:5,3), 'k-');
+plot3(C([1 6:9],1),C([1 6:9],2),C([1 6:9],3), 'k-');
+plot3(C(14:17,1),C(14:17,2),C(14:17,3), 'k-');
+plot3(C(18:21,1),C(18:21,2),C(18:21,3), 'k-');
+plot3(C([14 11 18],1),C([14 11 18],2),C([14 11 18],3), 'k-');
+hold off
 
 %% angle apply
 angle = zeros(19,1);
