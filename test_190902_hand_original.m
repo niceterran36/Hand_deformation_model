@@ -1,3 +1,9 @@
+clc;
+clear all;
+
+addpath(genpath('external'));
+addpath 'functions';
+
 mesh = load('mesh/neutral.mat');
 mesh = mesh.mesh;
 
