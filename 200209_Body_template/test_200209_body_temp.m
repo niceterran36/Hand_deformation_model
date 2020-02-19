@@ -22,7 +22,7 @@ S_TL = zeros(11,2); S_TL = [1 2; 1 6; 1 10; 10 12; 12 13; 2 3; 3 4; 4 5; 6 7; 7 
 figure()
 hold on
 axis equal
-scatter3(A(:,1),A(:,2),A(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
 plot3(C(:,1),C(:,2),C(:,3),'b*')
 plot3(C([1 10 11 12 13],1),C([1 10 11 12 13],2),C([1 10 11 12 13],3), 'k-');
 plot3(C(1:5,1),C(1:5,2),C(1:5,3), 'k-');
@@ -30,7 +30,6 @@ plot3(C([1 6:9],1),C([1 6:9],2),C([1 6:9],3), 'k-');
 plot3(C(14:17,1),C(14:17,2),C(14:17,3), 'k-');
 plot3(C(18:21,1),C(18:21,2),C(18:21,3), 'k-');
 plot3(C([14 11 18],1),C([14 11 18],2),C([14 11 18],3), 'k-');
-scatter3(V(1,1),V(1,2),V(1,3),'x','MarkerEdgeColor',[255/255, 0/255, 0/255])
 hold off
 
 
@@ -336,7 +335,7 @@ for xx = 1:size(v_leftarm,1)
 
 F2 = F;
 LI = F2 == vertexIdx;
-[row2, col2] = find(LI);
+[row2, ~] = find(LI);
 F2 = F2(row2,:);
 
     for i = 1:size(F2,1)*3
@@ -415,7 +414,7 @@ Sj_c = Sj;
                             v_segment_leftarm(vertexIdx,1) = 4;
                         else
                             v_mindist = min(Sj_c(:,3));
-                            [row,col] = find(Sj_c(:,3) == v_mindist); % searching min distance
+                            [row,~] = find(Sj_c(:,3) == v_mindist); % searching min distance
                             v_delta = Sj_c(row,2); % final delta of vi
                             v_segment_leftarm(vertexIdx,1) = Sj_c(row,1); % final segment of vi
                         end
@@ -482,14 +481,14 @@ for i = 1:size(Sg4,1)
     end
     
     v22_mindist1 = min(Sz(:,3));
-    [row3,col3] = find(Sz(:,3) == v22_mindist1);
+    [row3,~] = find(Sz(:,3) == v22_mindist1);
         
     if size(row3,1) == 1
         v_segment_leftarm(vertexIdx,1) = Sz(row3,1);
     else
         v22_mindist2 = [Sz(row3(1),2); Sz(row3(end),2)];
         v22_mindist2 = max(v22_mindist2);
-        [row4,col4] = find(Sz(:,2) == v22_mindist2);
+        [row4,~] = find(Sz(:,2) == v22_mindist2);
         v_segment_leftarm(vertexIdx,1) = Sz(row4,1);
     end
     
@@ -718,7 +717,7 @@ dist_v_eg(3) = norm(V_seg(i,2:4)-edge_points(3,:));
 dist_v_eg(4) = norm(V_seg(i,2:4)-edge_points(4,:));
 dist_v_eg(5) = norm(V_seg(i,2:4)-edge_points(5,:));
 dist_v_eg_min = min(dist_v_eg(:,1));
-[row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
+[row,~] = find(dist_v_eg(:,1) == dist_v_eg_min);
 
 if dist_v_eg_min <= 100
    if row == 1
@@ -812,31 +811,29 @@ axis equal
 scatter3(Sg21(:,1),Sg21(:,2),Sg21(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 hold off
 
-%%
+%% Visualization with link, joint, segment color
+
 figure()
 hold on
 axis equal
 scatter3(Sg1(:,1),Sg1(:,2),Sg1(:,3),'.', 'MarkerEdgeColor',[16/255, 241/255, 255/255])
 scatter3(Sg2(:,1),Sg2(:,2),Sg2(:,3),'.', 'MarkerEdgeColor',[213/255, 42/255, 219/255])
-scatter3(Sg3(:,1),Sg3(:,2),Sg3(:,3),'.', 'MarkerEdgeColor',[233/255, 30/255, 68/255])
-scatter3(Sg4(:,1),Sg4(:,2),Sg4(:,3),'.', 'MarkerEdgeColor',[179/255, 59/255, 235/255])
-scatter3(Sg5(:,1),Sg5(:,2),Sg5(:,3),'.', 'MarkerEdgeColor',[69/255, 204/255, 104/255])
-scatter3(Sg6(:,1),Sg6(:,2),Sg6(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])
+scatter3(Sg3(:,1),Sg3(:,2),Sg3(:,3),'.', 'MarkerEdgeColor',[69/255, 204/255, 104/255])     % lower torso
+scatter3(Sg4(:,1),Sg4(:,2),Sg4(:,3),'.', 'MarkerEdgeColor',[233/255, 30/255, 68/255])      % upper torso
+scatter3(Sg5(:,1),Sg5(:,2),Sg5(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 255/255])
+scatter3(Sg6(:,1),Sg6(:,2),Sg6(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])      % left thigh
 scatter3(Sg7(:,1),Sg7(:,2),Sg7(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
 scatter3(Sg8(:,1),Sg8(:,2),Sg8(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg9(:,1),Sg9(:,2),Sg9(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 255/255])
+scatter3(Sg9(:,1),Sg9(:,2),Sg9(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])      % right thigh
 scatter3(Sg10(:,1),Sg10(:,2),Sg10(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
 scatter3(Sg11(:,1),Sg11(:,2),Sg11(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg12(:,1),Sg12(:,2),Sg12(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])
-scatter3(Sg13(:,1),Sg13(:,2),Sg13(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
-scatter3(Sg14(:,1),Sg14(:,2),Sg14(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg15(:,1),Sg15(:,2),Sg15(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 255/255])
-scatter3(Sg16(:,1),Sg16(:,2),Sg16(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
-scatter3(Sg17(:,1),Sg17(:,2),Sg17(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg18(:,1),Sg18(:,2),Sg18(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])
-scatter3(Sg19(:,1),Sg19(:,2),Sg19(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])
-scatter3(Sg20(:,1),Sg20(:,2),Sg20(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 27/255])
-scatter3(Sg21(:,1),Sg21(:,2),Sg21(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
+scatter3(Sg12(:,1),Sg12(:,2),Sg12(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])   % upper arm
+scatter3(Sg13(:,1),Sg13(:,2),Sg13(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])   % lower arm
+scatter3(Sg14(:,1),Sg14(:,2),Sg14(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])      % left hand
+scatter3(Sg15(:,1),Sg15(:,2),Sg15(:,3),'.', 'MarkerEdgeColor',[191/255, 247/255, 20/255])   % upper arm
+scatter3(Sg16(:,1),Sg16(:,2),Sg16(:,3),'.', 'MarkerEdgeColor',[247/255, 170/255, 20/255])   % lower arm
+scatter3(Sg17(:,1),Sg17(:,2),Sg17(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])      % right hand
+scatter3(Sg18(:,1),Sg18(:,2),Sg18(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 
 plot3(C(:,1),C(:,2),C(:,3),'b*')
 plot3(C([1 10 11 12 13],1),C([1 10 11 12 13],2),C([1 10 11 12 13],3), 'k-');

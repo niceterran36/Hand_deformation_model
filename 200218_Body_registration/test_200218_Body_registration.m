@@ -3,19 +3,68 @@ clear all
 addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath(genpath('external'));
 
-mesh = load('mesh/neutral.mat');
-mesh = mesh.mesh;
+load('Body_temp.mat');
+V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
+C = COR;
 
-transforms = cell(1, 18);
-for i = 1 : 18
+%% Visualization 3D body
+C = COR;
+figure()
+hold on
+axis equal
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+plot3(C(:,1),C(:,2),C(:,3),'b*')
+plot3(C([1 10 11 12 13],1),C([1 10 11 12 13],2),C([1 10 11 12 13],3), 'k-');
+plot3(C(1:5,1),C(1:5,2),C(1:5,3), 'k-');
+plot3(C([1 6:9],1),C([1 6:9],2),C([1 6:9],3), 'k-');
+plot3(C(14:17,1),C(14:17,2),C(14:17,3), 'k-');
+plot3(C(18:21,1),C(18:21,2),C(18:21,3), 'k-');
+plot3(C([14 11 18],1),C([14 11 18],2),C([14 11 18],3), 'k-');
+hold off
+
+
+%% Transform matrix setting
+
+transforms = cell(1, 21);
+for i = 1 : 21
     transforms{i} = eye(4);
 end
-axes = bone_axes(mesh.spheres);
+axes = bone_axes_body(COR);
 
-transforms_ad = cell(1,4);
-for i = 1 : 4
-    transforms_ad{i} = eye(4);
-end 
+%%
+
+% 1 rad = 57.3 deg.
+angle0 = 0;
+angle1 = 1;
+angle2 = 0;
+angle3 = 0;
+
+transforms{11} = matrix_rotation(angle0, axes{11}(1 : 3, 3)',C(11,:));
+
+transforms{14} = matrix_rotation( ... % left shoulder
+    angle1, ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+    matrix_apply(transforms{11}, axes{14}(1 : 3, 1)'), ... % axis1: red; axis2: green; axis3: blue
+    matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
+) * transforms{11};
+transforms{15} = matrix_rotation( ... % left elbow
+    angle2, ...
+    matrix_apply(transforms{14}, axes{15}(1 : 3, 2)'), ... % axis1: red; axis2: green; axis3: blue
+    matrix_apply(transforms{14}, axes{15}(1 : 3, 4)') ...
+) * transforms{14};
+transforms{16} = matrix_rotation( ... % left wrist
+    angle3, ...
+    matrix_apply(transforms{15}, axes{16}(1 : 3, 2)'), ... % axis1: red; axis2: green; axis3: blue
+    matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
+) * transforms{15};
+
+
+
+%% 
+
+transformed = Body_temp;
+transformed = skin_linear_body(transformed, transforms);
+axes = bone_axes_body(transformed.COR);
+
 
 %% angle apply
 angle = zeros(19,1);
@@ -45,10 +94,6 @@ angle(15) = 0;
 angle(17) = 0.1;
 angle(18) = 0.1;
 % angle(19) = ;
-
-
-% disp([angle_1 angle_2 angle_3; angle_4 angle_5 angle_6; angle_7 angle_8 angle_9; angle_10 angle_11 angle_12;...
-% angle_13 angle_14 angle_15;])
 
 %% MCP abduction/adduction motion
 transforms_ad{1} = matrix_rotation( ... % D2 MCP -ab/ad
@@ -152,64 +197,3 @@ transforms{18} = matrix_rotation( ... % D5 DIP
     matrix_apply(transforms{17}, axes{18}(1 : 3, 2)', 0), ...
     matrix_apply(transforms{17}, axes{18}(1 : 3, 4)') ...
 ) * transforms{17};
-
-%% Apply new hand posture by angle & render 3D model   
-
-transformed = mesh;
-transformed = skin_linear(transformed, transforms);
-axes = bone_axes(transformed.spheres);
-
-figure(1)
-hold on;
-axis equal
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
-lighting gouraud;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
-hold off;
-
-
-%% visualization with CoR
-
-V = transformed.vertices;
-F = transformed.faces;
-centers = zeros(30,3);
-
-for i = 1:size(axes,2)
-centers(i,:) = (axes{1,i}(1:3,4))';
-end
-
-A = centers;
-figure() % point cloud 3D plotting
-hold on
-axis equal
-plot3(A(:,1),A(:,2),A(:,3),'b*') % CoR plotting
-% Link between CoRs
-plot3(A(1:2,1), A(1:2,2), A(1:2,3),'k-')
-plot3(A(2:5,1), A(2:5,2), A(2:5,3),'b-')
-plot3(A(6:8,1), A(6:8,2), A(6:8,3),'k-')
-plot3(A(9:11,1), A(9:11,2), A(9:11,3),'k-')
-plot3(A(12:14,1), A(12:14,2), A(12:14,3),'k-')
-plot3(A(16:18,1), A(16:18,2), A(16:18,3),'k-')
-plot3(A([2 6],1),A([2 6],2),A([2 6],3),'b-')
-plot3(A([2 9],1),A([2 9],2),A([2 9],3),'b-')
-plot3(A([2 12],1),A([2 12],2),A([2 12],3),'b-')
-plot3(A([2 16],1),A([2 16],2),A([2 16],3),'b-')
-
-scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
-hold off
-
-% transformed CoR
-for i=1:30
-    T(i,:) = transformed.spheres{1,i}.center;
-end
-
-figure() % point cloud 3D plotting
-hold on
-axis equal
-plot3(T(:,1),T(:,2),T(:,3),'b*') % CoR plotting
-scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
-hold off
