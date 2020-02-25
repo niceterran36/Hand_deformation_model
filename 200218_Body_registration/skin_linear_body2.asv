@@ -1,4 +1,4 @@
-function [V, normals] = skin_linear_body2(V, weights, normals, transforms)
+function [mesh, V, normals, ] = skin_linear_body2(mesh, V, weights, normals, transforms)
 
     % The normals are computed with the transpose inverse of the transforms
 %     transformsNormals = cell(1, length(transforms));
@@ -25,7 +25,7 @@ function [V, normals] = skin_linear_body2(V, weights, normals, transforms)
 end
 
 function transform = interpolate(transforms, weights)
-    transform = eye(4);
+    transform = zeros(4);
     for i = 1 : length(transforms)
         transform = transform + transforms{i} * weights(i);
     end
