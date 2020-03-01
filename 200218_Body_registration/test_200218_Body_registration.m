@@ -1,8 +1,9 @@
 clc 
 clear all
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath(genpath('external'));
+%addpath('F:\[GitHub]\Hand_deformation_model\functions');
 %addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
+addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
 
 load('Body_temp.mat');
 V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
