@@ -1,18 +1,20 @@
 clc 
 clear all
 addpath(genpath('external'));
-addpath(genpath('functions'));
+%addpath(genpath('functions'));
 %addpath('F:\[GitHub]\Hand_deformation_model\functions');
-%addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
+addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
 %addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
 
 load('Body_temp.mat');
 V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
+Body_temp.parent = Body_temp.COR_bone(:,2); 
 C = COR;
 
 for i = 1:length(COR)
 Body_temp.spheres{i}.center = COR(i,:);
 Body_temp.spheres{i}.bone = Body_temp.parent(i);
+Body_temp.bones{i}.parent = Body_temp.parent(i);
 end 
 
 %% Visualization 3D body
@@ -42,15 +44,7 @@ axes = bone_axes_body(COR);
 COR_leftarm_link = zeros(16,1);
 COR_leftarm_link(14:16,1) = [15; 16; 17];
 
-%% transform matrix per vertex
-
-% tansforms_vi = cell(1,13249);
-% for i = 1:13249
-%     transforms_vi{1} = eye(4);
-% end
-% axes = bone_axes_body(COR);
-
-%%
+%% Previous transformation 
 angle = zeros(4,1);
 COR_tr = COR;
 
@@ -58,25 +52,14 @@ COR_tr = COR;
 angle(1) = 0;
 angle(2) = 0; %shoulder flexion/extension
 %angle(2) = 0;
-angle(3) = 0; 
+angle(3) = 1; 
 angle(4) = 0;
 
-transforms{11} = matrix_rotation(...
-    angle(1), ... % rotation angle  
-    matrix_apply(transforms{10}, axes{11}(1 : 3, 1)'), ... % axis1: XX; axis2: XX; axis3: XXe
-    matrix_apply(transforms{10}, axes{11}(1 : 3, 4)') ... % center
-) * transforms{10};
-% transforms{14} = matrix_rotation( ... % left shoulder
-%     angle(2), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
-%     matrix_apply(transforms{11}, axes{14}(1 : 3, 2)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
-%     matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
-% ) * transforms{11};
 transforms{14} = matrix_rotation( ... % left shoulder
     angle(2), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
     matrix_apply(transforms{11}, axes{14}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
     matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
-) * transforms{11};
-
+);
 transforms{15} = matrix_rotation( ... % left elbow
     angle(3), ...
     matrix_apply(transforms{14}, axes{15}(1 : 3, 2)'), ...
@@ -87,38 +70,18 @@ transforms{16} = matrix_rotation( ... % left wrist
     matrix_apply(transforms{15}, axes{16}(1 : 3, 2)'), ...
     matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
 ) * transforms{15};
-transforms{17} = matrix_rotation( ... % hand tip
-    0, ...
-    matrix_apply(transforms{16}, axes{16}(1 : 3, 2)'), ... 
-    matrix_apply(transforms{16}, axes{16}(1 : 3, 4)') ...
-) * transforms{16};
 
-for i = 15:17
+
+for i = 2:21
     COR_tr(i,:) = matrix_apply(transforms{i-1}, COR_tr(i,:));
 end 
 axes = bone_axes_body(COR_tr);
 
-angle(3) = 1; 
-transforms{15} = matrix_rotation( ... % left elbow
-    angle(3), ...
-    matrix_apply(transforms{14}, axes{15}(1 : 3, 2)'), ... % axis2: flexion(+)/extension(-)
-    matrix_apply(transforms{14}, axes{15}(1 : 3, 4)') ...
-) * transforms{14};
-transforms{16} = matrix_rotation( ... % left wrist
-    angle(4), ...
-    matrix_apply(transforms{15}, axes{16}(1 : 3, 2)'), ... % axis2: ulnar/radial deviation
-    matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
-) * transforms{15};
-transforms{17} = matrix_rotation( ... % hand tip
-    0, ...
-    matrix_apply(transforms{16}, axes{16}(1 : 3, 2)'), ...
-    matrix_apply(transforms{16}, axes{16}(1 : 3, 4)') ...
-) * transforms{16};
+%% Deformation apply
 
-for i = 16:17
-    COR_tr(i,:) = matrix_apply(transforms{i-1}, COR_tr(i,:));
-end
-axes = bone_axes_body(COR_tr);
+transformed = Body_temp;
+transformed = skin_dualquat_body(transformed, transforms);
+
 
 %% CoR transformation
 
@@ -144,94 +107,6 @@ plot3(COR_tr(14:17,1),COR_tr(14:17,2),COR_tr(14:17,3), 'k-');
 plot3(COR_tr(18:21,1),COR_tr(18:21,2),COR_tr(18:21,3), 'k-');
 plot3(COR_tr([14 11 18],1),COR_tr([14 11 18],2),COR_tr([14 11 18],3), 'k-');
 hold off
-%% new transformation function
-
-weight14 = weights(:,14);
-LI = weight14 ~= 0;  % V14 vertices
-LII = weight14 == 0; % non_V14 vertices
-V14 = V(LI,:);
-non_V14 = V(LII,:);
-V14_weights = weight14(LI);
-
-weighted_tr = zeros(size(V,1),3);
-for i = 1:size(V,1)
-    basic_T = eye(4);
-    weighted_T = transforms{14}*weight14(i);
-    
-    if weight14(i) == 0
-        T = basic_T;
-    else
-        T = weighted_T;;
-    end
-    %transforms{14} - T
-    weighted_tr(i,:) = matrix_apply(T, V(i,:),1);
-end 
-
-test = weighted_tr - V
-
-
-% vectors = matrix_apply(matrix, vectors, constant)
-V14_transformed = matrix_apply(transforms{14},V14,1);
-
-figure()
-hold on
-axis equal
-scatter3(COR(14,1),COR(14,2),COR(14,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 0/255])
-scatter3(V14(:,1),V14(:,2),V14(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
-scatter3(non_V14(:,1),non_V14(:,2),non_V14(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
-scatter3(V14_transformed(:,1),V14_transformed(:,2),V14_transformed(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
-hold off
-
-figure()
-hold on
-axis equal
-scatter3(COR(14:15,1),COR(14:15,2),COR(14:15,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 0/255])
-% scatter3(V14(:,1),V14(:,2),V14(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
-scatter3(non_V14(:,1),non_V14(:,2),non_V14(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
-%scatter3(weighted_V14(:,1),weighted_V14(:,2),weighted_V14(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
-hold off
-
-weighted_tr
-
-figure() % whole plotting - posture changed
-hold on
-axis equal
-scatter3(COR(14:15,1),COR(14:15,2),COR(14:15,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 0/255])
-scatter3(non_V14(:,1),non_V14(:,2),non_V14(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]) % non_V14
-%scatter3(weighted_tr(:,1),weighted_tr(:,2),weighted_tr(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
-scatter3(test(:,1),test(:,2),test(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
-hold off
-
-%% 
-
-transformed = Body_temp;
-%transformed = skin_linear_body(transformed, transforms);
-transformed = skin_dualquat_body(transformed, transforms);
-axes = bone_axes_body(transformed.COR);
-
-%% Plotting joint 14 influence weights
-
-weight14 = weights(:,14);
-LI = weight14 ~= 0;
-LII = weight14 == 0;
-V14 = V(LI,:);
-non_V14 = V(LII,:);
-
-AT = zeros(2,3);
-AT(1,:) = V14(1,:);
-cc = (transforms{14}*v_mx)';
-AT(2,:) = cc(1,1:3);
-
-figure()
-hold on
-axis equal
-scatter3(V14(2:end,1),V14(2:end,2),V14(2:end,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255])
-scatter3(non_V14(:,1),non_V14(:,2),non_V14(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
-scatter3(AT(:,1),AT(:,2),AT(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
-hold off
-
-
-
 %% after transformation
 
 C = transformed.COR;

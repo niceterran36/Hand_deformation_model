@@ -57,7 +57,7 @@ function mesh = skin_dualquat_body(mesh, transforms)
         end
         quat = [qr, qi, qj, qk];
         
-        parent = mesh.parent(i);
+        parent = mesh.bones{i}.parent;
         % If the dot product between this quaternion and the one of the parent is negative, change the sign of this quaternion
         if parent ~= 0
             % TODO: Is it safe to assume that parent < i? If not, we need to re-order/do multiple pass
