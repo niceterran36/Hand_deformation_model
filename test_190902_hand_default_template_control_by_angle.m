@@ -53,28 +53,28 @@ angle = zeros(19,1);
 
 % Digit 1 flexion(+)/extension(-) 
 angle(1) = 0/60;
-angle(2) = 0/60;
-angle(3) = 30/60;
+angle(2) = 20/60;
+angle(3) = 20/60;
 
 % Digit 2 flexion(+)/extension(-) 
-angle(4) = 00/60; 
-angle(5) = 0/60;
-angle(6) = 30/60;
+angle(4) = 0/60; 
+angle(5) = 20/60;
+angle(6) = 20/60;
 
 % Digit 3 flexion(+)/extension(-) 
 angle(7) = 0/60;
-angle(8) = 0/60;
-angle(9) = 30/60;
+angle(8) = 20/60;
+angle(9) = 20/60;
 
 % Digit 4 flexion(+)/extension(-) 
 angle(10) = 0/60;
-angle(11) = 0/60;
-angle(12) = 30/60;
+angle(11) = 20/60;
+angle(12) = 20/60;
 
 % Digit 5 flexion(+)/extension(-) 
 angle(13) = 0/60;
-angle(14) = 0/60;
-angle(15) = 30/60;
+angle(14) = 20/60;
+angle(15) = 20/60;
 
 %%
  
@@ -199,15 +199,13 @@ transformed = skin_dualquat(transformed, transforms);
 
 for i = 1:30
 A(i,:) = transformed.spheres{1,i}.center;
-
-
 end
 
 figure()
 hold on;
 axis equal
 axis off
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.5);
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 %scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
 
 plot3(A([1:20 22 27],1),A([1:20 22 27],2),A([1:20 22 27],3),'b*')
