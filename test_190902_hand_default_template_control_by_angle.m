@@ -1,8 +1,10 @@
 addpath(genpath('external'));
 addpath 'functions';
 
-mesh = load('tr_mesh.mat');
-mesh = mesh.transformed;
+mat1 = load('tr_mesh.mat');
+mat2 = load('hy_mesh_n.mat');
+mat2.mesh.bones = mat1.transformed.bones;
+mesh = mat2.mesh;
 
 transforms = cell(1, 18);
 for i = 1 : 18
@@ -52,27 +54,27 @@ angle = zeros(19,1);
 % Digit 1 flexion(+)/extension(-) 
 angle(1) = 0/60;
 angle(2) = 0/60;
-angle(3) = 0/60;
+angle(3) = 30/60;
 
 % Digit 2 flexion(+)/extension(-) 
-angle(4) = 0/60; 
+angle(4) = 00/60; 
 angle(5) = 0/60;
-angle(6) = 0/60;
+angle(6) = 30/60;
 
 % Digit 3 flexion(+)/extension(-) 
 angle(7) = 0/60;
 angle(8) = 0/60;
-angle(9) = 0/60;
+angle(9) = 30/60;
 
 % Digit 4 flexion(+)/extension(-) 
 angle(10) = 0/60;
 angle(11) = 0/60;
-angle(12) = 0/60;
+angle(12) = 30/60;
 
 % Digit 5 flexion(+)/extension(-) 
 angle(13) = 0/60;
 angle(14) = 0/60;
-angle(15) = 0/60;
+angle(15) = 30/60;
 
 %%
  
@@ -192,15 +194,37 @@ transforms{18} = matrix_rotation( ... % D5 DIP
 %% Apply new hand posture by angle & render 3D model   
 
 transformed = mesh;
-transformed = skin_linear(transformed, transforms);
-% transformed = skin_dualquat(transformed, transforms);
+%transformed = skin_linear(transformed, transforms);
+transformed = skin_dualquat(transformed, transforms);
 
-figure(1)
+for i = 1:30
+A(i,:) = transformed.spheres{1,i}.center;
+
+
+end
+
+figure()
 hold on;
 axis equal
 axis off
-h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
-scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.5);
+%scatter3(transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), '.' ,'MarkerEdgeColor',[255/255, 0, 0])
+
+plot3(A([1:20 22 27],1),A([1:20 22 27],2),A([1:20 22 27],3),'b*')
+plot3(A([1:20 22 27],1),A([1:20 22 27],2),A([1:20 22 27],3),'ro')% CoR plotting
+% Link between CoRs
+plot3(A(1:4,1), A(1:4,2), A(1:4,3),'k-')
+plot3(A(5:8,1), A(5:8,2), A(5:8,3),'k-')
+plot3(A(9:12,1), A(9:12,2), A(9:12,3),'k-')
+plot3(A(13:16,1), A(13:16,2), A(13:16,3),'k-')
+plot3(A(17:20,1), A(17:20,2), A(17:20,3),'k-')
+plot3(A([4 22],1),A([4 22],2),A([4 22],3),'b-')
+plot3(A([8 22],1),A([8 22],2),A([8 22],3),'b-')
+plot3(A([12 22],1),A([12 22],2),A([12 22],3),'b-')
+plot3(A([16 22],1),A([16 22],2),A([16 22],3),'b-')
+plot3(A([20 22],1),A([20 22],2),A([20 22],3),'b-')
+plot3(A([22 27],1),A([22 27],2),A([22 27],3),'b-')
+
 lighting gouraud;
 view([-90, 0]);
 camlight;

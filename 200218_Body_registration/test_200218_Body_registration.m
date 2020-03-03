@@ -1,13 +1,19 @@
 clc 
 clear all
 addpath(genpath('external'));
+addpath(genpath('functions'));
 %addpath('F:\[GitHub]\Hand_deformation_model\functions');
 %addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
-addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
+%addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
 
 load('Body_temp.mat');
 V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
 C = COR;
+
+for i = 1:length(COR)
+Body_temp.spheres{i}.center = COR(i,:);
+Body_temp.spheres{i}.bone = Body_temp.parent(i);
+end 
 
 %% Visualization 3D body
 C = COR;
@@ -50,8 +56,8 @@ COR_tr = COR;
 
 % 1 rad = 57.3 deg. 0.785 rad = 45.0 deg.
 angle(1) = 0;
-%angle(2) = -1; shoulder flexion/extension
-angle(2) = 0;
+angle(2) = 0; %shoulder flexion/extension
+%angle(2) = 0;
 angle(3) = 0; 
 angle(4) = 0;
 
@@ -199,7 +205,8 @@ hold off
 %% 
 
 transformed = Body_temp;
-transformed = skin_linear_body(transformed, transforms);
+%transformed = skin_linear_body(transformed, transforms);
+transformed = skin_dualquat_body(transformed, transforms);
 axes = bone_axes_body(transformed.COR);
 
 %% Plotting joint 14 influence weights
