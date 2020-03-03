@@ -61,6 +61,12 @@ angle(2) = 0; %shoulder flexion/extension
 angle(3) = 0; 
 angle(4) = 0;
 
+transforms{2} = matrix_rotation(...
+    0,...
+    matrix_apply(transforms{10}, axes{11}(1 : 3, 1)')
+    matrix_apply(transforms{10}, axes{11}(1 : 3, 4)')
+) 
+
 transforms{11} = matrix_rotation(...
     angle(1), ... % rotation angle  
     matrix_apply(transforms{10}, axes{11}(1 : 3, 1)'), ... % axis1: XX; axis2: XX; axis3: XXe
