@@ -2,8 +2,8 @@ clc
 clear all
 addpath(genpath('external'));
 %addpath(genpath('functions'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-%addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
+%addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('C:\Users\Hayoung Jung\Documents\[GitHub-Labtop]\Hand_deformation_model\functions');
 %addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
 
 load('Body_temp.mat');
@@ -56,28 +56,61 @@ angle = zeros(4,1);
 COR_tr = COR;
 
 % 1 rad = 57.3 deg. 0.785 rad = 45.0 deg.
-angle(1) = 0;
-angle(2) = 0; %shoulder flexion/extension
-%angle(2) = 0;
-angle(3) = 1; 
-angle(4) = 0;
+% left arm 
+angle(1) = 0; angle(2) = 0; angle(3) = 1; angle(4) = 0;
 
+
+
+% left arm 
 transforms{14} = matrix_rotation( ... % left shoulder
-    angle(2), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+    angle(1), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
     matrix_apply(transforms{11}, axes{14}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
     matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
-);
+) * transforms{11};
 transforms{15} = matrix_rotation( ... % left elbow
-    angle(3), ...
+    angle(2), ...
     matrix_apply(transforms{14}, axes{15}(1 : 3, 2)'), ...
     matrix_apply(transforms{14}, axes{15}(1 : 3, 4)') ...
 ) * transforms{14};
 transforms{16} = matrix_rotation( ... % left wrist
-    angle(4), ...
+    angle(3), ...
     matrix_apply(transforms{15}, axes{16}(1 : 3, 2)'), ...
     matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
 ) * transforms{15};
 
+% right arm
+transforms{18} = matrix_rotation( ... % right shoulder
+    angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+    matrix_apply(transforms{11}, axes{18}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
+    matrix_apply(transforms{11}, axes{18}(1 : 3, 4)') ... % center
+) * transforms{11};
+transforms{19} = matrix_rotation( ... % left elbow
+    angle(5), ...
+    matrix_apply(transforms{18}, axes{19}(1 : 3, 2)'), ...
+    matrix_apply(transforms{18}, axes{19}(1 : 3, 4)') ...
+) * transforms{18};
+transforms{20} = matrix_rotation( ... % left wrist
+    angle(6), ...
+    matrix_apply(transforms{19}, axes{20}(1 : 3, 2)'), ...
+    matrix_apply(transforms{19}, axes{20}(1 : 3, 4)') ...
+) * transforms{19};
+
+% left leg
+transforms{2} = matrix_rotation( ... % right shoulder
+    angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+    matrix_apply(transforms{1}, axes{2}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
+    matrix_apply(transforms{1}, axes{2}(1 : 3, 4)') ... % center
+) * transforms{1};
+transforms{3} = matrix_rotation( ... % left elbow
+    angle(5), ...
+    matrix_apply(transforms{2}, axes{3}(1 : 3, 2)'), ...
+    matrix_apply(transforms{2}, axes{3}(1 : 3, 4)') ...
+) * transforms{2};
+transforms{4} = matrix_rotation( ... % left wrist
+    angle(6), ...
+    matrix_apply(transforms{3}, axes{4}(1 : 3, 2)'), ...
+    matrix_applytransforms{3}, axes{4}(1 : 3, 4)') ...
+) * transforms{3};
 
 for i = 2:21
     COR_tr(i,:) = matrix_apply(transforms{i-1}, COR_tr(i,:));
