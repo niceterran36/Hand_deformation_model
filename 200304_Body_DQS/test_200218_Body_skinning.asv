@@ -22,14 +22,15 @@ C = COR;
 figure()
 hold on
 axis equal
-h = trimesh(F, V(:,1), V(:,2), V(:,3),'EdgeColor','none','FaceColor',[0.65, 0.65, 0.65],'FaceAlpha', 1);
+h = trimesh(F, V(:, 1), transformed.vertices(:, 2),... 
+    transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.65, 0.65, 0.65], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
 view([90, 0]);
 camlight;
 
-%scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+scatter3(V(:,1),V(:,2),V(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
 plot3(C(:,1),C(:,2),C(:,3),'b*')
 plot3(C([1 10 11 12 13],1),C([1 10 11 12 13],2),C([1 10 11 12 13],3), 'k-');
 plot3(C(1:5,1),C(1:5,2),C(1:5,3), 'k-');
@@ -105,14 +106,8 @@ transformed = skin_dualquat_body(transformed, transforms);
 figure()
 hold on
 axis equal
-h = trimesh(transformed.F, transformed.V(:,1), transformed.V(:,2), transformed.V(:,3),'EdgeColor','none','FaceColor',[0.65, 0.65, 0.65],'FaceAlpha', 1);
-lighting gouraud;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
 %scatter3(COR(14,1),COR(14,2),COR(14,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 0/255])
-%scatter3(COR_tr(:,1),COR_tr(:,2),COR_tr(:,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
+scatter3(COR_tr(:,1),COR_tr(:,2),COR_tr(:,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255])
 plot3(COR_tr([1 10 11 12 13],1),COR_tr([1 10 11 12 13],2),COR_tr([1 10 11 12 13],3), 'k-');
 plot3(COR_tr(1:5,1),COR_tr(1:5,2),COR_tr(1:5,3), 'k-');
 plot3(COR_tr([1 6:9],1),COR_tr([1 6:9],2),COR_tr([1 6:9],3), 'k-');

@@ -85,16 +85,15 @@ function mesh = skin_dualquat_body(mesh, transforms)
     
     % Update spheres: As the spheres are only attached to one bone, dual quat is equivalent to linear.
     % So, we can just apply directly the linear transform matrices.
-    if isfield(mesh, 'spheres')
-        for i = 1 : length(mesh.spheres)
-                    fprintf('test(i)\n') 
-            mesh.spheres{i}.center = matrix_apply(transforms{mesh.spheres{i}.bone}, mesh.spheres{i}.center);
-            fprintf('test(i)\n') 
-        end
-    end
-     
+    % (Working 하도록 code update 하기)
+%     if isfield(mesh, 'spheres')
+%         for i = 1 : length(mesh.spheres)
+%              mesh.spheres{i}.center = matrix_apply(transforms{mesh.spheres{i}.bone}, mesh.spheres{i}.center);
+%         end
+%     end
+%      
     
-    mesh.vertices = dualquatlbs(mesh.V, DQ, mesh.weights);
+    mesh.V = dualquatlbs(mesh.V, DQ, mesh.weights);
     mesh.normals = dualquatlbs(mesh.normals, DQ_normals, mesh.weights);
     
 end
