@@ -22,12 +22,11 @@ function axes = bone_axes_body(centers)
     
     % shoulder adduction/abduction
     axes{11} = build(centers(11,:),centers(10,:)-centers(11,:),centers(14,:)-centers(11,:));
-    n_shoulder_left = -bone_normal(centers(14,:),centers(11,:),centers(10,:),[0 -1 0]);
+%    n_shoulder_left = -bone_normal(centers(14,:),centers(11,:),centers(10,:),[0 -1 0]);
     n_elbow_left = bone_normal(centers(15,:),centers(14,:), centers(16,:), cross(centers(14,:)-centers(15,:),centers(16,:)-centers(15,:)));
-%    axes{14} = build(centers(14,:), centers(11,:) - centers(14,:), n_shoulder_left);
-    axes{14} = build(centers(14,:), centers(10,:) - centers(11,:),centers(14,:)-centers(11,:));
+    axes{14} = build(centers(14,:), -(centers(14,:)-centers(11,:)), cross(centers(14,:)-centers(11,:),centers(10,:)-centers(11,:)));
     axes{15} = build(centers(15,:), centers(16,:) - centers(15,:), -n_elbow_left);
-    axes{16} = build(centers(16,:), centers(16,:) - centers(15,:),n_elbow_left);
+    axes{16} = build(centers(16,:), cross(centers(16,:) - centers(15,:),-n_elbow_left),-n_elbow_left);
     
 end
 

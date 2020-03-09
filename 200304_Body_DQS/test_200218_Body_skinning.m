@@ -7,6 +7,9 @@ addpath(genpath('external'));
 %addpath('/Users/user/Documents/GitHub/Hand_deformation_model\functions');
 
 load('Body_temp.mat');
+load('mesh_repose.mat');
+Body_temp = mesh_repose;
+
 V = Body_temp.V; F = Body_temp.F; COR = Body_temp.COR; v_segment = Body_temp.v_segment; weights = Body_temp.weights;
 Body_temp.parent = Body_temp.COR_bone(:,2); 
 C = COR;
@@ -53,18 +56,23 @@ axes = bone_axes_body(COR);
 
 %% Previous transformation 
 angle = zeros(4,1);
-COR_tr = COR;
 
 % 1 rad = 57.3 deg. 0.785 rad = 45.0 deg.
 % left arm 
-angle(1) = 0; angle(2) = 0; angle(3) = 1; angle(4) = 0;
+angle(1) = 0/57.3; 
+angle(2) = 0/57.3; 
+angle(3) = 30/57.3; 
+angle(4) = 0/57.3;
 
+% Shoulder axis1: flexion(-)/extension(+), axis2: abduction(+)/adduction(-), axis3: supination/pronation
+% Elbow axis2: flexion/extension
+% Wrist axis1: ulnar(-)/radial(+), axis2: flexion(-)/extension(+), axis3: supination/pronation
 
 
 % left arm 
 transforms{14} = matrix_rotation( ... % left shoulder
-    angle(1), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
-    matrix_apply(transforms{11}, axes{14}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
+    angle(1), ...  
+    matrix_apply(transforms{11}, axes{14}(1 : 3, 1)'), ... 
     matrix_apply(transforms{11}, axes{14}(1 : 3, 4)') ... % center
 ) * transforms{11};
 transforms{15} = matrix_rotation( ... % left elbow
@@ -78,50 +86,56 @@ transforms{16} = matrix_rotation( ... % left wrist
     matrix_apply(transforms{15}, axes{16}(1 : 3, 4)') ...
 ) * transforms{15};
 
-% right arm
-transforms{18} = matrix_rotation( ... % right shoulder
-    angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
-    matrix_apply(transforms{11}, axes{18}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
-    matrix_apply(transforms{11}, axes{18}(1 : 3, 4)') ... % center
-) * transforms{11};
-transforms{19} = matrix_rotation( ... % left elbow
-    angle(5), ...
-    matrix_apply(transforms{18}, axes{19}(1 : 3, 2)'), ...
-    matrix_apply(transforms{18}, axes{19}(1 : 3, 4)') ...
-) * transforms{18};
-transforms{20} = matrix_rotation( ... % left wrist
-    angle(6), ...
-    matrix_apply(transforms{19}, axes{20}(1 : 3, 2)'), ...
-    matrix_apply(transforms{19}, axes{20}(1 : 3, 4)') ...
-) * transforms{19};
-
-% left leg
-transforms{2} = matrix_rotation( ... % right shoulder
-    angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
-    matrix_apply(transforms{1}, axes{2}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
-    matrix_apply(transforms{1}, axes{2}(1 : 3, 4)') ... % center
-) * transforms{1};
-transforms{3} = matrix_rotation( ... % left elbow
-    angle(5), ...
-    matrix_apply(transforms{2}, axes{3}(1 : 3, 2)'), ...
-    matrix_apply(transforms{2}, axes{3}(1 : 3, 4)') ...
-) * transforms{2};
-transforms{4} = matrix_rotation( ... % left wrist
-    angle(6), ...
-    matrix_apply(transforms{3}, axes{4}(1 : 3, 2)'), ...
-    matrix_applytransforms{3}, axes{4}(1 : 3, 4)') ...
-) * transforms{3};
-
+    
 for i = 2:21
-    COR_tr(i,:) = matrix_apply(transforms{i-1}, COR_tr(i,:));
+    COR(i,:) = matrix_apply(transforms{i-1}, COR(i,:));
 end 
-axes = bone_axes_body(COR_tr);
+axes = bone_axes_body(COR);
+
+    
+    
+% % right arm
+% transforms{18} = matrix_rotation( ... % right shoulder
+%     angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+%     matrix_apply(transforms{11}, axes{18}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
+%     matrix_apply(transforms{11}, axes{18}(1 : 3, 4)') ... % center
+% ) * transforms{11};
+% transforms{19} = matrix_rotation( ... % left elbow
+%     angle(5), ...
+%     matrix_apply(transforms{18}, axes{19}(1 : 3, 2)'), ...
+%     matrix_apply(transforms{18}, axes{19}(1 : 3, 4)') ...
+% ) * transforms{18};
+% transforms{20} = matrix_rotation( ... % left wrist
+%     angle(6), ...
+%     matrix_apply(transforms{19}, axes{20}(1 : 3, 2)'), ...
+%     matrix_apply(transforms{19}, axes{20}(1 : 3, 4)') ...
+% ) * transforms{19};
+% 
+% % left leg
+% transforms{2} = matrix_rotation( ... % right shoulder
+%     angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg.  
+%     matrix_apply(transforms{1}, axes{2}(1 : 3, 3)'), ... % axis1: axis2: flexion(-)/extention(+); axis3: abduction(+)/adduction(-)
+%     matrix_apply(transforms{1}, axes{2}(1 : 3, 4)') ... % center
+% ) * transforms{1};
+% transforms{3} = matrix_rotation( ... % left elbow
+%     angle(5), ...
+%     matrix_apply(transforms{2}, axes{3}(1 : 3, 2)'), ...
+%     matrix_apply(transforms{2}, axes{3}(1 : 3, 4)') ...
+% ) * transforms{2};
+% transforms{4} = matrix_rotation( ... % left wrist
+%     angle(6), ...
+%     matrix_apply(transforms{3}, axes{4}(1 : 3, 2)'), ...
+%     matrix_applytransforms{3}, axes{4}(1 : 3, 4)') ...
+% ) * transforms{3};
+
+
+
 
 %% Deformation apply
 
 transformed = Body_temp;
 transformed = skin_dualquat_body(transformed, transforms);
-
+COR_tr = COR;
 
 %% CoR transformation
 
@@ -153,6 +167,25 @@ plot3(COR_tr(14:17,1),COR_tr(14:17,2),COR_tr(14:17,3), 'k-');
 plot3(COR_tr(18:21,1),COR_tr(18:21,2),COR_tr(18:21,3), 'k-');
 plot3(COR_tr([14 11 18],1),COR_tr([14 11 18],2),COR_tr([14 11 18],3), 'k-');
 hold off
+%% Save current template 
+
+transformed.COR = COR;
+mesh_repose = transformed;
+mesh_repose.V = V;
+mesh_repose.COR = COR;
+save mesh_repose.mat mesh_repose;
+
+figure()
+hold on
+axis equal
+h = trimesh(mesh_repose.F, mesh_repose.V(:,1), mesh_repose.V(:,2), mesh_repose.V(:,3),'EdgeColor','none','FaceColor',[0.65, 0.65, 0.65],'FaceAlpha', 1);
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off
+
 %% after transformation
 
 C = COR_tr;
