@@ -1,7 +1,8 @@
 clc
 clear all;
-addpath functions;
-addpath(genpath('external'));
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\external');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
 
 %% Data import (mesh, CoR)
 [V, F, FB, H] = function_loading_ply_file('hand_meshmodel_190730.ply');
@@ -16,6 +17,7 @@ load('bone_segment.mat')
 V_idx = [1:size(V,1)]';
 V2 = V;
 VLI = [];
+vertex_normals = zeros(size(V,1),3);
 
 %% Visualization of hand
 vertexIdx = 1;
@@ -126,6 +128,7 @@ F2 = F2(row2,:);
     normals_F = sum(normals_F);
     normals_F = normals_F/norm(normals_F);
     vni = normals_F; % weighted normal vector of vi
+    vertex_normals(vertexIdx,:) = vni;
 
     Sj = zeros(21,5); Sj(1:21,1) = [1:21]';
 
