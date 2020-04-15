@@ -119,13 +119,17 @@ fprintf('n_sub_sample_t_palm: %d/%d, supply\n',n_sub_sample_t_palm,size(Vt_palm,
 Idx_sub_sample_t_palm = randperm(size(Vt_palm,1),n_sub_sample_t_palm);
 Sub_sample_t_palm = Vt_palm(Idx_sub_sample_t_palm(1:n_sub_sample_t_palm),:);
 % calucation of dummy size for supply (template points)
-m = n_sub_sample_sp; % demand, # of original scan = 646
-n = n_sub_sample_t_palm; % supply, # of palm = 137
-dummysize = m - n; % % 509
-fprintf('size of supply dummy: %d\n',dummysize);
+m = n_sub_sample_sp; 
+n = n_sub_sample_t_palm;
+differernce = demand-supply;
+fprintf('size of supply dummy: %d\n',differernce);
 
 
 %% template palm fitting to raw hand scan
+
+m = n_sub_sample_sp; % # of original scan = 646
+n = n_sub_sample_t_palm; % # of palm = 137
+dummysize = m - n; % 509
 
 A = zeros(m,m); % m x m matrix 
 % A = point to point distnace between template and scan points
@@ -137,16 +141,10 @@ for i = 1:n
 end
 cost(n+1:m,:) = 0;
 A = cost;
+
 supply = ones(m,1);
 demand = ones(1,m);
 
-tic
-vogelResult = full(vogels(A,supply,demand))
-vogelCost = sum(sum(A.*vogelResult))
-optimalSolution = modi(A, vogelResult, supply, demand)
-A
-fprintf("Optimized cost = %d\n",sum(sum(A.*optimalSolution)))
-toc
 
 %% matching - transportation algorithm 
 % transportation problem solving algorithmpair  testing
