@@ -1,13 +1,13 @@
 clc
 clear all;
 % %% activation on Desktop Lab
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\external');
-% addpath('F:\[GitHub]\Hand_deformation_model\data');
+ addpath('F:\[GitHub]\Hand_deformation_model\functions');
+ addpath('F:\[GitHub]\Hand_deformation_model\external');
+ addpath('F:\[GitHub]\Hand_deformation_model\data');
 %% activation on Mac 
-addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
-addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
-addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
+% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
+% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
+% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
 %%
 [V, F, FB, H] = function_loading_ply_file('S01_hand data.ply');
 LMs = function_get_LM_from_iges('S01_LM8.igs');
@@ -104,10 +104,10 @@ end
 % scan_points = scan_points(LIX);
 % 
 % % subsample scan points % index cutting template palm segments sub-sampling
-% nPointsSample = min(n,size(scan_points,1));
-% fprintf('nPointsSample: %d/%d\n',nPointsSample,size(scan_points,1));
-% pointsIdxsScan = randperm(size(scan_points,1),nPointsSample); 
-% scan_points_subsampled = V(pointsIdxsScan(1:nPointsSample),:);
+nPointsSample = min(n,size(scan_points,1));
+fprintf('nPointsSample: %d/%d\n',nPointsSample,size(scan_points,1));
+pointsIdxsScan = randperm(size(scan_points,1),nPointsSample); 
+scan_points_subsampled = V(pointsIdxsScan(1:nPointsSample),:);
 
 %% template palm fitting to raw hand scan
 
@@ -124,12 +124,14 @@ for i = 1:n
     end
 end
 cost(n+1:m,:) = 0;
+A = cost;
 
-supply = [1; 1; 1];
-demand = [1 1 1 1 1 1];
+supply = ones(m,1);
+demand = ones(1,m);
 
-%% ���� ����Ͽ� matching - transportation algorithm 
-% �� �� transportation problem solving algorithm�� �����Ͽ� pair ���� testing
+
+%% matching - transportation algorithm 
+% transportation problem solving algorithmpair  testing
 
 vertexIdx = 1;
 
