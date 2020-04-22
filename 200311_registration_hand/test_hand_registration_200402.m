@@ -37,6 +37,8 @@ end
 
 LMt = LMt'; LMs = LMs';
 
+clear j delta distances 
+
 %% rough fitting (using ABSOR) 
 % things to do: add wrist crease LMs
 
@@ -53,17 +55,15 @@ Vt_tf(4,:) = [];
 Vt_tf = Vt_tf'; 
 
 keep = ismember(sg_mesh.assignment, [1:6]); %filtering palm segment points
-[Vt_palm, Fs_palm] = filter_vertices(sg_mesh.vertices, sg_mesh.faces, keep); %template palm  points
+[Vt_palm, Fs_palm] = filter_vertices(Vt_tf , sg_mesh.faces, keep); %template palm  points
 [Vt_tf_palm,faces_tf_palm] = filter_vertices(Vt_tf, sg_mesh.faces, keep); %transformed template palm points
-
 Vt_palm_idx = Idx(keep);
-Normal_t = sg_mesh.normals;
-Normal_t_palm = Normal_t(keep, :);
+
 % normal of scan points
-for vertexIdx = 1:size(Vsp,1);
+for vertexIdx = 1:size(Vsp,1)
     F2 = F;
     LI = F2 == vertexIdx;
-    [row2, col2] = find(LI);
+    [row2, ~] = find(LI);
     F2 = F2(row2,:);
     
     for i = 1:size(F2,1)*3
@@ -79,11 +79,41 @@ for vertexIdx = 1:size(Vsp,1);
     
     normals = getNormals(Vsp, F);
     normals_F = normals(row2,:);
-    normals_F = sum(normals_F)/norm(normals_F);;
+    normals_F = sum(normals_F);
+    normals_F = normals_F/norm(normals_F);
     Normal_sp(vertexIdx,:) = normals_F; % weighted normal vector of vi
 end
 
+clear row2 distances ErrorStats i j LI normals nv LMs LMt Template_LM v vertexIdx Vt
+
+% normal of transformed template vertices
+for vertexIdx = 1:size(Vt_tf,1)
+    F2T = sg_mesh.faces;
+    LI2 = F2T == vertexIdx;
+    [row3, ~] = find(LI2);
+    F2T = F2T(row3,:);
+    
+    for i = 1:size(F2T,1)*3
+        v(i,1) = F2T(i);
+    end
+    
+    nv = vertexIdx;
+    for i = 1:size(v,1)
+        if v(i) ~= nv
+           nv = [nv v(i)]; % nv: List of neighbor vertices of target with 1-node
+        end
+    end
+    
+    normals = getNormals(Vt_tf, sg_mesh.faces);
+    normals_F = normals(row3,:);
+    normals_F = sum(normals_F);
+    normals_F = normals_F/norm(normals_F);
+    Normal_t(vertexIdx,:) = normals_F; % weighted normal vector of vi
+end
+
 clear row2 col2 distances ErrorStats i j LI normals nv LMs LMt Template_LM v vertexIdx Vt
+
+Normal_t_palm = Normal_t(keep, :);
 
 %%
 O = sg_mesh.vertices;
@@ -124,8 +154,7 @@ n = n_sub_sample_t_palm; % supply, # of palm = 137
 dummysize = m - n; % % 509
 fprintf('size of supply dummy: %d\n',dummysize);
 
-
-%% template palm fitting to raw hand scan
+%% template palm fitting to raw hand scan (sub-sampled version)
 
 A = zeros(m,m); % m x m matrix 
 % A = point to point distnace between template and scan points
@@ -135,28 +164,185 @@ for i = 1:n
     cost(i,j) = norm(Sub_sample_t_palm(i,:)-Sub_sample_sp(j,:));
     end
 end
-cost(n+1:m,:) = 0;
+cost(n+1:m,:) = 10000;
 A = cost;
 supply = ones(m,1);
 demand = ones(1,m);
 
 tic
-vogelResult = full(vogels(A,supply,demand))
-vogelCost = sum(sum(A.*vogelResult))
-optimalSolution = modi(A, vogelResult, supply, demand)
-A
-fprintf("Optimized cost = %d\n",sum(sum(A.*optimalSolution)))
+vogelResult = full(vogels(A,supply,demand));
+vogelCost = sum(sum(A.*vogelResult));
 toc
+
+%% template palm fitting to raw hand scan (full vertex version)
+
+m = size(Vsp,1); % demand, # of original scan = 6457
+n = size(Vt_palm,1); % supply, # of palm = 1374
+dummysize = m - n; % % 509
+fprintf('size of supply dummy: %d\n',dummysize);
+
+
+A = zeros(m,m); % m x m matrix 
+% A = point to point distnace between template and scan points
+
+for i = 1:n
+    for j = 1:m
+    cost(i,j) = norm(Vt_palm(i,:)-Vsp(j,:));
+    end
+end
+cost(n+1:m,:) = 10000;
+A = cost;
+supply = ones(m,1);
+demand = ones(1,m);
+
+tic
+vogelResult = full(vogels(A,supply,demand));
+vogelCost = sum(sum(A.*vogelResult));
+toc
+
+
+%% generation correspondence pair
+
+pair = zeros(m,2);
+
+PM = vogelResult';
+for i = 1:m
+    S_can = PM(:,i);
+    SolLI = S_can == 1;
+    [row_sc,~] = find(SolLI);
+    pair(i,2) = row_sc;
+end
+pair(1:m) = [1:m]'; % pair set of sub-sample data
+pair(n+1:end,:) = [];
+pair_o(:,1) = Idx_sub_sample_t_palm';
+pair_o(:,2) = [Idx_sub_sample_sp(pair(:,2))]';
+
+Pair_Idx_t_palm = pair_o(:,1);
+Pair_Idx_sp = pair_o(:,2);
+
+Pair_t_palm = Vt_tf_palm(Pair_Idx_t_palm,:);
+Pair_sp = Vsp(Pair_Idx_sp,:);
+
+% full version 
+load('vogelResult_full.mat');
+pair = zeros(m,2);
+
+PM = vogelResult';
+for i = 1:m
+    S_can = PM(:,i);
+    SolLI = S_can == 1;
+    [row_sc,~] = find(SolLI);
+    pair(i,2) = row_sc;
+end
+pair(1:m) = [1:m]'; % pair set of full data
+pair(n+1:end,:) = []; 
+% pair_o = index of pairs for palm region
+pair_o(:,1) = Vt_palm_idx';
+pair_o(:,2) = pair(:,2);
+
+Pair_Idx_t_palm = pair_o(:,1);
+Pair_Idx_sp = pair_o(:,2);
+
+Pair_t_palm = Vt_tf(Pair_Idx_t_palm,:); 
+Pair_sp = Vsp(Pair_Idx_sp,:);
+
+
+%% angle difference check
+
+
+
+clear regParams Bfit ErrorStats
+
+Pair_t_palm = Pair_t_palm';
+Pair_sp = Pair_sp';
+
+[regParams,Bfit,ErrorStats] = absor(Pair_t_palm,Pair_sp);
+Vt_tf2 = Vt_tf;
+Vt_tf2(:,4) = 1;
+Vt_tf2 = Vt_tf2';
+Vt_tf2 = regParams.M*Vt_tf2;
+Vt_tf2(4,:) = [];
+Vt_tf2 = Vt_tf2'; 
+
+
 
 %% matching - transportation algorithm 
 % transportation problem solving algorithmpair  testing
+pair = [];
+
+Sub_Normal_sp = Normal_sp(Idx_sub_sample_sp(1:n_sub_sample_sp),:);
+Sub_Normal_t_palm = Normal_t_palm(Idx_sub_sample_t_palm(1:n_sub_sample_t_palm),:);
+
 
 vertexIdx = 1;
+CP = zeros(n_sub_sample_sp,1);
 
-vni = normals_F;
-dv = av - dot(av,bv)/norm(bv)^2 * bv; 
-cosTH = dot(dv,vni)/(norm(dv)*norm(vni));
+v1 = Sub_Normal_t_palm(vertexIdx,:);
+for i = 1:size(Sub_sample_sp,1)
+v2 = Sub_Normal_sp(i,:);
+cosX = dot(v1,v2)/norm(v1)*norm(v2);
+CP(i,1) = cosX;
+end 
 
+for i = 1:646
+LIX(i,1) = (CP(i,1) >= 0.866) && (CP(i,1) < 1);
+LIX_idx = Idx_sub_sample_sp(LIX);
+LIX_sp = Sub_sample_sp(LIX,:);
+end
+
+n = size(LIX_sp,1);
+delta = LIX_sp - repmat(v1, n, 1);
+distances = sum(delta .^ 2, 2);
+[~, j] = min(distances);
+pair(1,1) = vertexIdx;
+pair(1,2) = Idx_sub_sample_sp(j)
+% threshold_palm_cut = norm(centroid_t-vertices(j,:));
+
+
+
+%% pair visualization
+O = sg_mesh.vertices;
+TF = Vt_tf;
+TF2 = Vt_tf2;
+TG = Vsp;
+IT = Vt_tf_palm;
+
+P0P = Pair_t_palm; 
+PTG = Pair_sp;
+
+figure()
+axis equal
+axis off
+hold on
+% original T-points = Gray color
+scatter3(IT(673,1),IT(673,2),IT(673,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(IT(265,1),IT(265,2),IT(265,3),'*', 'MarkerEdgeColor',[0/255, 255/255, 0/255]);
+scatter3(IT(282,1),IT(282,2),IT(282,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+scatter3(IT(:,1),IT(:,2),IT(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+% transformed T-points = Light blue color
+scatter3(TG(1376,1),TG(1376,2),TG(1376,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(TG(230,1),TG(230,2),TG(230,3),'*', 'MarkerEdgeColor',[0/255, 255/255, 0/255]);
+scatter3(TG(5118,1),TG(5118,2),TG(5118,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+scatter3(TG(:,1),TG(:,2),TG(:,3),'.', 'MarkerEdgeColor',[154/255, 226/255, 247/255]);
+hold off
+
+% transform before / after - palm area
+figure()
+axis equal
+axis off
+hold on
+scatter3(TF(:,1),TF(:,2),TF(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(TF2(:,1),TF2(:,2),TF2(:,3),'.', 'MarkerEdgeColor',[154/255, 226/255, 247/255]);
+hold off
+
+% Correspondence pair full version, Red = template palm, Blue = target scan
+figure()
+axis equal
+axis off
+hold on
+scatter3(P0P(:,1),P0P(:,2),P0P(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(PTG(:,1),PTG(:,2),PTG(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+hold off
 
 
 %% visualization 
@@ -168,6 +354,8 @@ scatter3(Vt_tf(:,1),Vt_tf(:,2),Vt_tf(:,3),'.', 'MarkerEdgeColor',[217/255, 217/2
 %scatter3(sg_mesh.vertices(:,1),sg_mesh.vertices(:,2),sg_mesh.vertices(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
 scatter3(scan_points(:,1),scan_points(:,2),scan_points(:,3),'.', 'MarkerEdgeColor',[0/255, 200/255, 0/255]);
 hold off
+
+
 
 figure()
 axis equal

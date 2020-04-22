@@ -27,7 +27,7 @@ while 1
     for p = 1:rows
         x = mink(A(p,:),2); %x gets the smallest two values in that row
         if any(isnan(x(:))) %check x for NaN values
-            vertDif(p) = 0; %if found, default to the first of the two, guaranteed to be non-nan number
+            vertDif(p) = -1; %if found, default to the first of the two, guaranteed to be non-nan number
         else
             x = abs( int64(x(1)) - int64(x(2))); %calulcate the difference of the two
             vertDif(p) = x;
@@ -37,7 +37,7 @@ while 1
     for q = 1:cols
         x = mink(A(:,q),2);
         if any(isnan(x(:)))
-            horizDif(q) = 0;
+            horizDif(q) = -1;
         else
             x = abs( int64(x(1)) - int64(x(2)));
             horizDif(q) = x;
