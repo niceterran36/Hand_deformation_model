@@ -1,13 +1,13 @@
 clc
 clear all;
 %% activation on Desktop Lab
- addpath('F:\[GitHub]\Hand_deformation_model\functions');
- addpath('F:\[GitHub]\Hand_deformation_model\external');
- addpath('F:\[GitHub]\Hand_deformation_model\data');
+% addpath('F:\[GitHub]\Hand_deformation_model\functions');
+% addpath('F:\[GitHub]\Hand_deformation_model\external');
+% addpath('F:\[GitHub]\Hand_deformation_model\data');
 %% activation on Mac 
-% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
-% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
-% addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
+ addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
+ addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
+ addpath('/Users/user/Documents/GitHub/Hand_deformation_model/functions');
 %%
 [Vsp, F, FB, H] = function_loading_ply_file('S01_hand data.ply');
 LMs = function_get_LM_from_iges('S01_LM8.igs');
@@ -138,67 +138,67 @@ hold off
 clear O TF TG IT
 
 %% Sub-sampling template-palm area
-% sub-sample of scan points
-n_sub_sample_sp = round(size(Vsp,1)/10);
-fprintf('n_sub_sample_sp: %d/%d, demand\n',n_sub_sample_sp,size(Vsp,1));
-Idx_sub_sample_sp = randperm(size(Vsp,1),n_sub_sample_sp);
-Sub_sample_sp = Vsp(Idx_sub_sample_sp(1:n_sub_sample_sp),:);
-% sub-sample of template palm points
-n_sub_sample_t_palm = round(size(Vt_palm,1)/10);
-fprintf('n_sub_sample_t_palm: %d/%d, supply\n',n_sub_sample_t_palm,size(Vt_palm,1));
-Idx_sub_sample_t_palm = randperm(size(Vt_palm,1),n_sub_sample_t_palm);
-Sub_sample_t_palm = Vt_palm(Idx_sub_sample_t_palm(1:n_sub_sample_t_palm),:);
-% calucation of dummy size for supply (template points)
-m = n_sub_sample_sp; % demand, # of original scan = 646
-n = n_sub_sample_t_palm; % supply, # of palm = 137
-dummysize = m - n; % % 509
-fprintf('size of supply dummy: %d\n',dummysize);
+% % sub-sample of scan points
+% n_sub_sample_sp = round(size(Vsp,1)/10);
+% fprintf('n_sub_sample_sp: %d/%d, demand\n',n_sub_sample_sp,size(Vsp,1));
+% Idx_sub_sample_sp = randperm(size(Vsp,1),n_sub_sample_sp);
+% Sub_sample_sp = Vsp(Idx_sub_sample_sp(1:n_sub_sample_sp),:);
+% % sub-sample of template palm points
+% n_sub_sample_t_palm = round(size(Vt_palm,1)/10);
+% fprintf('n_sub_sample_t_palm: %d/%d, supply\n',n_sub_sample_t_palm,size(Vt_palm,1));
+% Idx_sub_sample_t_palm = randperm(size(Vt_palm,1),n_sub_sample_t_palm);
+% Sub_sample_t_palm = Vt_palm(Idx_sub_sample_t_palm(1:n_sub_sample_t_palm),:);
+% % calucation of dummy size for supply (template points)
+% m = n_sub_sample_sp; % demand, # of original scan = 646
+% n = n_sub_sample_t_palm; % supply, # of palm = 137
+% dummysize = m - n; % % 509
+% fprintf('size of supply dummy: %d\n',dummysize);
 
 %% template palm fitting to raw hand scan (sub-sampled version)
 
-A = zeros(m,m); % m x m matrix 
-% A = point to point distnace between template and scan points
-
-for i = 1:n
-    for j = 1:m
-    cost(i,j) = norm(Sub_sample_t_palm(i,:)-Sub_sample_sp(j,:));
-    end
-end
-cost(n+1:m,:) = 10000;
-A = cost;
-supply = ones(m,1);
-demand = ones(1,m);
-
-tic
-vogelResult = full(vogels(A,supply,demand));
-vogelCost = sum(sum(A.*vogelResult));
-toc
+% A = zeros(m,m); % m x m matrix 
+% % A = point to point distnace between template and scan points
+% 
+% for i = 1:n
+%     for j = 1:m
+%     cost(i,j) = norm(Sub_sample_t_palm(i,:)-Sub_sample_sp(j,:));
+%     end
+% end
+% cost(n+1:m,:) = 10000;
+% A = cost;
+% supply = ones(m,1);
+% demand = ones(1,m);
+% 
+% tic
+% vogelResult = full(vogels(A,supply,demand));
+% vogelCost = sum(sum(A.*vogelResult));
+% toc
 
 %% template palm fitting to raw hand scan (full vertex version)
 
-m = size(Vsp,1); % demand, # of original scan = 6457
-n = size(Vt_palm,1); % supply, # of palm = 1374
-dummysize = m - n; % % 509
-fprintf('size of supply dummy: %d\n',dummysize);
-
-
-A = zeros(m,m); % m x m matrix 
-% A = point to point distnace between template and scan points
-
-for i = 1:n
-    for j = 1:m
-    cost(i,j) = norm(Vt_palm(i,:)-Vsp(j,:));
-    end
-end
-cost(n+1:m,:) = 10000;
-A = cost;
-supply = ones(m,1);
-demand = ones(1,m);
-
-tic
-vogelResult = full(vogels(A,supply,demand));
-vogelCost = sum(sum(A.*vogelResult));
-toc
+% m = size(Vsp,1); % demand, # of original scan = 6457
+% n = size(Vt_palm,1); % supply, # of palm = 1374
+% dummysize = m - n; % % 509
+% fprintf('size of supply dummy: %d\n',dummysize);
+% 
+% 
+% A = zeros(m,m); % m x m matrix 
+% % A = point to point distnace between template and scan points
+% 
+% for i = 1:n
+%     for j = 1:m
+%     cost(i,j) = norm(Vt_palm(i,:)-Vsp(j,:));
+%     end
+% end
+% cost(n+1:m,:) = 10000;
+% A = cost;
+% supply = ones(m,1);
+% demand = ones(1,m);
+% 
+% tic
+% vogelResult = full(vogels(A,supply,demand));
+% vogelCost = sum(sum(A.*vogelResult));
+% toc
 
 
 %% generation correspondence pair
@@ -249,21 +249,43 @@ Pair_sp = Vsp(Pair_Idx_sp,:);
 
 %% angle difference check
 
+n = size(sg_mesh.vertices, 1); % group A supply = 6457
+m = size(Vsp, 1); % group B demand = 6984
+cost = zeros(m,m);
 
+Vt = Vt_tf;
+Vs = Vsp;
+Ang_diff = zeros(m,2);
 
-clear regParams Bfit ErrorStats
+i = 1;
 
-Pair_t_palm = Pair_t_palm';
-Pair_sp = Pair_sp';
+vi = Normal_t(i,:);
 
-[regParams,Bfit,ErrorStats] = absor(Pair_t_palm,Pair_sp);
-Vt_tf2 = Vt_tf;
-Vt_tf2(:,4) = 1;
-Vt_tf2 = Vt_tf2';
-Vt_tf2 = regParams.M*Vt_tf2;
-Vt_tf2(4,:) = [];
-Vt_tf2 = Vt_tf2'; 
+for j = 1:m    
 
+    vj = Normal_sp(j,:);
+    cosX = dot(vi,vj)/(norm(vi)*norm(vj));
+    dist = norm(Vt(i,:))-norm(Vs(j,:));
+    %Ang_diff(1,j) = cosX;
+    
+    if cosX < 0.866
+       cost(i,j) = 10000;
+    else
+       cost(i,j) = norm(Vt(i,:))-norm(Vs(j,:));
+    end 
+    
+    if dist > 50 % continue here ========
+       cost(i,j) = 10000;
+    else
+    
+    end 
+
+end 
+
+LIf = cost ~= 10000;
+[~, c] = find(LIf);
+
+clear LIf c cost
 
 
 %% matching - transportation algorithm 
@@ -342,6 +364,19 @@ axis off
 hold on
 scatter3(P0P(:,1),P0P(:,2),P0P(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
 scatter3(PTG(:,1),PTG(:,2),PTG(:,3),'.', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+hold off
+
+% Correspondence candidate of scan points for template v1
+TF = Vt_tf;
+TG = Vsp;
+
+figure()
+axis equal
+axis off
+hold on
+%scatter3(TF(:,1),TF(:,2),TF(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(TF(1,1),TF(1,2),TF(1,3),'o', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(Vsp(c,1),Vsp(c,2),Vsp(c,3),'.', 'MarkerEdgeColor',[154/255, 226/255, 247/255]);
 hold off
 
 
