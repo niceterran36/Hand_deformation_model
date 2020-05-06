@@ -1,13 +1,13 @@
 clc
 clear all;
 %% activation on Desktop Lab
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\external');
-% addpath('F:\[GitHub]\Hand_deformation_model\data');
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\external');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
 %% activation on Mac 
- addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
- addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
- addpath('/Users/user/Documents/GitHub/Hand_deformation_model/functions');
+%  addpath('/Users/user/Documents/GitHub/Hand_deformation_model/data');
+%  addpath('/Users/user/Documents/GitHub/Hand_deformation_model/external');
+%  addpath('/Users/user/Documents/GitHub/Hand_deformation_model/functions');
 %%
 [Vsp, F, FB, H] = function_loading_ply_file('S01_hand data.ply');
 LMs = function_get_LM_from_iges('S01_LM8.igs');
@@ -268,7 +268,7 @@ for j = 1:m
     dist = norm(Vt(i,:))-norm(Vs(j,:));
     %Ang_diff(1,j) = cosX;
     
-    if cosX < 0.866
+    if cosX < cos(30 * pi / 180)
        cost(i,j) = 10000;
     else
        cost(i,j) = norm(Vt(i,:))-norm(Vs(j,:));
