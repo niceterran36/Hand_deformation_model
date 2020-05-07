@@ -20,7 +20,7 @@ axes = compute_bone_axes(mesh.spheres);
 transform = inv(initial_guess(points.vertices)) * initial_guess(mesh.vertices);
 faces = mesh.faces;
 vertices = apply_matrix(transform, mesh.vertices);
-normals = per_vertex_normals(vertices, faces);
+normals = -per_vertex_normals(vertices, faces);
 trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 hold on;
 trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
@@ -38,20 +38,50 @@ axis off;
 title('Initial guess');
 pause;
 
+%%
+O = vertices;
+TF = faces;
+TG = points.vertices;
+
+figure()
+axis equal
+axis off
+hold on
+% original T-points = Gray color
+scatter3(O(:,1),O(:,2),O(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+% target scan points = Light blue color
+scatter3(TG(:,1),TG(:,2),TG(:,3),'.', 'MarkerEdgeColor',[154/255, 226/255, 247/255]);
+quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
+quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
+% Interest (palm segments) = Red color
+% scatter3(IT(:,1),IT(:,2),IT(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+hold off
+
+clear O TF TG
+
 %% Keep only the palm and find rigid transform iteratively
 keep = ismember(mesh.assignment, [1:6]);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 
-mesh_vertices = vertices;
-mesh_normals = normals;
-points_vertices = points.vertices;
-points_normals = points.normals;
-distance_threshold = 30;
-cos_angle_threshold = 0.5;
+distance_threshold = 50;
+
+    n = size(vertices, 1);
+    m = size(points.vertices, 1);
+    pairs = zeros(n, 2);
+    
+    for i = 1 : n
+        delta = points.vertices - repmat(vertices(i, :), m, 1);
+        distances = sqrt(sum(delta .^ 2, 2));
+        [~, j] = min(distances);
+        pairs(i, 1) = i;
+        pairs(i, 2) = j;
+    end
 
 
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+pairs = pairs(keep    
+    
+pairs = compute_correspondences(vertices, normals, points.vertices, points.normals, distance_threshold);
 for i = 1 : 20
     delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
     transform = delta * transform;
