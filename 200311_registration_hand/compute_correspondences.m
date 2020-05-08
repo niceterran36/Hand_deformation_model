@@ -6,7 +6,7 @@ function pairs = compute_correspondences(mesh_vertices, mesh_normals, points_ver
         distance_threshold = 30;
     end
     if nargin < 6
-        cos_angle_threshold = cos(60 * pi / 180);
+        cos_angle_threshold = cos(30 * pi / 180);
     end
 
     % For each mesh vertex, find closest point
@@ -16,7 +16,7 @@ function pairs = compute_correspondences(mesh_vertices, mesh_normals, points_ver
     pairs = zeros(n, 2);
     for i = 1 : n
         delta = points_vertices - repmat(mesh_vertices(i, :), m, 1);
-        distances = sum(delta .^ 2, 2);
+        distances = sqrt(sum(delta .^ 2, 2));
         [~, j] = min(distances);
         pairs(i, 1) = i;
         pairs(i, 2) = j;
@@ -34,8 +34,8 @@ function pairs = compute_correspondences(mesh_vertices, mesh_normals, points_ver
         % Check if distance is too large
         distance = norm(mesh_vertices(p, :) - points_vertices(q, :));
         if distance > distance_threshold
-            keep(i) = false;
-        end
+             keep(i) = false;
+         end
         
         % Check if normals differ
         cos_angle = mesh_normals(p, :) * points_normals(q, :)';
