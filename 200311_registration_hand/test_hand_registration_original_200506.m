@@ -9,7 +9,7 @@ addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 
 load('hy_mesh_n.mat');
 points = {};
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('S01_hand data.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('mj_scanhand.ply');
 points.normals = per_vertex_normals(points.vertices, points.faces);
 transforms = cell(1, 18);
 for i = 1 : 18
