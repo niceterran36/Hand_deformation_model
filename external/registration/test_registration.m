@@ -75,7 +75,7 @@ transforms{15} = transform;
 
 % Fit finger roots
 bones = [6, 9, 12, 16];
-for f = 1 : 4
+for f = 1:4
     transform = transforms{2};
     keep = mesh.assignments == bones(f);
     [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
