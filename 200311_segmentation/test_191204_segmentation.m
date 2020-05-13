@@ -51,57 +51,275 @@ B = centers;
 scatter3(A(:,1),A(:,2),A(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 hold off
 
-%% Test code for vertex vi
+%% Thumb separation 
+% separation of thumb
+% 3D points of plane for thumb separation
+p1 = [29.43 -15.2 -9.44];
+p2 = [20.0849 -12.2734 4.656];
+p3 = [23.1565 0.41879 -1.093];
+p4 = [39.5562 -11.234 -11.7696];
+p5 = [33.3109 -25.2249 -10.2957];
+[a1, b1, c1, d1] = generate_plane_3point(p1, p2, p3);
+[a2, b2, c2, d2] = generate_plane_3point(p1, p4, p5);
+PL = zeros(4,4);
+PL(1,:) = [a1, b1, c1, d1];
+PL(2,:) = [a2, b2, c2, d2];
 
-% jna = centers(3,:);
-% jnb = centers(2,:);
-% %vt = [-69.7 -22.5 60.9]; % after the segment 
-% vt = [-61.20 -20.35 44.06]; % between the segment
-% %vt = [-47.85 -0.99 -10.44] % before the segment
-% vt_jna = vt - jna;
-% jnb_jna = jnb - jna;
-% delta = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
-% 
-% % distance of projection vector from vi to segment 
-% % vt: target vertex 
-% av = vt-jna; bv = jnb-jna; cv = dot(av,bv)/norm(bv); % vector define
-% dv1 = sqrt(norm(av)^2 - norm(cv)^2); % distance by trigonometric functions
-% dv = av - dot(av,bv)/norm(bv)^2 * bv; % distance by vector & norm 
-% dv2 = norm(dv);
-% 
-% % neighboring vertex info in the FACE column
-% % vertexIdx = 12;
-% vertexIdx = 1281;
-% 
-% F2 = F;
-% LI = F2 == vertexIdx;
-% [row, col] = find(LI);
-% F2 = F2(row,:);
-% 
-% for i = 1:size(F2,1)*3
-%     v(i,1) = F2(i);
-% end
-%     
-% nv = vertexIdx; % target vertex
-% for i = 1:size(v,1)
-%     if v(i) ~= nv
-%        nv = [nv v(i)]; % nv: List of neighbor vertices of target with 1-node
-%     end
-% end
-% 
-% % vertex normal calculation (unit vector by sum of the around face normal)
-% 
-% normals = getNormals(V, F);
-% normals_F = normals(row,:);
-% normals_F = sum(normals_F);
-% normals_F = normals_F/norm(normals_F);
-% vni = normals_F;
-% 
-% % angle(theta) between dv and vertex normal
-% % dv: projection vector, vni: vertex normal of vi
-% dv = dv./dv2;
-% 
-% cosTH = dot(dv,vni)/(norm(dv)*norm(vni)); 
+stone = [37.1181 -20.9484 11.3294];
+
+TV = PL(1,1)*stone(1) + PL(1,2)*stone(2) + PL(1,3)*stone(3) + PL(1,4);
+TV2 = PL(2,1)*stone(1) + PL(2,2)*stone(2) + PL(2,3)*stone(3) + PL(2,4);
+
+N1 = zeros(size(A,1),1);
+N2 = zeros(size(A,1),1);
+
+A = V;
+Compare = zeros(size(A,1),1);
+for i = 1:size(A,1)
+    T = a1*A(i,1)+b1*A(i,2)+c1*A(i,3)+d1;
+    Compare(i) = T;
+end 
+Compare(Compare>0) = 0; % convert negative value as zero
+N1 = Compare;
+
+Compare = [];
+Compare = zeros(size(A,1),1);
+for i = 1:size(A,1)
+    T = a2*A(i,1)+b2*A(i,2)+c2*A(i,3)+d2;
+    Compare(i) = T;
+end 
+Compare(Compare>0) = 0;
+N2 = Compare;
+
+NA = N1.*N2;
+TT = find(NA); % right arm separation
+
+v_thumb = zeros(size(TT,2),3);
+for i = 1:size(TT,1)
+    K = V(TT(i),:);
+    v_thumb(i,:) = K;
+end 
+
+v_thumb = [TT v_thumb];
+
+clear a1 a2 b1 b2 c1 c2 d1 d2 Compare K p1 p2 p3 p4 p5 PL stone T TV TV2
+
+Tnew = find(v_thumb(:,2)<20);
+v_thumb(Tnew,:) = [];
+
+figure()
+hold on
+axis equal
+scatter3(v_thumb(:,2),v_thumb(:,3),v_thumb(:,4),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255])
+hold off
+
+%% Thumb segmentation
+
+A = centers;
+v_segment = zeros(6984,1);
+
+for th_i = 1:size(v_thumb,1)
+    F2 = F;
+    LI = F2 == v_thumb(th_i,1);
+    [row2, col2] = find(LI);
+    F2 = F2(row2,:);
+    normals = getNormals(V, F);
+    normals_F = normals(row2,:);
+    normals_F = sum(normals_F);
+    normals_F = normals_F/norm(normals_F);
+    vni = normals_F; % weighted normal vector of vi
+    vertex_normals(v_thumb(th_i,1),:) = vni;
+    
+    Sj = zeros(21,5); Sj(1:21,1) = [1:21]';
+    
+    for segment=7:8
+
+        
+            vt = V(v_thumb(th_i,1),:);
+            jna = A(S(segment,1),:); jnb = A(S(segment,2),:); 
+            vt_jna = vt - jna;
+            jnb_jna = jnb - jna;
+            delta = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
+            Sj(segment,2) = delta;
+
+            av = vt-jna; 
+            bv = jnb-jna; 
+            cv = dot(av,bv)/norm(bv);
+            %dv1 = sqrt(norm(av)^2 - norm(cv)^2);
+            dv = av - dot(av,bv)/norm(bv)^2 * bv; % projection vector
+            dv2 = norm(dv);
+            Sj(segment,3) = dv2;
+            dv = dv./dv2;
+            cosTH = dot(dv,vni)/(norm(dv)*norm(vni));
+            Sj(segment,4) = cosTH;
+
+            % min-distance
+            if delta >= 0 && delta <= 1
+               min_d = dv2;
+            elseif delta < 0
+               min_d = norm(vt-jna);
+            else
+               min_d = norm(vt-jnb);
+            end
+            Sj(segment,5) = min_d;
+    end 
+    
+    Sj(1:6,:) = [];
+    Sj(3:end,:) = [];
+    
+    Sj_c = Sj;
+
+    if size(Sj_c,1) ~= 0
+        LIX = Sj_c(:,4)>=0; %angle condition1
+        Sj_c = Sj(LIX,:);
+
+        if size(Sj_c,1) ~= 0
+            LIX = Sj_c(:,4)<1; % angle condition2
+            Sj_c = Sj_c(LIX,:);
+            
+            if size(Sj_c,1) ~= 0
+                LIX = Sj_c(:,2)>=0; % cut with delta 
+                Sj_c = Sj_c(LIX,:);
+                
+                if size(Sj_c,1) ~= 0
+                    LIX = Sj_c(:,2)<1; % cut with delta
+                    Sj_c = Sj_c(LIX,:);
+                                        
+                    if size(Sj_c,1) ~= 0
+                        LIX = Sj_c(:,5)<17; % cut with distance
+                        Sj_c = Sj_c(LIX,:);
+                        
+                        if size(Sj_c,1) == 0;
+                            v_segment(v_thumb(th_i,1),1) = 22;
+                        else
+                            v_mindist = min(Sj_c(:,3));
+                            [row,col] = find(Sj_c(:,3) == v_mindist); % searching min distance
+                            v_delta = Sj_c(row,2); % final delta of vi
+                            v_segment(v_thumb(th_i,1),1) = Sj_c(row,1); % final segment of vi
+                        end
+                        
+                    else
+                        v_segment(v_thumb(th_i,1),1) = 22;
+                    end
+                    
+                else
+                    v_segment(v_thumb(th_i,1),1) = 22;
+                end
+                
+            else
+                v_segment(v_thumb(th_i,1),1) = 22;
+            end
+            
+        else
+            v_segment(v_thumb(th_i,1),1) = 22;
+        end
+
+    else
+        v_segment(v_thumb(th_i,1),1) = 22;
+    end   
+    
+ v_mindist_s = min(Sj(:,5)); 
+end 
+
+Sg22 = []; 
+temLI = v_segment == 22;  Sg22(:,2:4) =  V2(temLI,:);
+Sg22(:,1) = V_idx(temLI);
+
+for i = 1:size(Sg22,1)
+
+    vertexIdx = Sg22(i);
+
+        Sz = zeros(21,3); Sz(1:21,1) = [1:21]';
+
+    for segment=7:8
+
+        % projection-distance (Sz(:,2))
+        vt = V(vertexIdx,:);
+        jna = A(S(segment,1),:); jnb = A(S(segment,2),:); 
+        vt_jna = vt - jna;
+        jnb_jna = jnb - jna;
+        delta = dot(vt_jna,jnb_jna)/ (norm(jnb-jna))^2;
+        av = vt-jna; 
+        bv = jnb-jna; 
+        cv = dot(av,bv)/norm(bv);
+        dv = av - dot(av,bv)/norm(bv)^2 * bv; % projection vector
+        dv2 = norm(dv);
+        Sz(segment,2) = dv2;
+        Sz(segment,4) = delta;
+        
+        % min-distance (Sz(:,3))
+        if delta >= 0 && delta <= 1
+           min_d = dv2;
+        elseif delta < 0
+           min_d = norm(vt-jna);
+        else
+           min_d = norm(vt-jnb);
+        end
+        Sz(segment,3) = min_d;
+        
+        Sz(1:6,:) = [];
+        Sz(3:end,:) = [];
+    
+
+    end
+    
+    v22_mindist1 = min(Sz(:,3));
+    [row3,col3] = find(Sz(:,3) == v22_mindist1);
+        
+    if size(row3,1) == 1
+        v_segment(vertexIdx,1) = Sz(row3,1);
+    else
+        v22_mindist2 = [Sz(row3(1),2); Sz(row3(end),2)];
+        v22_mindist2 = max(v22_mindist2);
+        [row4,col4] = find(Sz(:,2) == v22_mindist2);
+        v_segment(vertexIdx,1) = Sz(row4,1);
+    end
+    
+end     
+
+S_edge = [8]; % S_edge(1) = thumb
+edge_points = zeros(size(S_edge,1),3);
+for i = 1:size(S_edge,1);
+edge_points(i,:) = centers(S(S_edge(i),2),:);
+end 
+
+V_idx = [1:size(V,1)]';
+V_seg = [V_idx, V, v_segment];
+LIX = v_segment == 22; % 22 segment
+Vseg_1 = V_seg(:,1); Vseg_2 = V_seg(:,2); Vseg_3 = V_seg(:,3); Vseg_4 = V_seg(:,4); Vseg_5 = V_seg(:,5);
+V_seg = [Vseg_1(LIX) Vseg_2(LIX) Vseg_3(LIX) Vseg_4(LIX) Vseg_5(LIX)];
+dist_v_eg = zeros(6,1);
+
+for i = 1:size(V_seg,1)
+
+dist_v_eg(1) = norm(V_seg(i,2:4)-edge_points(1,:));
+dist_v_eg(2) = norm(V_seg(i,2:4)-edge_points(2,:));
+dist_v_eg(3) = norm(V_seg(i,2:4)-edge_points(3,:));
+dist_v_eg(4) = norm(V_seg(i,2:4)-edge_points(4,:));
+dist_v_eg(5) = norm(V_seg(i,2:4)-edge_points(5,:));
+dist_v_eg(6) = norm(V_seg(i,2:4)-edge_points(6,:));
+dist_v_eg_min = min(dist_v_eg(:,1));
+[row,col] = find(dist_v_eg(:,1) == dist_v_eg_min);
+
+if dist_v_eg_min <= 50
+   if row == 1
+      V_seg(i,5) = 8;
+   elseif row == 2
+      V_seg(i,5) = 11;
+   elseif row == 3
+      V_seg(i,5) = 14; 
+   elseif row == 4
+      V_seg(i,5) = 17;
+   elseif row == 5
+       V_seg(i,5) = 20;
+   else
+       V_seg(i,5) = 21;
+   end
+else   
+   V_seg(i,5) = 22;  
+end 
+
+end 
 
 
 %%  vertex seperation
