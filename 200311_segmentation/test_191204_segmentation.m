@@ -321,6 +321,17 @@ end
 
 end 
 
+%% 
+
+load('hy_mesh_n.mat');
+o_segment = mesh.assignment;
+LIX2 = o_segment == 7;
+o_Seg_7 = V2(LIX2,:);
+o_Seg7_idx = V_idx(LIX2);
+
+LIX3 = v_segment == 7;
+n_Seg_7 = V2(LIX3,:);
+n_Seg7_idx = V_idx(LIX3);
 
 %%  vertex seperation
 tic
@@ -726,6 +737,13 @@ scatter3(Sg20(:,1),Sg20(:,2),Sg20(:,3),'.', 'MarkerEdgeColor',[242/255, 62/255, 
 scatter3(Sg21(:,1),Sg21(:,2),Sg21(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 %scatter3(Sg22(:,1),Sg22(:,2),Sg22(:,3),'.', 'MarkerEdgeColor',[0, 0, 0])
 hold off
+%%
+figure()
+hold on
+axis equal
+scatter3(Sg7(:,1),Sg7(:,2),Sg7(:,3),'.', 'MarkerEdgeColor',[1, 0, 0])
+hold off
+
 %%
 figure()
 hold on
