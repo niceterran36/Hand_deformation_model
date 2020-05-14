@@ -329,9 +329,33 @@ LIX2 = o_segment == 7;
 o_Seg_7 = V2(LIX2,:);
 o_Seg7_idx = V_idx(LIX2);
 
+% 410 vs 578
+
 LIX3 = v_segment == 7;
 n_Seg_7 = V2(LIX3,:);
 n_Seg7_idx = V_idx(LIX3);
+
+% o_Seg7_idx(1) --> new segment(7), near segment(6)
+
+N7 = [];
+N6 = [];
+
+n = o_Seg7_idx;
+m = n_Seg7_idx;
+
+for i = 1:size(n)
+
+    if n(1) ~= m(1)
+       N6 = [N6; n(1)];
+       n(1) = [];
+    else
+       N7 = [N7; n(1)];
+       n(1) = [];
+       m(1) = [];
+    end
+    
+end 
+
 
 %%  vertex seperation
 tic
@@ -339,7 +363,7 @@ for vertexIdx = 1:size(V,1);
 
 F2 = F;
 LI = F2 == vertexIdx;
-[row2, col2] = find(LI);
+[row2, col2] = find(LI);spq
 F2 = F2(row2,:);
 
     for i = 1:size(F2,1)*3
