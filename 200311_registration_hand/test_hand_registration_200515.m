@@ -1,8 +1,8 @@
 %% register library - PC
-addpath(genpath('../external'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-addpath('F:\[GitHub]\Hand_deformation_model\data');
-addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+% addpath(genpath('../external'));
+% addpath('F:\[GitHub]\Hand_deformation_model\functions');
+% addpath('F:\[GitHub]\Hand_deformation_model\data');
+% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 %% register library - Labtop
 addpath(genpath('../external'));
 addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
@@ -223,10 +223,67 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255
 hold off
 
 %% Result display
-
-
+% things to do = apply DQS deformation to rough registration
+% transformation control = mutiple possile, angle control
+% == start here
+% transformed = mesh;
+% mesh.vertices = vertices_c;
+% mesh.normals = normals;
+% transformed = skin_dualquat(transformed, transforms);
+% 
+% figure()
+% hold on;
+% axis equal
+% axis off
+% h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+% lighting gouraud;
+% view([-90, 0]);
+% camlight;
+% view([90, 0]);
+% camlight;
+% hold off;
 
 %% ICP registration
+
+targetV = points.vertices;
+sourceV = vertices_c;
+targetF = points.faces;
+sourceF = faces_c;
+iterations = 30;
+flag_prealligndata = 1;
+figureOn = 1;
+rigidICP = 0;
+
+[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP)
+
+vertices_c = sourceV;
+% clear targetV sourceV targetF sourceF 
+
+figure(3)
+axis equal
+axis off
+hold on
+scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+hold off
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

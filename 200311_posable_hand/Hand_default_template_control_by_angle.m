@@ -2,7 +2,7 @@ addpath(genpath('external'));
 addpath 'functions';
 
 mat1 = load('tr_mesh.mat');
-mat2 = load('hy_mesh_n.mat');
+mat2 = load('hy_mesh_n3.mat');
 mat2.mesh.bones = mat1.transformed.bones;
 mesh = mat2.mesh;
 
