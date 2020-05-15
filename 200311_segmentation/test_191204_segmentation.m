@@ -359,7 +359,7 @@ end
 N7(end+1:end+5,1) = N2(164:168,1);
 N2(164:168) = [];
 
-OTR = [2673; 2323; 2004; 1859; 1560; 1395];
+OTR = [2503; 2673; 2323; 2004; 1859; 1560; 1395];
 
 for i = 1:size(OTR,1);
 LIX4 = N2 == OTR(i);
@@ -368,7 +368,7 @@ GGG(i) = U1;
 end 
 GGG = GGG';
 
-N7(end+1:end+6) = N2(GGG);
+N7(end+1:end+7) = N2(GGG);
 
 for i = 1:size(OTR,1);
 LIX4 = N2 == OTR(i);
