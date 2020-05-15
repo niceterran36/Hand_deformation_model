@@ -1,10 +1,12 @@
+
 figure()
 axis equal
 axis off
 hold on
-h3 = scatter3(vi_D1(:,1),vi_D1(:,2),vi_D1(:,3),'.', 'MarkerEdgeColor',[255/255, 180/255, 180/255]);
-h4 = scatter3(seg2(:,1),seg2(:,2),seg2(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-%h5 = scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 190/255, 190/255]);
+%h3 = scatter3(vi_Dx(:,1),vi_Dx(:,2),vi_Dx(:,3),'.', 'MarkerEdgeColor',[255/255, 180/255, 180/255]);%
+h4 = scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+h5 = scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
 o_Seg_7

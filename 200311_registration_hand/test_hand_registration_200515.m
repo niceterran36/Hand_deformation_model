@@ -17,9 +17,7 @@ points.normals = per_vertex_normals(points.vertices, points.faces);
 
 vertices = mesh.vertices;
 faces = mesh.faces;
-Ct = mesh.centers;
-
-%tes_visualization
+centers_c = mesh.centers;
 
 %%
 % size of template vertices = n, % size of scan points = m
@@ -42,13 +40,9 @@ LMt = LMt'; LMs = LMs';
 clear j delta distances 
 
 [regParams,Bfit,ErrorStats] = absor(LMt,LMs);
-Vt = mesh.vertices;
-Ct = mesh.centers;
-Vt = apply_matrix(regParams.M, Vt, 1);
-Ct = apply_matrix(regParams.M, Ct, 1);
-vertices = Vt;
+vertices = apply_matrix(regParams.M, vertices, 1);
+centers_c = apply_matrix(regParams.M, centers_c, 1);
 
-%tes_visualization
 %% 
 transforms = cell(1, 18);
 for i = 1 : 18
@@ -56,7 +50,6 @@ for i = 1 : 18
 end
 axes = compute_bone_axes(mesh.spheres);
 
-faces = mesh.faces;
 normals = per_vertex_normals(vertices, faces);
 
 figure()
@@ -79,12 +72,9 @@ title('Initial guess');
 
 vertices_c = vertices;
 faces_c = faces;
-centers_c = Ct;
-
-%tes_visualization
 
 %% palm registration
-keep = ismember(mesh.assignment, [1:5]);
+keep = ismember(mesh.assignment, 1:5);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
@@ -125,25 +115,65 @@ vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
 centers_c = apply_matrix(transform, centers_c); % update current centers
 normals = per_vertex_normals(vertices_c, faces);
 
-%tes_visualization
+%% parameter for registration order
 
-%% D1 Metacarpals (root) registration
+P_segment = [6:20];
+P_cor = [20 19 18 16 15 14 12 11 10 8 7 6 4 3 2];
+P_digits{1} = [6:8];
+P_digits{2} = [7:8];
+P_digits{3} = 8;
+P_digits{4} = [9:11];
+P_digits{5} = [10:11];
+P_digits{6} = 11;
+P_digits{7} = [12:14];
+P_digits{8} = [13:14];
+P_digits{9} = 14;
+P_digits{10} = [15:17];
+P_digits{11} = [16:17];
+P_digits{12} = 17;
+P_digits{13} = [18:20];
+P_digits{14} = [19:20];
+P_digits{15} = 20;
+
+P_cor_tr{1} = [17:19];
+P_cor_tr{2} = [17:18];
+P_cor_tr{3} = 17;
+P_cor_tr{4} = [13:15];
+P_cor_tr{5} = [13:14];
+P_cor_tr{6} = 13;
+P_cor_tr{7} = [9:11];
+P_cor_tr{8} = [9:10];
+P_cor_tr{9} = 9;
+P_cor_tr{10} = [5:7];
+P_cor_tr{11} = [5:6];
+P_cor_tr{12} = 5;
+P_cor_tr{13} = [1:3];
+P_cor_tr{14} = [1:2];
+P_cor_tr{15} = 1;
+
+%% D1-D5 MCP,PIP,DID registration
+h3 = [];
+h4 = [];
+
+for j = 1:15
 
 vertices = vertices_c;
 faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
 
-keep = ismember(mesh.assignment, 6); % digit1 root
+keep = ismember(mesh.assignment, P_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
 
 transform = eye(4);
 
-figure()
+figure(2)
     for i = 1 : 10
+        delete(h3);
+        delete(h4);
         delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, centers_c(20,:));
+        delta = constraint_transformation(delta, centers_c(P_cor(j),:));
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
@@ -151,8 +181,8 @@ figure()
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
-        trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        plot3( ...
+        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
+        h4 = plot3( ...
             [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
             [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
             [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
@@ -171,114 +201,32 @@ figure()
         pause(0.01);
     end
 
-transforms{3} = transform;
-    
-keep = ismember(mesh.assignment, [6:8]);
-vi_D1 = vertices_c(keep,:);
-vi_D1 = apply_matrix(transform, vi_D1, 1);
+transforms{i} = transform;
+   
+keep = ismember(mesh.assignment, P_digits{j});
+vi_Dx = vertices_c(keep,:);
+vi_Dx = apply_matrix(transform, vi_Dx, 1);
 
-vertices_c(keep,:) = vi_D1;
-
-%% 
-
-vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
-centers_c = apply_matrix(transform, centers_c); % update current centers
+vertices_c(keep,:) = vi_Dx;
+centers_c(P_cor_tr{j},:) = apply_matrix(transform, centers_c(P_cor_tr{j},:), 1);
 normals = per_vertex_normals(vertices_c, faces);
 
-       
-%%
+end 
 
-vertices = vertices_b;
-faces = faces_b;
-normals = per_vertex_normals(vertices, faces);
-
-keep = ismember(mesh.assignment, [6:8]); 
-[vertices_D1, faces_D1] = filter_vertices(vertices, faces, keep);
-
-vertices_D1 = apply_matrix(transforms{1,3}, vertices_D1, 1);
-normals_D1 = per_vertex_normals(vertices_D1, faces_D1);
-
-
-%% D1 Proximal Phalanx registration
-
-vertices = vertices_b;
-faces = faces_b;
-normals = per_vertex_normals(vertices, faces);
-
-keep = ismember(mesh.assignment, 7);
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-vertices = apply_matrix(transforms{1,3}, vertices, 1);
-normals = normals(keep, :);
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
-
-    for i = 1 : 10
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, Ct(19,:));
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-        pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-    
-transforms{4} = transform;
-    
-
-%%
-O = vertices;
-TG = points.vertices;
-
-figure()
+figure(3)
 axis equal
 axis off
 hold on
-% original T-points = Gray color
-scatter3(O(:,1),O(:,2),O(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(Ct(19,1),Ct(19,2),Ct(19,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-% transformed T-points = Light blue color
-%scatter3(TF(:,1),TF(:,2),TF(:,3),'.', 'MarkerEdgeColor',[154/255, 226/255, 247/255]); 
-% target scan points = Green color
-scatter3(TG(:,1),TG(:,2),TG(:,3),'.', 'MarkerEdgeColor',[143/255, 230/255, 143/255]);
-% Interest (palm segments) = Red color
-%scatter3(IT(:,1),IT(:,2),IT(:,3),'.', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
+%% Result display
 
-%%
-figure()
-trimesh(faces, O(:, 1), O(:, 2), O(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
-hold on;
-trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-quiver3(O(:, 1), O(:, 2), O(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
-quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
-hold off;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
-axis equal;
-grid off;
-lighting gouraud;
-axis off;
-title('Initial guess');
+
+
+%% ICP registration
+
+
 
