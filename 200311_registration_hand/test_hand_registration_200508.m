@@ -8,7 +8,7 @@ addpath(genpath('../external'));
 addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
 addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\functions');
 %% Load data
-load('hy_mesh_n.mat');
+load('hy_mesh_n2.mat');
 LMs = function_get_LM_from_iges('LM_mjhand.igs');
 LMt = function_get_LM_from_iges('Template_LM8.igs');
 points = {};

@@ -356,6 +356,8 @@ for i = 1:size(n)
     
 end 
 
+o_segment(N6) = 6;
+v_segment = o_segment;
 
 %%  vertex seperation
 tic
