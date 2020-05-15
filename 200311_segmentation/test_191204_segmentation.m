@@ -338,7 +338,7 @@ n_Seg7_idx = V_idx(LIX3);
 % o_Seg7_idx(1) --> new segment(7), near segment(6)
 
 N7 = [];
-N6 = [];
+N2 = [];
 
 n = o_Seg7_idx;
 m = n_Seg7_idx;
@@ -346,7 +346,7 @@ m = n_Seg7_idx;
 for i = 1:size(n)
 
     if n(1) ~= m(1)
-       N6 = [N6; n(1)];
+       N2 = [N2; n(1)];
        n(1) = [];
     else
        N7 = [N7; n(1)];
@@ -356,7 +356,28 @@ for i = 1:size(n)
     
 end 
 
-o_segment(N6) = 6;
+N7(end+1:end+5,1) = N2(164:168,1);
+N2(164:168) = [];
+
+OTR = [2673; 2323; 2004; 1859; 1560; 1395];
+
+for i = 1:size(OTR,1);
+LIX4 = N2 == OTR(i);
+[U1, ~] = find(LIX4);
+GGG(i) = U1;
+end 
+GGG = GGG';
+
+N7(end+1:end+6) = N2(GGG);
+
+for i = 1:size(OTR,1);
+LIX4 = N2 == OTR(i);
+[U1, ~] = find(LIX4);
+N2(U1) = [];
+end 
+
+o_segment(N2) = 2;
+o_segment(N7) = 7;
 v_segment = o_segment;
 
 %%  vertex seperation
@@ -365,7 +386,7 @@ for vertexIdx = 1:size(V,1);
 
 F2 = F;
 LI = F2 == vertexIdx;
-[row2, col2] = find(LI);spq
+[row2, col2] = find(LI);
 F2 = F2(row2,:);
 
     for i = 1:size(F2,1)*3

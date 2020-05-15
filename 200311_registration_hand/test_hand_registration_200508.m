@@ -7,13 +7,20 @@ addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 addpath(genpath('../external'));
 addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
 addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\functions');
-%% Load data
-load('hy_mesh_n2.mat');
+%% Load data_S0
+load('hy_mesh_n3.mat');
 LMs = function_get_LM_from_iges('LM_mjhand.igs');
 LMt = function_get_LM_from_iges('Template_LM8.igs');
 points = {};
 [points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('mj_scanhand.ply');
 points.normals = per_vertex_normals(points.vertices, points.faces);
+
+vertices = mesh.vertices;
+faces = mesh.faces;
+Ct = mesh.centers;
+
+%tes_visualization
+
 %%
 % size of template vertices = n, % size of scan points = m
 n = size(mesh.vertices, 1); 
@@ -40,6 +47,8 @@ Ct = mesh.centers;
 Vt = apply_matrix(regParams.M, Vt, 1);
 Ct = apply_matrix(regParams.M, Ct, 1);
 vertices = Vt;
+
+%tes_visualization
 %% 
 transforms = cell(1, 18);
 for i = 1 : 18
@@ -68,15 +77,18 @@ axis off;
 title('Initial guess');
 % pause;
 
-vertices_b = vertices;
-faces_b = faces;
+vertices_c = vertices;
+faces_c = faces;
+centers_c = Ct;
+
+%tes_visualization
 
 %% palm registration
 keep = ismember(mesh.assignment, [1:5]);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
-
+figure()
 transform = eye(4);
 for i = 1 : 10
     delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
@@ -109,21 +121,16 @@ end
 
 transforms{2} = transform;
 
-%% 
-vertices = vertices_b;
-faces = faces_b;
+vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
+centers_c = apply_matrix(transform, centers_c); % update current centers
+normals = per_vertex_normals(vertices_c, faces);
 
-vertices = apply_matrix(transforms{1,2}, vertices, 1);
-normals = per_vertex_normals(vertices, faces);
-
-vertices_b = vertices;
-faces_b = faces;
+%tes_visualization
 
 %% D1 Metacarpals (root) registration
-% == start here == thumb finger segmentation update needed
 
-vertices = vertices_b;
-faces = faces_b;
+vertices = vertices_c;
+faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
 
 keep = ismember(mesh.assignment, 6); % digit1 root
@@ -131,9 +138,12 @@ keep = ismember(mesh.assignment, 6); % digit1 root
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
 
+transform = eye(4);
+
+figure()
     for i = 1 : 10
         delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, Ct(20,:));
+        delta = constraint_transformation(delta, centers_c(20,:));
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
@@ -160,8 +170,21 @@ pairs = compute_correspondences(vertices, normals, points.vertices, points.norma
         set(gca, 'view', v);
         pause(0.01);
     end
-    
+
 transforms{3} = transform;
+    
+keep = ismember(mesh.assignment, [6:8]);
+vi_D1 = vertices_c(keep,:);
+vi_D1 = apply_matrix(transform, vi_D1, 1);
+
+vertices_c(keep,:) = vi_D1;
+
+%% 
+
+vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
+centers_c = apply_matrix(transform, centers_c); % update current centers
+normals = per_vertex_normals(vertices_c, faces);
+
        
 %%
 
