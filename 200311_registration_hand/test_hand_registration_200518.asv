@@ -4,10 +4,10 @@ addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath('F:\[GitHub]\Hand_deformation_model\data');
 addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 %% register library - Labtop
-% addpath(genpath('../external'));
-% addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
-% addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\functions');
-%% Load data
+addpath(genpath('../external'));
+addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
+addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\functions');
+%% Load data_S0
 load('hy_mesh_n3.mat');
 LMs = function_get_LM_from_iges('LM_mjhand.igs');
 LMt = function_get_LM_from_iges('Template_LM8.igs');
@@ -19,7 +19,7 @@ vertices = mesh.vertices;
 faces = mesh.faces;
 centers_c = mesh.centers;
 
-%% Rough registration
+%%
 % size of template vertices = n, % size of scan points = m
 n = size(mesh.vertices, 1); 
 m = size(points.vertices, 1);
@@ -39,12 +39,11 @@ end
 LMt = LMt'; LMs = LMs';
 clear j delta distances 
 
-% apply transformation matrix
 [regParams,Bfit,ErrorStats] = absor(LMt,LMs);
 vertices = apply_matrix(regParams.M, vertices, 1);
 centers_c = apply_matrix(regParams.M, centers_c, 1);
 
-% generation transformation matrix
+%% 
 transforms = cell(1, 18);
 for i = 1 : 18
     transforms{i} = eye(4);
@@ -264,9 +263,6 @@ transforms{18} = transforms{18} * transforms{17};
 %% DQS application & Result display
 
 hand_template = skin_dualquat(hand_template, transforms);
-for i = 1:18
-     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
-end
 
 figure()
 hold on;
@@ -289,11 +285,9 @@ scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.v
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
-
-%% 여기서부터 다시
 vertices_c = hand_template.vertices;
 centers_c = hand_template.centers;
-normals = per_vertex_normals(vertices_c, faces);
+
 
 
 %% parameter for fingers registration order
