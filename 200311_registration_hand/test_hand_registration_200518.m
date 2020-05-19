@@ -125,6 +125,19 @@ end
 hand_template.vertices = vertices_c;
 hand_template.normals = per_vertex_normals(hand_template.vertices, hand_template.faces);
 
+clear Bfit ErrorStats LMs LMt regParams Template_LM
+
+figure()
+hold on;
+axis equal
+axis off
+h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off;
 
 %% parameter for registration order
 
@@ -212,7 +225,7 @@ figure(2)
         pause(0.01);
     end
 
-transforms{i+2} = transform;
+transforms{j+2} = transform;
    
 keep = ismember(mesh.assignment, P_digits{j});
 vi_Dx = vertices_c(keep,:);
@@ -222,7 +235,7 @@ vertices_c(keep,:) = vi_Dx;
 centers_c(P_cor_tr{j},:) = apply_matrix(transform, centers_c(P_cor_tr{j},:), 1);
 normals = per_vertex_normals(vertices_c, faces);
 
-end 
+end
 
 figure(3)
 axis equal
@@ -233,33 +246,75 @@ scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',
 scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
-%% Result display
-% things to do = apply DQS deformation to rough registration
-% transformation control = mutiple possile, angle control
-% == start here
-% transformed = mesh;
-% mesh.vertices = vertices_c;
-% mesh.normals = normals;
-% transformed = skin_dualquat(transformed, transforms);
-% 
-% figure()
-% hold on;
-% axis equal
-% axis off
-% h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
-% lighting gouraud;
-% view([-90, 0]);
-% camlight;
-% view([90, 0]);
-% camlight;
-% hold off;
+%% 
+% D1 CMC
+transforms{3} = transforms{3};
+% D1 MCP
+transforms{4} = transforms{4} * transforms{3};
+% D1 IP
+transforms{5} = transforms{5} * transforms{4};
+% D2 MCP
+transforms{6} = transforms{6};
+% D2 PIP
+transforms{7} = transforms{7} * transforms{6};
+% D2 DIP
+transforms{8} = transforms{8} * transforms{7};
+% D3 MCP
+transforms{9} = transforms{9};
+% D3 PIP
+transforms{10} = transforms{10} * transforms{9};
+% D3 DIP
+transforms{11} = transforms{11} * transforms{10};
+% D4 MCP
+transforms{12} = transforms{12};
+% D4 PIP
+transforms{13} = transforms{13} * transforms{12};
+% D4 DIP
+transforms{14} = transforms{14}  * transforms{13};
+% D5 MCP
+transforms{16} = transforms{16};
+% D5 PIP
+transforms{17} = transforms{17} * transforms{16};
+% D5 DIP
+transforms{18} = transforms{18} * transforms{17};
+
+
+%% DQS application & Result display
+
+hand_template = skin_dualquat(hand_template, transforms);
+
+figure()
+hold on;
+axis equal
+axis off
+h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off;
+
+figure()
+axis equal
+axis off
+hold on
+scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+% scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+hold off
+
+%% Things to do
+
+% Apply dual quarternion skinning to root --> pose fitting --> DQS -->
+% iteration
 
 %% ICP registration
 
 targetV = points.vertices;
-sourceV = vertices_c;
+sourceV = hand_template.vertices;
 targetF = points.faces;
-sourceF = faces_c;
+sourceF = hand_template.faces;
 iterations = 30;
 flag_prealligndata = 1;
 figureOn = 1;
@@ -279,7 +334,28 @@ scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',
 scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
+%% memo - DQS required variable
 
+
+transforms_ad{1} = matrix_rotation( ... % D2 MCP -ab/ad
+    angle(16), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
+    matrix_apply(transforms{2}, axes{6}(1 : 3, 3)', 0), ... axis - 3: abduction/adduction
+    matrix_apply(transforms{2}, axes{6}(1 : 3, 4)') ... % center
+) * transforms{2};
+
+
+
+transformed = skin_dualquat(transformed, transforms);
+
+bones.parent
+mesh.spheres{i}.center
+mesh.vertices = dualquatlbs(mesh.vertices, DQ, mesh.weights);
+mesh.normals = dualquatlbs(mesh.normals, DQ_normals, mesh.weights);
+
+
+for i = 1:18
+    mesh.spheres{1,i}.center = centers_c(i,:);
+end 
 
 
 
