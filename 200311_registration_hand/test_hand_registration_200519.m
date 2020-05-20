@@ -289,12 +289,8 @@ scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.v
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
-
-%% 여기서부터 다시
 vertices_c = hand_template.vertices;
-centers_c = hand_template.centers;
-normals = per_vertex_normals(vertices_c, faces);
-
+normals = hand_template.normals;
 
 %% parameter for fingers registration order
 
@@ -328,6 +324,11 @@ transform_order= [4 5 7 8 10 11 13 14 17 18];
 %% D1-D5 MCP,PIP,DID registration
 h3 = [];
 h4 = [];
+
+transforms2 = cell(1, 18);
+for i = 1 : 18
+    transforms2{i} = eye(4);
+end
 
 for j = 1:10
 
@@ -375,7 +376,7 @@ figure(2)
         pause(0.01);
     end
 
-transforms{transform_order(j)} = transform;
+transforms2{transform_order(j)} = transform;
    
 keep = ismember(mesh.assignment, P_digits{j});
 vi_Dx = vertices_c(keep,:);
@@ -387,51 +388,35 @@ normals = per_vertex_normals(vertices_c, faces);
 
 end
 
-figure(3)
-axis equal
-axis off
-hold on
-scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-hold off
-
 %% 
-% D1 CMC
-transforms{3} = transforms{3};
 % D1 MCP
-transforms{4} = transforms{4} * transforms{3};
+transforms2{4} = transforms2{4} * transforms2{3};
 % D1 IP
-transforms{5} = transforms{5} * transforms{4};
-% D2 MCP
-transforms{6} = transforms{6};
+transforms2{5} = transforms2{5} * transforms2{4};
 % D2 PIP
-transforms{7} = transforms{7} * transforms{6};
+transforms2{7} = transforms2{7} * transforms2{6};
 % D2 DIP
-transforms{8} = transforms{8} * transforms{7};
-% D3 MCP
-transforms{9} = transforms{9};
+transforms2{8} = transforms2{8} * transforms2{7};
 % D3 PIP
-transforms{10} = transforms{10} * transforms{9};
+transforms2{10} = transforms2{10} * transforms2{9};
 % D3 DIP
-transforms{11} = transforms{11} * transforms{10};
-% D4 MCP
-transforms{12} = transforms{12};
+transforms2{11} = transforms2{11} * transforms2{10};
 % D4 PIP
-transforms{13} = transforms{13} * transforms{12};
+transforms2{13} = transforms2{13} * transforms2{12};
 % D4 DIP
-transforms{14} = transforms{14}  * transforms{13};
-% D5 MCP
-transforms{16} = transforms{16};
+transforms2{14} = transforms2{14}  * transforms2{13};
 % D5 PIP
-transforms{17} = transforms{17} * transforms{16};
+transforms2{17} = transforms2{17} * transforms2{16};
 % D5 DIP
-transforms{18} = transforms{18} * transforms{17};
+transforms2{18} = transforms2{18} * transforms2{17};
 
 
 %% DQS application & Result display
 
-hand_template = skin_dualquat(hand_template, transforms);
+hand_template = skin_dualquat(hand_template, transforms2);
+for i = 1:18
+     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
+end
 
 figure()
 hold on;
@@ -475,12 +460,12 @@ rigidICP = 0;
 vertices_c = sourceV;
 % clear targetV sourceV targetF sourceF 
 
-figure(3)
+figure()
 axis equal
 axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
@@ -509,7 +494,17 @@ end
 
 
 
-
+    figure(99)
+        h = trisurf(sourceF, sourceV(:, 1), sourceV(:, 2), sourceV(:, 3), 0.3, 'Edgecolor', 'none');
+        hold on
+        light
+        lighting phong;
+        set(gca, 'visible', 'off')
+        set(gcf, 'Color', [1 1 1])
+        view(2)
+        set(gca, 'DataAspectRatio', [1 1 1], 'PlotBoxAspectRatio', [1 1 1]);
+        tttt = trisurf(targetF, targetV(:, 1), targetV(:, 2), targetV(:, 3), 'Facecolor', 'm', 'Edgecolor', 'none');
+        alpha(0.6)
 
 
 
