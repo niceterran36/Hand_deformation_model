@@ -4,9 +4,9 @@ addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath('F:\[GitHub]\Hand_deformation_model\data');
 addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 %% register library - Labtop
- addpath(genpath('../external'));
- addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\data');
- addpath('C:\Users\EDT-jhy\Documents\GitHub\Hand_deformation_model\functions');
+addpath(genpath('../external'));
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
 %% Load data
 load('hy_mesh_n3.mat');
 LMs = function_get_LM_from_iges('LM_mjhand.igs');
@@ -394,6 +394,7 @@ transforms2{4} = transforms2{4} * transforms2{3};
 % D1 IP
 transforms2{5} = transforms2{5} * transforms2{4};
 % D2 PIP
+
 transforms2{7} = transforms2{7} * transforms2{6};
 % D2 DIP
 transforms2{8} = transforms2{8} * transforms2{7};
