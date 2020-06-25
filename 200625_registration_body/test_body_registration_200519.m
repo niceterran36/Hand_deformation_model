@@ -14,7 +14,7 @@ faces = Body_temp.F;
 normals = Body_temp.normals;
 centers_c = Body_temp.COR;
 points = {};
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('1e_3dm.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('sample_body.ply');
 points.vertices(:,4:6) = [];
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
@@ -115,7 +115,7 @@ vertices_c = vertices;
 faces_c = faces;
 
 %% torso registration
-keep = ismember(Body_temp.v_segment, 1:4);
+keep = ismember(Body_temp.v_segment, [1:4,6,9]);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
