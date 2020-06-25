@@ -1,36 +1,46 @@
 %% register library - PC
-addpath(genpath('../external'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-addpath('F:\[GitHub]\Hand_deformation_model\data');
-addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+% addpath(genpath('../external'));
+% addpath('F:\[GitHub]\Hand_deformation_model\functions');
+% addpath('F:\[GitHub]\Hand_deformation_model\data');
+% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 %% register library - Labtop
 addpath(genpath('../external'));
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
 %% Load data
-load('mesh_repose.mat');
-vertices = mesh_repose.V;
-faces = mesh_repose.F;
-normals = mesh_repose.normals;
-
-LMs = function_get_LM_from_iges('LM_mjhand.igs');
-LMt = function_get_LM_from_iges('Template_LM8.igs');
+load('Body_temp.mat');
+vertices = Body_temp.V;
+faces = Body_temp.F;
+normals = Body_temp.normals;
+centers_c = Body_temp.COR;
 points = {};
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('mj_scanhand.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('1e_3dm.ply');
+points.vertices(:,4:6) = [];
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
-vertices = mesh.vertices;
-faces = mesh.faces;
-centers_c = mesh.centers;
+%% Load Landmarks to initial registration
+%LMs = function_get_LM_from_iges('LM_mjhand.igs');
+%LMt = function_get_LM_from_iges('Template_LM8.igs');
+
+LMt(1,1:3) = [0, 174, 1708]; %vertex
+LMt(2,1:3) = [-423, 50, 840]; %right hand
+LMt(3,1:3) = [423, 50, 840]; %left hand
+LMt(4,1:3) = [-103, 16, 25]; %right foot
+LMt(5,1:3) = [103, 16, 25]; %left foot
+
+LMs(1,1:3) = [-71, 1683, -33];
+LMs(2,1:3) = [-464, 780 ,15];
+LMs(3,1:3) = [354, 776, 61];
+LMs(4,1:3) = [-235, 11, 82]; 
+LMs(5,1:3) = [77, 0, 105];
+
 %%
 
-vertices 
-
 figure()
-trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 hold on;
-%trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
+trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
+trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+%quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
 view([-90, 0]);
@@ -46,19 +56,19 @@ title('Initial guess');
 
 %% Rough registration
 % size of template vertices = n, % size of scan points = m
-n = size(mesh.vertices, 1); 
+n = size(vertices, 1); 
 m = size(points.vertices, 1);
-Template_LM = zeros(8,1);
+Template_LM = zeros(5,1);
 
-for i=1:8
-delta = mesh.vertices - repmat(LMt(i, :), n, 1);
+for i=1:5
+delta = vertices - repmat(LMt(i, :), n, 1);
 distances = sum(delta .^ 2, 2);
 [~, j] = min(distances);
 Template_LM(i,:) = j;
 end
 % template index based LMt info. update
-for i = 1:8
-LMt(i,:) = mesh.vertices(Template_LM(i),:);
+for i = 1:5
+LMt(i,:) = vertices(Template_LM(i),:);
 end 
 
 LMt = LMt'; LMs = LMs';
@@ -69,12 +79,15 @@ clear j delta distances
 vertices = apply_matrix(regParams.M, vertices, 1);
 centers_c = apply_matrix(regParams.M, centers_c, 1);
 
+%%
+
 % generation transformation matrix
-transforms = cell(1, 18);
-for i = 1 : 18
+transforms = cell(1, 21);
+for i = 1 : 21
     transforms{i} = eye(4);
 end
-axes = compute_bone_axes(mesh.spheres);
+
+axes = bone_axes_body(Body_temp.spheres);
 
 normals = per_vertex_normals(vertices, faces);
 
@@ -99,8 +112,8 @@ title('Initial guess');
 vertices_c = vertices;
 faces_c = faces;
 
-%% palm registration
-keep = ismember(mesh.assignment, 1:5);
+%% torso registration
+keep = ismember(Body_temp.v_segment, 1:4);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
@@ -144,12 +157,12 @@ normals = per_vertex_normals(vertices_c, faces);
 vertices_b = vertices_c; % vertices_b = vertices after palm registration
 centers_b = centers_c; % centers_b = centers after palm registration
 
-hand_template = mesh;
-for i = 1:18
-    hand_template.spheres{1,i}.center = centers_c(i,:);
+Body_template = Body_temp;
+for i = 1:21
+    Body_template.spheres{1,i}.COR = centers_c(i,:);
 end
-hand_template.vertices = vertices_c;
-hand_template.normals = per_vertex_normals(hand_template.vertices, hand_template.faces);
+Body_template.V = vertices_c;
+Body_template.normals = per_vertex_normals(Body_template.V, Body_template.F);
 
 clear Bfit ErrorStats LMs LMt regParams Template_LM
 
@@ -157,7 +170,7 @@ figure()
 hold on;
 axis equal
 axis off
-h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+h = trimesh(Body_template.F, Body_template.V(:, 1), Body_template.V(:, 2), Body_template.V(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
@@ -167,33 +180,33 @@ hold off;
 
 %% parameter for finger root (MCP) registration 
 
-FRP_segment = [6 9 12 15 18];
-FRP_cor = [20 16 12 8 4];
+FRP_segment = [6 9 12 15 5];
+FRP_cor = [2 6 14 18 12];
 FRP_digits{1} = [6:8];
 FRP_digits{2} = [9:11];
 FRP_digits{3} = [12:14];
 FRP_digits{4} = [15:17];
-FRP_digits{5} = [18:20];
+FRP_digits{5} = [5];
 
-FRP_cor_tr{1} = [17:19];
-FRP_cor_tr{2} = [13:15];
-FRP_cor_tr{3} = [9:11];
-FRP_cor_tr{4} = [5:7];
-FRP_cor_tr{5} = [1:3];
+FRP_cor_tr{1} = [3:5];
+FRP_cor_tr{2} = [7:9];
+FRP_cor_tr{3} = [15:17];
+FRP_cor_tr{4} = [19:21];
+FRP_cor_tr{5} = [13];
 
-transform_order= [3 6 9 12 16];
+transform_order= [2 6 14 18 12];
 
 %% D1-D5 finger root (MCP) registration
 h3 = [];
 h4 = [];
 
-for j = 1:5
+for j = 1:4
 
 vertices = vertices_c;
 faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
 
-keep = ismember(mesh.assignment, FRP_segment(j));
+keep = ismember(Body_temp.v_segment, FRP_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
@@ -235,7 +248,7 @@ figure(2)
 
 transforms{transform_order(j)} = transform;
    
-keep = ismember(mesh.assignment, FRP_digits{j});
+keep = ismember(Body_temp.v_segment, FRP_digits{j});
 vi_Dx = vertices_c(keep,:);
 vi_Dx = apply_matrix(transform, vi_Dx, 1);
 
@@ -288,16 +301,16 @@ transforms{18} = transforms{18} * transforms{17};
 
 %% DQS application & Result display
 
-hand_template = skin_dualquat(hand_template, transforms);
+Body_template = skin_dualquat(Body_template, transforms);
 for i = 1:18
-     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
+     Body_template.centers(i,:) = Body_template.spheres{1,i}.center;
 end
 
 figure()
 hold on;
 axis equal
 axis off
-h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+h = trimesh(Body_template.faces, Body_template.vertices(:, 1), Body_template.vertices(:, 2), Body_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
@@ -310,12 +323,12 @@ axis equal
 axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(Body_template.vertices(:,1),Body_template.vertices(:,2),Body_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
-vertices_c = hand_template.vertices;
-normals = hand_template.normals;
+vertices_c = Body_template.vertices;
+normals = Body_template.normals;
 
 %% parameter for fingers registration order
 
@@ -438,16 +451,16 @@ transforms2{18} = transforms2{18} * transforms2{17};
 
 %% DQS application & Result display
 
-hand_template = skin_dualquat(hand_template, transforms2);
+Body_template = skin_dualquat(Body_template, transforms2);
 for i = 1:18
-     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
+     Body_template.centers(i,:) = Body_template.spheres{1,i}.center;
 end
 
 figure()
 hold on;
 axis equal
 axis off
-h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+h = trimesh(Body_template.faces, Body_template.vertices(:, 1), Body_template.vertices(:, 2), Body_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
@@ -460,7 +473,7 @@ axis equal
 axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(Body_template.vertices(:,1),Body_template.vertices(:,2),Body_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
@@ -472,9 +485,9 @@ hold off
 %% ICP registration
 
 targetV = points.vertices;
-sourceV = hand_template.vertices;
+sourceV = Body_template.vertices;
 targetF = points.faces;
-sourceF = hand_template.faces;
+sourceF = Body_template.faces;
 iterations = 30;
 flag_prealligndata = 1;
 figureOn = 1;
