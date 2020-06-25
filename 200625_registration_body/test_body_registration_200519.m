@@ -19,29 +19,29 @@ points.vertices(:,4:6) = [];
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% Load Landmarks to initial registration
-%LMs = function_get_LM_from_iges('LM_mjhand.igs');
-%LMt = function_get_LM_from_iges('Template_LM8.igs');
+LMs = function_get_LM_from_iges('sample_LM.igs');
+LMt = function_get_LM_from_iges('template_LM.igs');
 
-LMt(1,1:3) = [0, 174, 1708]; %vertex
-LMt(2,1:3) = [-423, 50, 840]; %right hand
-LMt(3,1:3) = [423, 50, 840]; %left hand
-LMt(4,1:3) = [-103, 16, 25]; %right foot
-LMt(5,1:3) = [103, 16, 25]; %left foot
-LMt(6,1:3) = [-2.9,89.7,758.1]; %crotch
-
-LMs(1,1:3) = [-71, 1683, -33];
-LMs(2,1:3) = [-464, 780 ,15];
-LMs(3,1:3) = [354, 776, 61];
-LMs(4,1:3) = [-235, 11, 82]; 
-LMs(5,1:3) = [77, 0, 105];
-LMs(6,1:3) = [-69.88,714.5,-2.847];
+% LMt(1,1:3) = [0, 174, 1708]; %vertex
+% LMt(2,1:3) = [-423, 50, 840]; %right hand
+% LMt(3,1:3) = [423, 50, 840]; %left hand
+% LMt(4,1:3) = [-103, 16, 25]; %right foot
+% LMt(5,1:3) = [103, 16, 25]; %left foot
+% LMt(6,1:3) = [-2.9,89.7,758.1]; %crotch
+% 
+% LMs(1,1:3) = [-71, 1683, -33];
+% LMs(2,1:3) = [-464, 780 ,15];
+% LMs(3,1:3) = [354, 776, 61];
+% LMs(4,1:3) = [-235, 11, 82]; 
+% LMs(5,1:3) = [77, 0, 105];
+% LMs(6,1:3) = [-69.88,714.5,-2.847];
 
 %%
 
 figure()
 hold on;
 trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
-trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+%trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
 %quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
@@ -115,53 +115,51 @@ vertices_c = vertices;
 faces_c = faces;
 
 %% torso registration
-keep = ismember(Body_temp.v_segment, [1:4,6,9]);
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
-figure()
-transform = eye(4);
-for i = 1 : 10
-    delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-    transform = delta * transform;
-    vertices = apply_matrix(delta, vertices);
-    normals = apply_matrix(delta, normals, 0);
-    pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
-    v = get(gca, 'view'); 
-    trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-    hold on;
-    trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-    plot3( ...
-        [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-        [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-        [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-    'Color', 'red');
-    hold off;
-    view([-90, 0]);
-    camlight;
-    view([90, 0]);
-    camlight;
-    axis equal;
-    grid off;
-    lighting gouraud;
-    axis off;
-    title(['After ', num2str(i), ' rigid transformation']);
-    set(gca, 'view', v);
-    pause(0.01);
-end
+% keep = ismember(Body_temp.v_segment, 1:4);
+% [vertices, faces] = filter_vertices(vertices, faces, keep);
+% normals = normals(keep, :);
+% pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+% figure()
+% transform = eye(4);
+% for i = 1 : 10
+%     delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
+%     transform = delta * transform;
+%     vertices = apply_matrix(delta, vertices);
+%     normals = apply_matrix(delta, normals, 0);
+%     pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+%     v = get(gca, 'view'); 
+%     trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
+%     hold on;
+%     trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
+%     plot3( ...
+%         [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
+%         [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
+%         [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
+%     'Color', 'red');
+%     hold off;
+%     view([-90, 0]);
+%     camlight;
+%     view([90, 0]);
+%     camlight;
+%     axis equal;
+%     grid off;
+%     lighting gouraud;
+%     axis off;
+%     title(['After ', num2str(i), ' rigid transformation']);
+%     set(gca, 'view', v);
+%     pause(0.01);
+% end
 
-transforms{2} = transform;
-
-vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
-centers_c = apply_matrix(transform, centers_c); % update current centers
-normals = per_vertex_normals(vertices_c, faces);
+% vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
+% centers_c = apply_matrix(transform, centers_c); % update current centers
+% normals = per_vertex_normals(vertices_c, faces);
 
 vertices_b = vertices_c; % vertices_b = vertices after palm registration
 centers_b = centers_c; % centers_b = centers after palm registration
 
 Body_template = Body_temp;
 for i = 1:21
-    Body_template.spheres{1,i}.COR = centers_c(i,:);
+    Body_template.spheres{1,i}.center = centers_c(i,:);
 end
 Body_template.V = vertices_c;
 Body_template.normals = per_vertex_normals(Body_template.V, Body_template.F);
@@ -270,49 +268,45 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255
 hold off
 
 %% Apply transformation
-% D1 CMC
-transforms{3} = transforms{3};
-% D1 MCP
+% left hip
+transforms{2} = transforms{2};
+% left knee
+transforms{3} = transforms{3} * transforms{2};
+% left ankle
 transforms{4} = transforms{4} * transforms{3};
-% D1 IP
-transforms{5} = transforms{5} * transforms{4};
-% D2 MCP
+% right hip
 transforms{6} = transforms{6};
-% D2 PIP
+% right knee
 transforms{7} = transforms{7} * transforms{6};
-% D2 DIP
+% right ankle
 transforms{8} = transforms{8} * transforms{7};
-% D3 MCP
-transforms{9} = transforms{9};
-% D3 PIP
-transforms{10} = transforms{10} * transforms{9};
-% D3 DIP
-transforms{11} = transforms{11} * transforms{10};
-% D4 MCP
+% left shoulder
+transforms{14} = transforms{14};
+% left elbow
+transforms{15} = transforms{15} * transforms{14};
+% left wrist
+transforms{16} = transforms{16} * transforms{15};
+% right shoulder
+transforms{18} = transforms{18};
+% right elbow
+transforms{19} = transforms{19} * transforms{18};
+% right wrist
+transforms{20} = transforms{20}  * transforms{19};
+% Neck
 transforms{12} = transforms{12};
-% D4 PIP
-transforms{13} = transforms{13} * transforms{12};
-% D4 DIP
-transforms{14} = transforms{14}  * transforms{13};
-% D5 MCP
-transforms{16} = transforms{16};
-% D5 PIP
-transforms{17} = transforms{17} * transforms{16};
-% D5 DIP
-transforms{18} = transforms{18} * transforms{17};
 
 %% DQS application & Result display
 
-Body_template = skin_dualquat(Body_template, transforms);
-for i = 1:18
-     Body_template.centers(i,:) = Body_template.spheres{1,i}.center;
+Body_template = skin_dualquat_body(Body_template, transforms);
+for i = 1:21
+     Body_template.COR(i,:) = Body_template.spheres{1,i}.center;
 end
 
 figure()
 hold on;
 axis equal
 axis off
-h = trimesh(Body_template.faces, Body_template.vertices(:, 1), Body_template.vertices(:, 2), Body_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+h = trimesh(Body_template.F, Body_template.V(:, 1), Body_template.V(:, 2), Body_template.V(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
@@ -325,17 +319,17 @@ axis equal
 axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(Body_template.vertices(:,1),Body_template.vertices(:,2),Body_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(Body_template.V(:,1),Body_template.V(:,2),Body_template.V(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
-vertices_c = Body_template.vertices;
+vertices_c = Body_template.V;
 normals = Body_template.normals;
 
 %% parameter for fingers registration order
 
-P_segment = [7 8 10 11 13 14 16 17 19 20];
-P_cor = [19 18 15 14 11 10 7 6 3 2];
+P_segment = [7 8 10 11 13 14 16 17];
+P_cor = [3 4 7 8 15 16 19 20];
 
 P_digits{1} = [7:8];
 P_digits{2} = 8;
@@ -345,28 +339,24 @@ P_digits{5} = [13:14];
 P_digits{6} = 14;
 P_digits{7} = [16:17];
 P_digits{8} = 17;
-P_digits{9} = [19:20];
-P_digits{10} = 20;
 
-P_cor_tr{1} = [17:18];
-P_cor_tr{2} = 17;
-P_cor_tr{3} = [13:14];
-P_cor_tr{4} = 13;
-P_cor_tr{5} = [9:10];
-P_cor_tr{6} = 9;
-P_cor_tr{7} = [5:6];
-P_cor_tr{8} = 5;
-P_cor_tr{9} = [1:2];
-P_cor_tr{10} = 1;
+P_cor_tr{1} = [4:5];
+P_cor_tr{2} = 5;
+P_cor_tr{3} = [8:9];
+P_cor_tr{4} = 9;
+P_cor_tr{5} = [16:17];
+P_cor_tr{6} = 17;
+P_cor_tr{7} = [20:21];
+P_cor_tr{8} = 21;
 
-transform_order= [4 5 7 8 10 11 13 14 17 18];
+transform_order= [3 4 7 8 15 16 19 20];
 
-%% D1-D5 MCP,PIP,DID registration
+%% leg, arm registration
 h3 = [];
 h4 = [];
 
-transforms2 = cell(1, 18);
-for i = 1 : 18
+transforms2 = cell(1, 21);
+for i = 1 : 21
     transforms2{i} = eye(4);
 end
 
@@ -376,7 +366,7 @@ vertices = vertices_c;
 faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
 
-keep = ismember(mesh.assignment, P_segment(j));
+keep = ismember(Body_temp.v_segment, P_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
@@ -418,7 +408,7 @@ figure(2)
 
 transforms2{transform_order(j)} = transform;
    
-keep = ismember(mesh.assignment, P_digits{j});
+keep = ismember(Body_temp.v_segment, P_digits{j});
 vi_Dx = vertices_c(keep,:);
 vi_Dx = apply_matrix(transform, vi_Dx, 1);
 
@@ -428,33 +418,38 @@ normals = per_vertex_normals(vertices_c, faces);
 
 end
 
-%% 
-% D1 MCP
-transforms2{4} = transforms2{4} * transforms2{3};
-% D1 IP
-transforms2{5} = transforms2{5} * transforms2{4};
-% D2 PIP
-transforms2{7} = transforms2{7} * transforms2{6};
-% D2 DIP
-transforms2{8} = transforms2{8} * transforms2{7};
-% D3 PIP
-transforms2{10} = transforms2{10} * transforms2{9};
-% D3 DIP
-transforms2{11} = transforms2{11} * transforms2{10};
-% D4 PIP
-transforms2{13} = transforms2{13} * transforms2{12};
-% D4 DIP
-transforms2{14} = transforms2{14}  * transforms2{13};
-% D5 PIP
-transforms2{17} = transforms2{17} * transforms2{16};
-% D5 DIP
-transforms2{18} = transforms2{18} * transforms2{17};
-
+%% Apply transformation
+% left hip
+transforms{2} = transforms{2};
+% left knee
+transforms{3} = transforms{3} * transforms{2};
+% left ankle
+transforms{4} = transforms{4} * transforms{3};
+% right hip
+transforms{6} = transforms{6};
+% right knee
+transforms{7} = transforms{7} * transforms{6};
+% right ankle
+transforms{8} = transforms{8} * transforms{7};
+% left shoulder
+transforms{14} = transforms{14};
+% left elbow
+transforms{15} = transforms{15} * transforms{14};
+% left wrist
+transforms{16} = transforms{16} * transforms{15};
+% right shoulder
+transforms{18} = transforms{18};
+% right elbow
+transforms{19} = transforms{19} * transforms{18};
+% right wrist
+transforms{20} = transforms{20}  * transforms{19};
+% Neck
+transforms{12} = transforms{12};
 
 %% DQS application & Result display
 
-Body_template = skin_dualquat(Body_template, transforms2);
-for i = 1:18
+Body_template = skin_dualquat_body(Body_template, transforms2);
+for i = 1:21
      Body_template.centers(i,:) = Body_template.spheres{1,i}.center;
 end
 
@@ -462,7 +457,7 @@ figure()
 hold on;
 axis equal
 axis off
-h = trimesh(Body_template.faces, Body_template.vertices(:, 1), Body_template.vertices(:, 2), Body_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+h = trimesh(Body_template.F, Body_template.V(:, 1), Body_template.V(:, 2), Body_template.V(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
 view([-90, 0]);
 camlight;
@@ -475,7 +470,7 @@ axis equal
 axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(Body_template.vertices(:,1),Body_template.vertices(:,2),Body_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+scatter3(Body_template.V(:,1),Body_template.V(:,2),Body_template.V(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
@@ -487,9 +482,9 @@ hold off
 %% ICP registration
 
 targetV = points.vertices;
-sourceV = Body_template.vertices;
+sourceV = Body_template.V;
 targetF = points.faces;
-sourceF = Body_template.faces;
+sourceF = Body_template.F;
 iterations = 30;
 flag_prealligndata = 1;
 figureOn = 1;
@@ -545,17 +540,3 @@ end
         set(gca, 'DataAspectRatio', [1 1 1], 'PlotBoxAspectRatio', [1 1 1]);
         tttt = trisurf(targetF, targetV(:, 1), targetV(:, 2), targetV(:, 3), 'Facecolor', 'm', 'Edgecolor', 'none');
         alpha(0.6)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
