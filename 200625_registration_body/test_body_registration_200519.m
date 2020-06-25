@@ -1,12 +1,12 @@
 %% register library - PC
-% addpath(genpath('../external'));
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\data');
-% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
-%% register library - Labtop
 addpath(genpath('../external'));
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
+addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+%% register library - Labtop
+% addpath(genpath('../external'));
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
 %% Load data
 load('Body_temp.mat');
 vertices = Body_temp.V;
@@ -41,7 +41,7 @@ LMt = function_get_LM_from_iges('template_LM.igs');
 figure()
 hold on;
 trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
-%trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
 %quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
@@ -60,16 +60,16 @@ title('Initial guess');
 % size of template vertices = n, % size of scan points = m
 n = size(vertices, 1); 
 m = size(points.vertices, 1);
-Template_LM = zeros(6,1);
+Template_LM = zeros(size(LMs,1),1);
 
-for i=1:6
+for i=1:size(LMs,1)
 delta = vertices - repmat(LMt(i, :), n, 1);
 distances = sum(delta .^ 2, 2);
 [~, j] = min(distances);
 Template_LM(i,:) = j;
 end
 % template index based LMt info. update
-for i = 1:6
+for i = 1:size(LMs,1)
 LMt(i,:) = vertices(Template_LM(i),:);
 end 
 
@@ -114,11 +114,11 @@ title('Initial guess');
 vertices_c = vertices;
 faces_c = faces;
 
-%% torso registration
+% %% torso registration
 % keep = ismember(Body_temp.v_segment, 1:4);
 % [vertices, faces] = filter_vertices(vertices, faces, keep);
 % normals = normals(keep, :);
-% pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+% pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
 % figure()
 % transform = eye(4);
 % for i = 1 : 10
@@ -126,7 +126,7 @@ faces_c = faces;
 %     transform = delta * transform;
 %     vertices = apply_matrix(delta, vertices);
 %     normals = apply_matrix(delta, normals, 0);
-%     pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+%     pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
 %     v = get(gca, 'view'); 
 %     trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
 %     hold on;
@@ -149,7 +149,9 @@ faces_c = faces;
 %     set(gca, 'view', v);
 %     pause(0.01);
 % end
-
+%  
+% transforms{10} = transform;
+% 
 % vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
 % centers_c = apply_matrix(transform, centers_c); % update current centers
 % normals = per_vertex_normals(vertices_c, faces);
@@ -209,7 +211,7 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(Body_temp.v_segment, FRP_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+pairs = compute_correspondences_body2(vertices, normals, points.vertices, points.normals);
 
 transform = eye(4);
 
@@ -222,7 +224,7 @@ figure(2)
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
-        pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+        pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
@@ -360,7 +362,7 @@ for i = 1 : 21
     transforms2{i} = eye(4);
 end
 
-for j = 1:10
+for j = 1:8
 
 vertices = vertices_c;
 faces = faces_c;
@@ -369,7 +371,7 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(Body_temp.v_segment, P_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+pairs = compute_correspondences_body2(vertices, normals, points.vertices, points.normals);
 
 transform = eye(4);
 
@@ -382,7 +384,7 @@ figure(2)
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
-        pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+        pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
