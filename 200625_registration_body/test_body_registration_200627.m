@@ -14,163 +14,85 @@ format shortG
 %% Load data - Initial
 load('Body_temp.mat');
 Body_template = Body_temp;
-
-vertices = Body_temp.V; faces = Body_temp.F; normals = Body_temp.normals;
-for i=1:21
-centers_c(i,1:3) = Body_temp.spheres{1, i}.center; % equal to centers_c = Body_temp.COR;
-end 
-points = {}; [points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('sample_body.ply'); 
-points.vertices(:,4:6) = []; points.normals = per_vertex_normals(points.vertices, points.faces);
+points = {}; [points.V, points.F, points.FB, points.H] = function_loading_ply_file('sample_body.ply'); 
+points.V(:,4:6) = []; points.normals = per_vertex_normals(points.V, points.F);
 %% Load Landmarks to initial registration
 LMs = function_get_LM_from_iges('sample_body_LM.igs');
 LMt = function_get_LM_from_iges('template_body_LM.igs');
 %%
+AF = Body_template.F; AV = Body_template.V; AN = Body_template.normals;
+BF = points.F; BV = points.V; BN = points.normals;
 figure()
 hold on;
-trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
-trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-%quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
-%quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
+trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
+trimesh(BF, BV(:, 1), BV(:, 2), BV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
+quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
-view([43,25]);
+view([-90, 0]); camlight; view([90, 0]); camlight; view([43,25]);
 axis equal;
 grid off;
 lighting gouraud;
 axis off;
 title('Beginning State');
+clear AF AV AN BF BV BN;
 
 %% 
 % size of template vertices = n, % size of scan points = m
-n = size(vertices, 1); 
-m = size(points.vertices, 1);
+n = size(Body_template.V, 1); 
+m = size(points.V, 1);
 Template_LM = zeros(size(LMs,1),1);
 
 for i=1:size(LMs,1)
-delta = vertices - repmat(LMt(i, :), n, 1);
+delta = Body_template.V - repmat(LMt(i, :), n, 1);
 distances = sum(delta .^ 2, 2);
 [~, j] = min(distances);
 Template_LM(i,:) = j;
 end
 % template index based LMt info. update
 for i = 1:size(LMs,1)
-LMt(i,:) = vertices(Template_LM(i),:);
+LMt(i,:) = Body_template.V(Template_LM(i),:);
 end 
+clear Body_temp i j delta distances m n;
 
 %% Size adjustment by ABSOR
+% torso adjustment, LM set for torso fitting (LM located around torso boundary
 
-% torso adjustment
-% LM set for torso fitting (LM located around torso boundary
-
-LMt_tor = LMt([6,7,10,11,13,41,42],:); 
+LMt_tor = LMt([6,7,10,11,13,41,42],:);
 LMs_tor = LMs([6,7,10,11,13,41,42],:);
-
 LMt_tor = LMt_tor'; LMs_tor = LMs_tor';
-[regParams_tor,Bfit,ErrorStats] = absor(LMt_tor,LMs_tor);
-vertices = apply_matrix(regParams_tor.M, vertices, 1);
-centers_c = apply_matrix(regParams_tor.M, centers_c, 1);
-
-% LMt = LMt'; LMs = LMs';
-clear j delta distances;
-
-% % apply transformation matrix
-% [regParams,Bfit,ErrorStats] = absor(LMt,LMs);
-% vertices = apply_matrix(regParams.M, vertices, 1);
-% centers_c = apply_matrix(regParams.M, centers_c, 1);
+[regParams_tor,~,~] = absor(LMt_tor,LMs_tor);
+Body_template.V = apply_matrix(regParams_tor.M, Body_template.V, 1);
+% Body_template.COR = apply_matrix(regParams_tor.M, Body_template.COR, 1);
+for i = 1:21
+Body_template.spheres{1, i}.center = apply_matrix(regParams_tor.M, Body_template.spheres{1, i}.center, 1);
+end
+clear LMs_tor LMt_tor regParams_tor;
 
 %%
-
 % generation transformation matrix
 transforms = cell(1, 21);
 for i = 1 : 21
     transforms{i} = eye(4);
 end
-
-axes = bone_axes_body(Body_temp.spheres);
-
-normals = per_vertex_normals(vertices, faces);
+axes = bone_axes_body(Body_template.spheres);
 
 %%
+AF = Body_template.F; AV = Body_template.V; AN = Body_template.normals;
+BF = points.F; BV = points.V; BN = points.normals;
 figure()
-trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 hold on;
-trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
-quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
+trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
+trimesh(BF, BV(:, 1), BV(:, 2), BV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
+quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
+quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
-view([0, 90]);
-camlight;
-% view([90, 0]);
-% camlight;
-axis equal;
-grid off; 
-lighting gouraud;
-axis off;
-title('Initial guess');
+view([0, 90]);camlight;view([90, 0]);camlight;view([0, 90]);
+axis equal;grid off;lighting gouraud;axis off;title('Initial guess');
+clear AF AV AN BF BV BN;
 % pause;
 
 %%
-
-vertices_c = vertices;
-faces_c = faces;
-
-% %% torso registration
-% keep = ismember(Body_temp.v_segment, 1:4);
-% [vertices, faces] = filter_vertices(vertices, faces, keep);
-% normals = normals(keep, :);
-% pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
-% figure()
-% transform = eye(4);
-% for i = 1 : 10
-%     delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-%     transform = delta * transform;
-%     vertices = apply_matrix(delta, vertices);
-%     normals = apply_matrix(delta, normals, 0);
-%     pairs = compute_correspondences_body(vertices, normals, points.vertices, points.normals);
-%     v = get(gca, 'view'); 
-%     trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-%     hold on;
-%     trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-%     plot3( ...
-%         [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-%         [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-%         [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-%     'Color', 'red');
-%     hold off;
-%     view([-90, 0]);
-%     camlight;
-%     view([90, 0]);
-%     camlight;
-%     axis equal;
-%     grid off;
-%     lighting gouraud;
-%     axis off;
-%     title(['After ', num2str(i), ' rigid transformation']);
-%     set(gca, 'view', v);
-%     pause(0.01);
-% end
-%  
-% transforms{10} = transform;
-% 
-% vertices_c = apply_matrix(transform, vertices_c, 1); % update current vertices
-% centers_c = apply_matrix(transform, centers_c); % update current centers
-% normals = per_vertex_normals(vertices_c, faces);
-
-vertices_b = vertices_c; % vertices_b = vertices after palm registration
-centers_b = centers_c; % centers_b = centers after palm registration
-
-Body_template = Body_temp;
-for i = 1:21
-    Body_template.spheres{1,i}.center = centers_c(i,:);
-end
-Body_template.V = vertices_c;
-Body_template.normals = per_vertex_normals(Body_template.V, Body_template.F);
-
-clear Bfit ErrorStats regParams
-
 figure()
 hold on;
 axis equal
@@ -185,9 +107,6 @@ view([0, 90]);
 hold off;
 
 %%
-
-clear LMs_tor LMt_tor regParams_tor
-
 % left upper arm adjustment
 % LM set for left upper arm fitting
 
