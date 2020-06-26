@@ -3,10 +3,13 @@ addpath(genpath('../external'));
 addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath('F:\[GitHub]\Hand_deformation_model\data');
 addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+format shortG
+
 %% register library - Labtop
 % addpath(genpath('../external'));
 % addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
 % addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+% format shortG
 %% Load data
 load('Body_temp.mat');
 vertices = Body_temp.V;
