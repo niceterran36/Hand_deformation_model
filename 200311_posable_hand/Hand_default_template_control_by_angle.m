@@ -1,5 +1,7 @@
 addpath(genpath('external'));
-addpath 'functions';
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
+addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 
 mat1 = load('tr_mesh.mat');
 mat2 = load('hy_mesh_n3.mat');
@@ -53,28 +55,28 @@ angle = zeros(19,1);
 
 % Digit 1 flexion(+)/extension(-) 
 angle(1) = 0/60;
-angle(2) = 20/60;
-angle(3) = 20/60;
+angle(2) = 0/60;
+angle(3) = 0/60;
 
 % Digit 2 flexion(+)/extension(-) 
 angle(4) = 0/60; 
-angle(5) = 20/60;
-angle(6) = 20/60;
+angle(5) = 0/60;
+angle(6) = 0/60;
 
 % Digit 3 flexion(+)/extension(-) 
 angle(7) = 0/60;
-angle(8) = 20/60;
-angle(9) = 20/60;
+angle(8) = 0/60;
+angle(9) = 0/60;
 
 % Digit 4 flexion(+)/extension(-) 
 angle(10) = 0/60;
-angle(11) = 20/60;
-angle(12) = 20/60;
+angle(11) = 0/60;
+angle(12) = 0/60;
 
 % Digit 5 flexion(+)/extension(-) 
 angle(13) = 0/60;
-angle(14) = 20/60;
-angle(15) = 20/60;
+angle(14) = 0/60;
+angle(15) = 0/60;
 
 %%
  
