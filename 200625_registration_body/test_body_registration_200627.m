@@ -1,9 +1,9 @@
 %% register library - PC
-% addpath(genpath('../external'));
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\data');
-% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
-% format shortG
+addpath(genpath('../external'));
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
+addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+format shortG
 %% register library - Labtop
 clc
 clear all
@@ -24,10 +24,10 @@ AF = Body_template.F; AV = Body_template.V; AN = Body_template.normals;
 BF = points.F; BV = points.V; BN = points.normals;
 figure()
 hold on;
-trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
+trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 trimesh(BF, BV(:, 1), BV(:, 2), BV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
-quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
+%quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
+%quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
 view([-90, 0]); camlight; view([90, 0]); camlight; view([43,25]);
 axis equal;
@@ -82,10 +82,10 @@ AF = Body_template.F; AV = Body_template.V; AN = Body_template.normals;
 BF = points.F; BV = points.V; BN = points.normals;
 figure()
 hold on;
-trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.9, 0.9, 0.9], 'FaceAlpha', 0.5);
+trimesh(AF, AV(:, 1), AV(:, 2), AV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 trimesh(BF, BV(:, 1), BV(:, 2), BV(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
-quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
-quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
+%quiver3(AV(:, 1), AV(:, 2), AV(:, 3), AN(:, 1), AN(:, 2), AN(:, 3), 'Color', [0.4, 0.9, 0.4]);
+%quiver3(BV(:, 1), BV(:, 2), BV(:, 3), BN(:, 1), BN(:, 2), BN(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
 view([0, 90]);camlight;view([90, 0]);camlight;view([0, 90]);
 axis equal;grid off;lighting gouraud;axis off;title('Initial guess');

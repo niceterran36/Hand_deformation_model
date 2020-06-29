@@ -1,9 +1,9 @@
 %% register library - PC
-% addpath(genpath('../external'));
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\data');
-% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
-% format shortG
+addpath(genpath('../external'));
+addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('F:\[GitHub]\Hand_deformation_model\data');
+addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+format shortG
 %% register library - Labtop
 clc
 clear all
