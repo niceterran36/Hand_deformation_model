@@ -16,6 +16,7 @@ load('Body_temp.mat');
 Body_template = Body_temp;
 points = {}; [points.V, points.F, points.FB, points.H] = function_loading_ply_file('sample_body.ply'); 
 points.V(:,4:6) = []; points.normals = per_vertex_normals(points.V, points.F);
+clear Body_temp
 %% Load Landmarks to initial registration
 LMs = function_get_LM_from_iges('sample_body_LM.igs');
 LMt = function_get_LM_from_iges('template_body_LM.igs');
@@ -114,13 +115,12 @@ hold off;
 LM_Luparm_idx = [2,4,5,6,20,21,22,24];
 LMs_Luparm = LMs([2,4,5,6,20,21,22,24],:);
 
-
 for i = 1:size(LMs_Luparm,1)
-LMt_Luparm(i,:) = vertices(Template_LM(LM_Luparm_idx(i)),:);
+LMt_Luparm(i,:) = Body_template.V(Template_LM(LM_Luparm_idx(i)),:);
 end 
 
 LMt_Luparm = LMt_Luparm'; LMs_Luparm = LMs_Luparm';
-[regParams_Luparm,Bfit,ErrorStats] = absor(LMt_Luparm,LMs_Luparm);
+[regParams_Luparm,~,~] = absor(LMt_Luparm,LMs_Luparm);
 
 FRP_segment = [6 9 12 15 5];
 FRP_cor = [2 6 14 18 12];
