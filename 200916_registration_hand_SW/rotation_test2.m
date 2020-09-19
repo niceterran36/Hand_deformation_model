@@ -40,17 +40,7 @@ Angle_x = acosd(dot(va, vt) / (norm(va) * norm(vt)));
 Rx = function_rotationmat3D((Angle_x)/180*pi, [1, 0, 0]);
 a_tr = Rx*a_tr
 
-figure()
-axis equal
-hold on
-scatter3(AXIS(1:4,1),AXIS(1:4,2),AXIS(1:4,3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
-%scatter3(D3_MCB_axis(:,1),D3_MCB_axis(:,2),D3_MCB_axis(:,3),'*', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-plot3(AXIS(1:2,1),AXIS(1:2,2),AXIS(1:2,3),'-k');
-plot3(AXIS([1 3],1),AXIS([1 3],2),AXIS([1 3],3),'-k');
-plot3(AXIS([1 4],1),AXIS([1 4],2),AXIS([1 4],3),'-k');
-plot3(AXIS([1 5],1),AXIS([1 5],2),AXIS([1 5],3),'-b');
-plot3([0; a_tr(1)],[0; a_tr(2)],[0; a_tr(3)],'-b');
-hold off
+c
 
 
 

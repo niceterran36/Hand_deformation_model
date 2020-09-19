@@ -274,8 +274,13 @@ vectorK = AXIS(2,1:2)
 vectorJ = AXIS(3,1:2)
 t_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
 
+s_angle_bt_MCB_PPLX 
+t_angle_bt_MCB_PPLX
+
 AXIS1 = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
 AXIS2 = [o; v_T_D3_MCB; v_T_D3_PPLX; D3_MCB_axis; x; y; z];
+
+
 
 figure()
 axis equal
@@ -283,20 +288,16 @@ hold on
 scatter3(AXIS1([1 5:7],1),AXIS1([1 5:7],2),AXIS1([1 5:7],3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
 scatter3(AXIS1([2 4],1),AXIS1([2 4],2),AXIS1([2 4],3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 scatter3(AXIS2([2 4],1),AXIS2([2 4],2),AXIS2([2 4],3),'*','MarkerEdgeColor',[0/255, 0/255, 255/255]);
-scatter3(AXIS1(3,1),AXIS1(3,2),AXIS1(3,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
-scatter3(AXIS2(3,1),AXIS2(3,2),AXIS2(3,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+scatter3(AXIS1(3,1),AXIS1(3,2),AXIS1(3,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
 plot3(AXIS1(1:2,1),AXIS1(1:2,2),AXIS1(1:2,3),'-r');
 plot3(AXIS2(1:2,1),AXIS2(1:2,2),AXIS2(1:2,3),'-b');
 plot3(AXIS1([1 3],1),AXIS1([1 3],2),AXIS1([1 3],3),'-r');
 plot3(AXIS2([1 3],1),AXIS2([1 3],2),AXIS2([1 3],3),'-b');
-plot3(AXIS1([1 4],1),AXIS1([1 4],2),AXIS1([1 4],3),'-g');
-plot3(AXIS1([1 5],1),AXIS1([1 5],2),AXIS1([1 5],3),'-k');
-plot3(AXIS1([1 6],1),AXIS1([1 6],2),AXIS1([1 6],3),'-k');
-plot3(AXIS1([1 7],1),AXIS1([1 7],2),AXIS1([1 7],3),'-k');
+plot3(AXIS([1 4],1),AXIS1([1 4],2),AXIS1([1 4],3),'-g');
+plot3(AXIS([1 5],1),AXIS([1 5],2),AXIS([1 5],3),'-k');
+plot3(AXIS([1 6],1),AXIS([1 6],2),AXIS([1 6],3),'-k');
+plot3(AXIS([1 7],1),AXIS([1 7],2),AXIS([1 7],3),'-k');
 hold off
-
-angle_diff = t_angle_bt_MCB_PPLX - s_angle_bt_MCB_PPLX 
-
 
 %% Posture change of MCP bone
 
@@ -313,7 +314,7 @@ end
 
 angle = zeros(19,1);
  angle(16) = 0/60; %D2
- angle(17) = angle_diff/60; %D3
+ angle(17) = 0/60; %D3
  angle(18) = 0/60; %D4
  angle(19) = 0/60; %D5
 
