@@ -26,29 +26,29 @@ angle = zeros(19,1);
 %  degree information: 1.5 = 90 deg., 0.1 = 6 deg, 1/60 = 1 deg.
 
 % Digit 1 flexion(+)/extension(-) 
-% angle(1) = 10/60;
-% angle(2) = -10/60;
-% angle(3) = 45/60;
+angle(1) = 10/60;
+angle(2) = -10/60;
+angle(3) = 45/60;
 % 
 % % Digit 2 flexion(+)/extension(-) 
-% angle(4) = 30/60; 
-% angle(5) = 45/60;
-% angle(6) = 45/60;
+angle(4) = 30/60; 
+angle(5) = 45/60;
+angle(6) = 45/60;
 % 
 % % Digit 3 flexion(+)/extension(-) 
-% angle(7) = 30/60;
-% angle(8) = 45/60;
-% angle(9) = 45/60;
+angle(7) = 30/60;
+angle(8) = 45/60;
+angle(9) = 45/60;
 % 
 % % Digit 4 flexion(+)/extension(-) 
-% angle(10) = 30/60;
-% angle(11) = 45/60;
-% angle(12) = 45/60;
+angle(10) = 30/60;
+angle(11) = 45/60;
+angle(12) = 45/60;
 % 
 % % Digit 5 flexion(+)/extension(-) 
-% angle(13) = 30/60; % 
-% angle(14) = 45/60; %
-% angle(15) = 45/60; %
+angle(13) = 30/60; % 
+angle(14) = 45/60; %
+angle(15) = 45/60; %
 
 %% posture 2 = neutral 
 % degree information: 1.5 = 90 deg., 0.1 = 6 deg, 1/60 = 1 deg.
@@ -81,10 +81,10 @@ angle(15) = 0/60;
 %%
  
 % MCP Abduction/adduction
- angle(16) = 0; %D2
- angle(17) = 0; %D3
- angle(18) = 0; %D4
- angle(19) = 0; %D5
+ angle(16) = 0/60; %D2
+ angle(17) = 0/60; %D3
+ angle(18) = 0/60; %D4
+ angle(19) = 0/60; %D5
 
 
 % disp([angle_1 angle_2 angle_3; angle_4 angle_5 angle_6; angle_7 angle_8 angle_9; angle_10 angle_11 angle_12;...
