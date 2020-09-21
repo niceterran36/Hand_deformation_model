@@ -3,10 +3,10 @@ function pairs = compute_correspondences(mesh_vertices, mesh_normals, points_ver
 
     % Define missing arguments
     if nargin < 5
-        distance_threshold = 1;
+        distance_threshold = 2;
     end
     if nargin < 6
-        cos_angle_threshold = cos(45 * pi / 180);
+        cos_angle_threshold = cos(30 * pi / 180);
     end
 
     % For each mesh vertex, find closest point

@@ -334,7 +334,7 @@ end
 
 clear LIX 
 
-%% need to check - for what???
+%% 
 
 load('hy_mesh_n.mat');
 o_segment = mesh.assignment;

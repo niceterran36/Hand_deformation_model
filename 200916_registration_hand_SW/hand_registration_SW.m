@@ -3,10 +3,10 @@ clear all
 
 %% register library - PC
 addpath(genpath('../external'));
-addpath('C:\Users\user\Documents\MATLAB\functions');
-addpath('C:\Users\user\Documents\MATLAB\data_SW');
-addpath('C:\Users\user\Documents\MATLAB\data');
-addpath('C:\Users\user\Documents\MATLAB\external\registration');
+addpath('D:\GitHub\Hand_deformation_model\functions');
+addpath('D:\GitHub\Hand_deformation_model\data_SW');
+addpath('D:\GitHub\Hand_deformation_model\data');
+addpath('D:\GitHub\Hand_deformation_model\external\registration');
 
 %% register library - Macbook
 clc
@@ -19,7 +19,7 @@ addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/reg
 format shortG
 
 %% Load data
-load('hy_mesh_n3.mat');
+load('hy_mesh_n4.mat'); %template
 LMs = function_get_LM_from_iges('LMs4.igs');
 LMs(5,:) = [];
 LMt = function_get_LM_from_iges('LMt.igs');
@@ -73,11 +73,11 @@ trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.verti
 %quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
 hold off;
-view([-90, 0]);
+view([-172,5]);
 camlight;
 view([90, 0]);
 camlight;
-view([0, 90]);
+view([193, -4]);
 axis equal;
 grid off;
 lighting gouraud;
@@ -112,9 +112,9 @@ for i = 1 : 10
         [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
     'Color', 'red');
     hold off;
-    view([-90, 0]);
+    view([-172,5]);
     camlight;
-    view([-1.731199267032320e+02,-3.789655708662835]);
+    view([-172,5]);
     camlight;
     axis equal;
     grid off;
@@ -149,9 +149,9 @@ axis equal
 axis off
 h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
 lighting gouraud;
-view([-90, 0]);
+view([193, -4]);
 camlight;
-view([90, 0]);
+view([185, 8]);
 camlight;
 hold off;
 
@@ -187,35 +187,21 @@ end
 Scor(13,:) = hand_template.spheres{1,22}.center;
 Tcor(13,:) = hand_template.spheres{1,22}.center;
 
-% generate vectors for angle calculation
+% angle calculation for Scor, Tcor = Things to do - develop as function
+o = [0 0 0];
+x = [1 0 0];
+y = [0 1 0];
+z = [0 0 1];
 
+% generate vectors for angle calculation
+% D3 MCP case
 v_T_D3_MCB = (hand_template.spheres{1,12}.center - hand_template.spheres{1,22}.center)/norm((hand_template.spheres{1,12}.center - hand_template.spheres{1,22}.center));
 v_T_D3_PPLX = (hand_template.spheres{1,11}.center - hand_template.spheres{1,12}.center)/norm((hand_template.spheres{1,11}.center - hand_template.spheres{1,12}.center));
 v_S_D3_MCB = (Scor(4,:) - Scor(13,:))/norm(Scor(4,:) - Scor(13,:));
 v_S_D3_PPLX = (Scor(5,:) - Scor(4,:))/norm(Scor(5,:) - Scor(4,:));
 D3_MCB_axis = axes{9}(1 : 3, 3)';
 
-% angle calculation for Scor, Tcor = Things to do - develop as function
-o = [0 0 0];
-z = [0 0 1];
-AXIS = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
-
-% figure()
-% axis equal
-% hold on
-% scatter3(o(:,1),o(:,2),o(:,3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
-% scatter3(v_S_D3_MCB(:,1),v_S_D3_MCB(:,2),v_S_D3_MCB(:,3),'o','MarkerEdgeColor',[0/255, 0/255, 255/255]);
-% scatter3(v_S_D3_PPLX(:,1),v_S_D3_PPLX(:,2),v_S_D3_PPLX(:,3),'o', 'MarkerEdgeColor',[0/255, 255/255, 0/255]);
-% scatter3(D3_MCB_axis(:,1),D3_MCB_axis(:,2),D3_MCB_axis(:,3),'*', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-% plot3(AXIS(1:2,1),AXIS(1:2,2),AXIS(1:2,3),'-g');
-% plot3(AXIS([1 3],1),AXIS([1 3],2),AXIS([1 3],3),'-g');
-% plot3(AXIS([1 4],1),AXIS([1 4],2),AXIS([1 4],3),'-b');
-% plot3(AXIS([1 5],1),AXIS([1 5],2),AXIS([1 5],3),'-k');
-% hold off
-
-x = [1 0 0];
-y = [0 1 0];
-z = [0 0 1];
+AXIS_D3 = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
 
 % Z-axis rotation
 vectorK = D3_MCB_axis(1,1:2);
@@ -226,7 +212,7 @@ D3_MCB_axis = function_rotation_matrix(D3_MCB_axis, Rz);
 v_S_D3_MCB = function_rotation_matrix(v_S_D3_MCB, Rz);
 v_S_D3_PPLX = function_rotation_matrix(v_S_D3_PPLX, Rz);
 %update AXIS
-AXIS = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
+AXIS_D3 = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
                                     
 % X-axis rotation
 vectorK = D3_MCB_axis(1,2:3);
@@ -237,25 +223,25 @@ D3_MCB_axis = function_rotation_matrix(D3_MCB_axis, Rx);
 v_S_D3_MCB = function_rotation_matrix(v_S_D3_MCB, Rx);
 v_S_D3_PPLX = function_rotation_matrix(v_S_D3_PPLX, Rx);
 %update AXIS
-AXIS = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
+AXIS_D3 = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
 
-% D3 MCB axis = blue, D3 MCB bone = blue, D3_PPLX bone = Red, 
-figure()
-axis equal
-hold on
-scatter3(AXIS([1 5:7],1),AXIS([1 5:7],2),AXIS([1 5:7],3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
-scatter3(AXIS([2 4],1),AXIS([2 4],2),AXIS([2 4],3),'*','MarkerEdgeColor',[0/255, 0/255, 255/255]);
-scatter3(AXIS(3,1),AXIS(3,2),AXIS(3,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
-plot3(AXIS(1:2,1),AXIS(1:2,2),AXIS(1:2,3),'-g');
-plot3(AXIS([1 3],1),AXIS([1 3],2),AXIS([1 3],3),'-r');
-plot3(AXIS([1 4],1),AXIS([1 4],2),AXIS([1 4],3),'-b');
-plot3(AXIS([1 5],1),AXIS([1 5],2),AXIS([1 5],3),'-k');
-plot3(AXIS([1 6],1),AXIS([1 6],2),AXIS([1 6],3),'-k');
-plot3(AXIS([1 7],1),AXIS([1 7],2),AXIS([1 7],3),'-k');
-hold off
+%MCB axis = blue, MCB bone = blue, PPLX bone = Red, 
+% figure()
+% axis equal
+% hold on
+% scatter3(AXIS_D4([1 5:7],1),AXIS_D4([1 5:7],2),AXIS_D4([1 5:7],3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
+% scatter3(AXIS_D4([2 4],1),AXIS_D4([2 4],2),AXIS_D4([2 4],3),'*','MarkerEdgeColor',[0/255, 0/255, 255/255]);
+% scatter3(AXIS_D4(3,1),AXIS_D4(3,2),AXIS_D4(3,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+% plot3(AXIS_D4(1:2,1),AXIS_D4(1:2,2),AXIS_D4(1:2,3),'-g');
+% plot3(AXIS_D4([1 3],1),AXIS_D4([1 3],2),AXIS_D4([1 3],3),'-r');
+% plot3(AXIS_D4([1 4],1),AXIS_D4([1 4],2),AXIS_D4([1 4],3),'-b');
+% plot3(AXIS_D4([1 5],1),AXIS_D4([1 5],2),AXIS_D4([1 5],3),'-k');
+% plot3(AXIS_D4([1 6],1),AXIS_D4([1 6],2),AXIS_D4([1 6],3),'-k');
+% plot3(AXIS_D4([1 7],1),AXIS_D4([1 7],2),AXIS_D4([1 7],3),'-k');
+% hold off
 
-vectorK = AXIS(2,1:2)
-vectorJ = AXIS(3,1:2)
+vectorK = AXIS_D3(2,1:2)
+vectorJ = AXIS_D3(3,1:2)
 s_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
 
 
@@ -268,35 +254,136 @@ v_T_D3_PPLX = function_rotation_matrix(v_T_D3_PPLX, Rz);
 v_T_D3_MCB = function_rotation_matrix(v_T_D3_MCB, Rx);
 v_T_D3_PPLX = function_rotation_matrix(v_T_D3_PPLX, Rx);
 % update AXIS value
-AXIS = [o; v_T_D3_MCB; v_T_D3_PPLX; D3_MCB_axis; x; y; z]
+AXIS_D3 = [o; v_T_D3_MCB; v_T_D3_PPLX; D3_MCB_axis; x; y; z]
 
-vectorK = AXIS(2,1:2)
-vectorJ = AXIS(3,1:2)
+vectorK = AXIS_D3(2,1:2)
+vectorJ = AXIS_D3(3,1:2)
 t_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
 
 AXIS1 = [o; v_S_D3_MCB; v_S_D3_PPLX; D3_MCB_axis; x; y; z];
 AXIS2 = [o; v_T_D3_MCB; v_T_D3_PPLX; D3_MCB_axis; x; y; z];
 
-figure()
-axis equal
-hold on
-scatter3(AXIS1([1 5:7],1),AXIS1([1 5:7],2),AXIS1([1 5:7],3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
-scatter3(AXIS1([2 4],1),AXIS1([2 4],2),AXIS1([2 4],3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-scatter3(AXIS2([2 4],1),AXIS2([2 4],2),AXIS2([2 4],3),'*','MarkerEdgeColor',[0/255, 0/255, 255/255]);
-scatter3(AXIS1(3,1),AXIS1(3,2),AXIS1(3,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
-scatter3(AXIS2(3,1),AXIS2(3,2),AXIS2(3,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
-plot3(AXIS1(1:2,1),AXIS1(1:2,2),AXIS1(1:2,3),'-r');
-plot3(AXIS2(1:2,1),AXIS2(1:2,2),AXIS2(1:2,3),'-b');
-plot3(AXIS1([1 3],1),AXIS1([1 3],2),AXIS1([1 3],3),'-r');
-plot3(AXIS2([1 3],1),AXIS2([1 3],2),AXIS2([1 3],3),'-b');
-plot3(AXIS1([1 4],1),AXIS1([1 4],2),AXIS1([1 4],3),'-g');
-plot3(AXIS1([1 5],1),AXIS1([1 5],2),AXIS1([1 5],3),'-k');
-plot3(AXIS1([1 6],1),AXIS1([1 6],2),AXIS1([1 6],3),'-k');
-plot3(AXIS1([1 7],1),AXIS1([1 7],2),AXIS1([1 7],3),'-k');
-hold off
+% figure()
+% axis equal
+% hold on
+% scatter3(AXIS1([1 5:7],1),AXIS1([1 5:7],2),AXIS1([1 5:7],3),'*','MarkerEdgeColor',[0/255, 0/255, 0/255]);
+% scatter3(AXIS1([2 4],1),AXIS1([2 4],2),AXIS1([2 4],3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+% scatter3(AXIS2([2 4],1),AXIS2([2 4],2),AXIS2([2 4],3),'*','MarkerEdgeColor',[0/255, 0/255, 255/255]);
+% scatter3(AXIS1(3,1),AXIS1(3,2),AXIS1(3,3),'*', 'MarkerEdgeColor',[255/255, 0/255, 0/255]);
+% scatter3(AXIS2(3,1),AXIS2(3,2),AXIS2(3,3),'*', 'MarkerEdgeColor',[0/255, 0/255, 255/255]);
+% plot3(AXIS1(1:2,1),AXIS1(1:2,2),AXIS1(1:2,3),'-r');
+% plot3(AXIS2(1:2,1),AXIS2(1:2,2),AXIS2(1:2,3),'-b');
+% plot3(AXIS1([1 3],1),AXIS1([1 3],2),AXIS1([1 3],3),'-r');
+% plot3(AXIS2([1 3],1),AXIS2([1 3],2),AXIS2([1 3],3),'-b');
+% plot3(AXIS1([1 4],1),AXIS1([1 4],2),AXIS1([1 4],3),'-g');
+% plot3(AXIS1([1 5],1),AXIS1([1 5],2),AXIS1([1 5],3),'-k');
+% plot3(AXIS1([1 6],1),AXIS1([1 6],2),AXIS1([1 6],3),'-k');
+% plot3(AXIS1([1 7],1),AXIS1([1 7],2),AXIS1([1 7],3),'-k');
+% hold off
 
-angle_diff = t_angle_bt_MCB_PPLX - s_angle_bt_MCB_PPLX 
+angle_diff_D3 = abs(t_angle_bt_MCB_PPLX - s_angle_bt_MCB_PPLX)
 
+% D4 MCP case
+v_T_D4_MCB = (hand_template.spheres{1,8}.center - hand_template.spheres{1,22}.center)/norm((hand_template.spheres{1,8}.center - hand_template.spheres{1,22}.center));
+v_T_D4_PPLX = (hand_template.spheres{1,7}.center - hand_template.spheres{1,8}.center)/norm((hand_template.spheres{1,7}.center - hand_template.spheres{1,8}.center));
+v_S_D4_MCB = (Scor(7,:) - Scor(13,:))/norm(Scor(7,:) - Scor(13,:));
+v_S_D4_PPLX = (Scor(8,:) - Scor(7,:))/norm(Scor(8,:) - Scor(7,:));
+D4_MCB_axis = axes{12}(1 : 3, 3)';
+AXIS_D4 = [o; v_S_D4_MCB; v_S_D4_PPLX; D4_MCB_axis; x; y; z];
+
+% Z-axis rotation
+vectorK = D4_MCB_axis(1,1:2);
+vectorAxis = [0, 1]
+rotationAngle_Z = acosd(dot(vectorK, vectorAxis) / (norm(vectorK) * norm(vectorAxis)));
+Rz = function_rotationmat3D((-rotationAngle_Z)/180*pi, [0, 0, 1]);
+D4_MCB_axis = function_rotation_matrix(D4_MCB_axis, Rz);
+v_S_D4_MCB = function_rotation_matrix(v_S_D4_MCB, Rz);
+v_S_D4_PPLX = function_rotation_matrix(v_S_D4_PPLX, Rz);
+%update AXIS
+AXIS_D4 = [o; v_S_D4_MCB; v_S_D4_PPLX; D4_MCB_axis; x; y; z];
+                                    
+% X-axis rotation
+vectorK = D4_MCB_axis(1,2:3);
+vectorAxis = [0, 1]
+rotationAngle_X = acosd(dot(vectorK, vectorAxis) / (norm(vectorK) * norm(vectorAxis)));
+Rx = function_rotationmat3D((rotationAngle_X)/180*pi, [1, 0, 0]);
+D4_MCB_axis = function_rotation_matrix(D4_MCB_axis, Rx);
+v_S_D4_MCB = function_rotation_matrix(v_S_D4_MCB, Rx);
+v_S_D4_PPLX = function_rotation_matrix(v_S_D4_PPLX, Rx);
+%update AXIS
+AXIS_D4 = [o; v_S_D4_MCB; v_S_D4_PPLX; D4_MCB_axis; x; y; z];
+
+vectorK = AXIS_D4(2,1:2)
+vectorJ = AXIS_D4(3,1:2)
+s_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
+
+% angle calculation for Tcor
+% Z-axis rotation
+v_T_D4_MCB = function_rotation_matrix(v_T_D4_MCB, Rz);
+v_T_D4_PPLX = function_rotation_matrix(v_T_D4_PPLX, Rz);
+                                    
+% X-axis rotation
+v_T_D4_MCB = function_rotation_matrix(v_T_D4_MCB, Rx);
+v_T_D4_PPLX = function_rotation_matrix(v_T_D4_PPLX, Rx);
+% update AXIS value
+AXIS_D4 = [o; v_T_D4_MCB; v_T_D4_PPLX; D4_MCB_axis; x; y; z];
+
+vectorK = AXIS_D4(2,1:2)
+vectorJ = AXIS_D4(3,1:2)
+t_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
+
+angle_diff_D4 = abs(t_angle_bt_MCB_PPLX - s_angle_bt_MCB_PPLX)
+
+% D5 MCP case
+v_T_D5_MCB = (hand_template.spheres{1,4}.center - hand_template.spheres{1,22}.center)/norm((hand_template.spheres{1,4}.center - hand_template.spheres{1,22}.center));
+v_T_D5_PPLX = (hand_template.spheres{1,3}.center - hand_template.spheres{1,4}.center)/norm((hand_template.spheres{1,3}.center - hand_template.spheres{1,4}.center));
+v_S_D5_MCB = (Scor(10,:) - Scor(13,:))/norm(Scor(10,:) - Scor(13,:));
+v_S_D5_PPLX = (Scor(11,:) - Scor(10,:))/norm(Scor(11,:) - Scor(10,:));
+D5_MCB_axis = axes{15}(1 : 3, 3)';
+AXIS_D5 = [o; v_S_D5_MCB; v_S_D5_PPLX; D5_MCB_axis; x; y; z];
+
+% Z-axis rotation
+vectorK = D5_MCB_axis(1,1:2);
+vectorAxis = [0, 1]
+rotationAngle_Z = acosd(dot(vectorK, vectorAxis) / (norm(vectorK) * norm(vectorAxis)));
+Rz = function_rotationmat3D((-rotationAngle_Z)/180*pi, [0, 0, 1]);
+D5_MCB_axis = function_rotation_matrix(D5_MCB_axis, Rz);
+v_S_D5_MCB = function_rotation_matrix(v_S_D5_MCB, Rz);
+v_S_D5_PPLX = function_rotation_matrix(v_S_D5_PPLX, Rz);
+%update AXIS
+AXIS_D5 = [o; v_S_D5_MCB; v_S_D5_PPLX; D5_MCB_axis; x; y; z];
+                                    
+% X-axis rotation
+vectorK = D5_MCB_axis(1,2:3);
+vectorAxis = [0, 1]
+rotationAngle_X = acosd(dot(vectorK, vectorAxis) / (norm(vectorK) * norm(vectorAxis)));
+Rx = function_rotationmat3D((rotationAngle_X)/180*pi, [1, 0, 0]);
+D5_MCB_axis = function_rotation_matrix(D5_MCB_axis, Rx);
+v_S_D5_MCB = function_rotation_matrix(v_S_D5_MCB, Rx);
+v_S_D5_PPLX = function_rotation_matrix(v_S_D5_PPLX, Rx);
+%update AXIS
+AXIS_D5 = [o; v_S_D5_MCB; v_S_D5_PPLX; D5_MCB_axis; x; y; z];
+
+vectorK = AXIS_D5(2,1:2)
+vectorJ = AXIS_D5(3,1:2)
+s_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
+
+% angle calculation for Tcor
+% Z-axis rotation
+v_T_D5_MCB = function_rotation_matrix(v_T_D5_MCB, Rz);
+v_T_D5_PPLX = function_rotation_matrix(v_T_D5_PPLX, Rz);
+                                    
+% X-axis rotation
+v_T_D5_MCB = function_rotation_matrix(v_T_D5_MCB, Rx);
+v_T_D5_PPLX = function_rotation_matrix(v_T_D5_PPLX, Rx);
+% update AXIS value
+AXIS_D5 = [o; v_T_D5_MCB; v_T_D5_PPLX; D5_MCB_axis; x; y; z];
+
+vectorK = AXIS_D5(2,1:2)
+vectorJ = AXIS_D5(3,1:2)
+t_angle_bt_MCB_PPLX = acosd(dot(vectorK, vectorJ) / (norm(vectorK) * norm(vectorJ)));
+
+angle_diff_D5 = abs(t_angle_bt_MCB_PPLX - s_angle_bt_MCB_PPLX)
 
 %% Posture change of MCP bone
 
@@ -311,11 +398,11 @@ for i = 1 : 4
     transforms_ad{i} = eye(4);
 end 
 
-angle = zeros(19,1);
+ angle = zeros(19,1);
  angle(16) = 0/60; %D2
- angle(17) = angle_diff/60; %D3
- angle(18) = 0/60; %D4
- angle(19) = 0/60; %D5
+ angle(17) = angle_diff_D3/60; %D3
+ angle(18) = angle_diff_D4/60; %D4
+ angle(19) = angle_diff_D5/60; %D5
 
  % MCP abduction/adduction motion
 transforms_ad{1} = matrix_rotation( ... % D2 MCP -ab/ad
@@ -422,12 +509,34 @@ transforms{18} = matrix_rotation( ... % D5 DIP
 
 %Apply new hand posture by angle & render 3D model   
 
-transformed = mesh;
-transformed = skin_dualquat(transformed, transforms);
-
-for i = 1:30
-A(i,:) = transformed.spheres{1,i}.center;
+hand_template = skin_dualquat(hand_template, transforms);
+for i = 1:18
+     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
 end
+
+figure()
+hold on;
+axis equal
+axis off
+h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off;
+
+figure()
+axis equal
+axis off
+hold on
+scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
+% scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+hold off
+
+vertices_c = hand_template.vertices;
+normals = hand_template.normals;
 
 %% parameter for finger root (MCP) registration 
 
@@ -760,8 +869,8 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255
 hold off
 
 %% save mat file
-V_P6 = sourceV;
-save P6_vertices.mat V_P6
+% V_P6 = sourceV;
+% save P6_vertices.mat V_P6
 
 % save function 
 % Header »ý¼º
