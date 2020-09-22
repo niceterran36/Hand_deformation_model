@@ -1,4 +1,4 @@
-function pairs = compute_correspondences(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold, cos_angle_threshold)
+function pairs = compute_correspondences_MCP(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold, cos_angle_threshold)
 %COMPUTE_CORRESPONDENCES For each mesh vertex, find closest point in cloud
 
     % Define missing arguments
