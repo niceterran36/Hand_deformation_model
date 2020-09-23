@@ -634,6 +634,51 @@ FRP_cor_tr{5} = [1:3];
 
 transform_order= [3 6 9 12 16];
 
+%% Search correspondence pair 
+
+% original methods
+vertices = vertices_c;
+faces = faces_c;
+normals = per_vertex_normals(vertices, faces);
+keep = ismember(mesh.assignment, FRP_segment(4));
+[vertices, faces] = filter_vertices(vertices, faces, keep);
+normals = normals(keep, :);
+pairs = compute_correspondences_MCP(vertices, normals, points.vertices, points.normals);
+
+% cost setting
+% supply = MCP segment
+% demand = scan points
+p = [];
+q = [];
+n = [];
+
+% plot correspondence pair
+for i = 1:size(pairs,1)
+    p = [p; vertices(pairs(i, 1), :)];
+    q = [q; points.vertices(pairs(i, 2), :)];
+    n = points.normals(pairs(i, 2), :);
+end 
+
+clear p q n vertices faces normals keep pairs
+
+% visualization points
+figure()
+axis equal
+axis off
+hold on
+%scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[220/255, 220/255, 220/255]);
+trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.7, 0.7, 0.7], 'FaceAlpha', 0.1);
+scatter3(vertices(:,1),vertices(:,2),vertices(:,3),'.', 'MarkerEdgeColor',[120/255, 120/255, 51/255]);
+plot3([p(:,1), q(:,1)]',[p(:,2) q(:,2)]',[p(:,3) q(:,3)]','-r')
+scatter3(hand_template.spheres{1,4}.center(1,1),hand_template.spheres{1,4}.center(1,2),hand_template.spheres{1,4}.center(1,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(hand_template.spheres{1,8}.center(1,1),hand_template.spheres{1,8}.center(1,2),hand_template.spheres{1,8}.center(1,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(hand_template.spheres{1,12}.center(1,1),hand_template.spheres{1,12}.center(1,2),hand_template.spheres{1,12}.center(1,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+scatter3(hand_template.spheres{1,16}.center(1,1),hand_template.spheres{1,16}.center(1,2),hand_template.spheres{1,16}.center(1,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+view(-195,0);
+hold off
+
+hand_template.spheres{1,i}.center
+
 %% D1-D5 finger root (MCP) registration
 h3 = [];
 h4 = [];
