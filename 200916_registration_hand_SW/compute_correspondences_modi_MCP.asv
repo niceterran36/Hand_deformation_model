@@ -4,10 +4,10 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
 % Define missing arguments
     if nargin < 5
          distance_threshold = 30;
-    end
-    if nargin < 6
-        cos_angle_threshold = cos(60 * pi / 180);
-    end
+     end
+%    if nargin < 6
+%         cos_angle = cos(30 * pi / 180);
+%     end
 
     n = size(mesh_vertices, 1); % vertices --> mesh_vertices로 변경
     m = size(points_vertices, 1);
@@ -33,13 +33,14 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
 
     % For each mesh vertex, find closest point
         
+    % 해결 여기서부터
     cos_angle = zeros(m,1);
     for i = 1 : n % for template_vertices
         for j = 1 : m % for scan points
         cos_angle(j,1) = mesh_normals(i, :) * points_n_candidate(j, :)';
         end
         
-        LIX_angle = cos_angle > 0;
+        LIX_angle = cos_angle < 0;
         points_v_candidate =  points_v_candidate(LIX_angle,:);
         m = size(points_v_candidate,1);
         
@@ -50,29 +51,21 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
         pairs(i, 1) = i;
         pairs(i, 2) = points_v_candidate(col,4); 
         
-        clear LIX_angle delta distances_delta col
-        
-        points_v_candidate = points_vertices(LIX,:);
-        points_v_candidate(:,4) = Idx_points(LIX);
-        points_n_candidate = points_normals(LIX,:);
-        m = size(points_v_candidate,1);
+        clear LIX_angle delta distances_delta 
     end
+        
+        
+        
+        
+           
 
-%     keep = true(n, 1);
-%     for i = 1 : n
-%           p = pairs(i, 1);
-%           q = pairs(i, 2);
-%           cos_angle_candidate = mesh_normals(p, :) * points_normals(q, :)';
-%           if cos_angle_candidate < cos_angle_threshold
-%             keep(i) = false;
-%           end
-%     end
-%     pairs = pairs(keep, :);
-    
+         
+    end
+  
         % Filter bad pairs
    
 %     % TODO vectorize this
-%     
+%     keep = true(n, 1);
 %     for i = 1 : n
 %         p = pairs(i, 1);
 %         q = pairs(i, 2);

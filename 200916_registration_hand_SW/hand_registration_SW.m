@@ -638,27 +638,26 @@ transform_order= [3 6 9 12 16];
 
 %% Search correspondence pair 
 
-% original methods
 vertices = vertices_c;
 faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
-keep = ismember(mesh.assignment, FRP_segment(4));
+keep = ismember(mesh.assignment, FRP_segment(5));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-<<<<<<< Updated upstream
-pairs = compute_correspondences_MCP(vertices, normals, points.vertices, points.normals);
-=======
-pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
->>>>>>> Stashed changes
+% 
 
-% cost setting
-% supply = MCP segment
-% demand = scan points
+mesh_vertices = vertices;
+mesh_normals = normals;
+points_vertices = points.vertices;
+points_normals = points.normals;
+
+pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
+
+% plot correspondence pair
 p = [];
 q = [];
 n = [];
 
-% plot correspondence pair
 for i = 1:size(pairs,1)
     p = [p; vertices(pairs(i, 1), :)];
     q = [q; points.vertices(pairs(i, 2), :)];
@@ -683,8 +682,6 @@ scatter3(hand_template.spheres{1,16}.center(1,1),hand_template.spheres{1,16}.cen
 view(-195,0);
 hold off
 
-hand_template.spheres{1,i}.center
-
 %% D1-D5 finger root (MCP) registration
 h3 = [];
 h4 = [];
@@ -698,7 +695,7 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(mesh.assignment, FRP_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-pairs = compute_correspondences_MCP(vertices, normals, points.vertices, points.normals);
+pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
 
 transform = eye(4);
 
@@ -711,7 +708,7 @@ figure(2)
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
-        pairs = compute_correspondences_MCP(vertices, normals, points.vertices, points.normals);
+        pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
