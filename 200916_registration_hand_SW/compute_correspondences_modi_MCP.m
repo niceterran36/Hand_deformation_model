@@ -1,4 +1,4 @@
-function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold)
+function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold,cos_angle_threshold)
 %COMPUTE_CORRESPONDENCES For each mesh vertex, find closest point in cloud
     
 % Define missing arguments
@@ -39,7 +39,7 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
         cos_angle(j,1) = mesh_normals(i, :) * points_n_candidate(j, :)';
         end
         
-        LIX_angle = cos_angle > 0;
+        LIX_angle = cos_angle > cos(30 * pi / 180);
         points_v_candidate =  points_v_candidate(LIX_angle,:);
         m = size(points_v_candidate,1);
         

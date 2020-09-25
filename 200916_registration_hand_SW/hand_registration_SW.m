@@ -27,12 +27,12 @@ format shortG
 
 %% Load data
 load('hy_mesh_n4.mat'); %template
-LMs = function_get_LM_from_iges('LMs4.igs');
-LMs(5,:) = [];
+LMs = function_get_LM_from_iges('LMs5.igs');
+%LMs(5,:) = [];
 LMt = function_get_LM_from_iges('LMt.igs');
 points = {};
 % import problem
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P04.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P05.ply');
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 vertices = mesh.vertices;
@@ -201,8 +201,7 @@ distances = sum(delta .^ 2, 2);
 palm_LMp_idx(i,:) = j;
 end
 
-LM_bf_register = palm_vertices(palm_LMp_idx,:)
-LM_af_register = sourceV_transformed(palm_LMp_idx,:)
+
 %Diff = LM_bf_register-LM_af_register
 
 % ICP registration
@@ -216,6 +215,9 @@ figureOn = 1;
 rigidICP = 0;
 
 [sourceV_transformed] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP)
+LM_bf_register = palm_vertices(palm_LMp_idx,:);
+LM_af_register = sourceV_transformed(palm_LMp_idx,:);
+
 
 LM_bf_register = LM_bf_register'; 
 LM_af_register = LM_af_register';
@@ -700,6 +702,7 @@ pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, poi
 transform = eye(4);
 
 figure(2)
+    view(-196,1);
     for i = 1 : 10
         delete(h3);
         delete(h4);
@@ -708,7 +711,9 @@ figure(2)
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
+        
         pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
+
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
@@ -748,6 +753,7 @@ figure(3)
 axis equal
 axis off
 hold on
+view(-196,1);
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
 scatter3(vertices_c(:,1),vertices_c(:,2),vertices_c(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
@@ -794,6 +800,7 @@ end
 
 figure()
 hold on;
+view(169,14);
 axis equal
 axis off
 h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
@@ -808,6 +815,7 @@ figure()
 axis equal
 axis off
 hold on
+view(169,14);
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
 scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
 % scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
@@ -863,7 +871,7 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(mesh.assignment, P_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals);
 
 transform = eye(4);
 
@@ -876,7 +884,7 @@ figure(2)
         transform = delta * transform;
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
-        pairs = compute_correspondences(vertices, normals, points.vertices, points.normals);
+        pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals);
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
         hold on;
@@ -995,8 +1003,8 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255
 hold off
 
 %% save mat file
-% V_P6 = sourceV;
-% save P6_vertices.mat V_P6
+V_P4 = sourceV;
+save P4_vertices.mat V_P4
 
 % save function 
 % Header »ý¼º
