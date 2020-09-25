@@ -91,8 +91,9 @@ axes = compute_bone_axes(mesh.spheres);
 normals = per_vertex_normals(vertices, faces);
 
 figure()
-trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 hold on;
+view([-172,5]);
+trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
 %quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
@@ -119,6 +120,7 @@ keep = ismember(mesh.assignment, 1:5);
 normals = normals(keep, :);
 pairs = compute_correspondences_palm(vertices, normals, points.vertices, points.normals);
 figure()
+view([-172,5]);
 transform = eye(4);
 for i = 1 : 10
     delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
@@ -643,7 +645,11 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(mesh.assignment, FRP_segment(4));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
+<<<<<<< Updated upstream
 pairs = compute_correspondences_MCP(vertices, normals, points.vertices, points.normals);
+=======
+pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
+>>>>>>> Stashed changes
 
 % cost setting
 % supply = MCP segment

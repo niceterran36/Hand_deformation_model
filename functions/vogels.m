@@ -7,11 +7,7 @@ horizDif = zeros(1,cols); %vector corresponding to the minimum different of the 
    
 iterationIndex = 1  % editIvan_20200422
 rowIndex = 1  % editIvan_20200422
-<<<<<<< Updated upstream
 printMatrixAtoExcel = 1  % editIvan_20200422
-=======
-printMatrixAtoExcel = 0  % editIvan_20200422
->>>>>>> Stashed changes
 if printMatrixAtoExcel == 1  % editIvan_20200422
     filename = 'A_matrix.xlsx'  % editIvan_20200422
 end
