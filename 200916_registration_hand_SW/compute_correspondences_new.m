@@ -7,11 +7,8 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
         cos_angle_threshold = cos(60 * pi / 180);
     end
 
-<<<<<<< HEAD
+
     n = size(mesh_vertices, 1); % vertices --> mesh_vertices·Î º¯°æ
-=======
-    n = size(mesh_vertices, 1); 
->>>>>>> 93c4ea902b24dc9bd719194ebc044d50ee4ee40a
     m = size(points_vertices, 1);
     pairs = zeros(n, 2);
 
@@ -50,13 +47,13 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
     m = size(points_v_candidate,1);
        
     %random option  
->>>>>>> 93c4ea902b24dc9bd719194ebc044d50ee4ee40a
+
     Rad_idx = zeros(500,1);
     for ii = 1:500
         Rad_idx(ii) = randi(m);
     end
     m = 500;
-<<<<<<< HEAD
+
 
     points_v_r_candidate = points_v_candidate(Rad_idx,1:3);
     points_n_r_candidate = points_n_candidate(Rad_idx,1:3);    
@@ -67,7 +64,7 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
     
     normals = normalizerow(normals);
     points_n_candidates = normalizerow(points_n_candidate);    
-=======
+
 
     points_v_r_candidate = points_v_candidate(Rad_idx,1:3);
     points_n_r_candidate = points_n_candidates(Rad_idx,1:3);
