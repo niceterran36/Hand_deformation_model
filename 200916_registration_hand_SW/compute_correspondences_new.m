@@ -65,10 +65,10 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
        end 
 
     end
-    tic
+    %tic
     Sol = Transportation_code(B, supply, demand);
     Sol(:,n+1:end) = [];
-    toc
+    %toc
 
     for i = 1:n
         pairs(i, 1) = i;

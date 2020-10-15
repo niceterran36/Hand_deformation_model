@@ -6,5 +6,5 @@ vogelCost = sum(sum(A.*vogelResult)); %calculates the total cost of the initial 
 % optimalSolution = modi(A, vogelResult, supply, demand) %optimization % function editIvan_20200929
 Sol = vogelResult;  % editIvan_20200929
 % fprintf("Optimized cost = %d\n",sum(sum(A.*optimalSolution))) % editIvan_20200929
-fprintf("Optimized cost = %d\n",sum(sum(A.*Sol)));
+%fprintf("Optimized cost = %d\n",sum(sum(A.*Sol)));
 end

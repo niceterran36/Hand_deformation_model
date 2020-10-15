@@ -17,7 +17,7 @@ while 1
     if printMatrixAtoExcel == 1
         xlswrite(filename,{'iteration ',num2str(iterationIndex)},'sheet1',strcat('A',num2str(rowIndex)));  % editIvan_20200422
     end
-	rowIndex = rowIndex + 1  % editIvan_20200929
+	rowIndex = rowIndex + 1;  % editIvan_20200929
     if printMatrixAtoExcel == 1
         xlswrite(filename,A,'sheet1',strcat('A',num2str(rowIndex)));  % editIvan_20200422
     end
@@ -109,8 +109,8 @@ while 1
     end
     
     if printMatrixAtoExcel == 1
-        rowIndex = rowIndex + 2  % editIvan_20200422
-        iterationIndex = iterationIndex + 1  % editIvan_20200422
+        rowIndex = rowIndex + 2;  % editIvan_20200422
+        iterationIndex = iterationIndex + 1;  % editIvan_20200422
     end
 end
 end
