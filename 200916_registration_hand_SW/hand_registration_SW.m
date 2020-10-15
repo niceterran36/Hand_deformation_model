@@ -38,12 +38,12 @@ format shortG
 
 %% Load data
 load('hy_mesh_n4.mat'); %template
-LMs = function_get_LM_from_iges('LMs5.igs');
+LMs = function_get_LM_from_iges('LMs1.igs');
 %LMs(5,:) = [];
 LMt = function_get_LM_from_iges('LMt.igs');
 points = {};
 % import problem
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P05.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P01.ply');
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 vertices = mesh.vertices;
@@ -950,7 +950,6 @@ transforms2{4} = transforms2{4} * transforms2{3};
 % D1 IP
 transforms2{5} = transforms2{5} * transforms2{4};
 % D2 PIP
-
 transforms2{7} = transforms2{7} * transforms2{6};
 % D2 DIP
 transforms2{8} = transforms2{8} * transforms2{7};
@@ -1027,8 +1026,8 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255
 hold off
 
 %% save mat file
-V_P4 = sourceV;
-save P4_vertices.mat V_P4
+V_P1 = sourceV;
+save P1_vertices.mat V_P1
 
 % save function 
 % Header »ý¼º

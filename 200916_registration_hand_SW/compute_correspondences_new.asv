@@ -22,7 +22,6 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
    
     points_v_candidate = points_vertices(LIX,:);
     points_v_candidate(:,4) = Idx_points(LIX);
-    points_vidx_candidate = points_v_candidate(:,4);
     points_n_candidate = points_normals(LIX,:);
     m = size(points_v_candidate,1);
     
@@ -39,14 +38,13 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
     m = 500;
 
     points_v_r_candidate = points_v_candidate(Rad_idx,1:3);
-    points_n_r_candidate = points_n_candidate(Rad_idx,1:3);
-    points_vidx_r_candidate = points_vidx_candidate(Rad_idx);
+    points_n_r_candidate = points_n_candidate(Rad_idx,1:3);    
 
     B = zeros(m,m);
     supply = ones(m,1);
     demand = ones(1,m);
     
-    
+    points_vidx_r_candidate = points_vidx_candidate(Rad_idx);
           
     for i = 1 : n % for template_vertices
 
@@ -66,6 +64,7 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
 
     end
     tic
+
     Sol = Transportation_code(B, supply, demand);
     Sol(:,n+1:end) = [];
     toc
@@ -73,9 +72,11 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
     for i = 1:n
         pairs(i, 1) = i;
         C = Sol(:,i);
+        pairs(i, 2) = points_vertices(LIX(C>0); 
+        clear C
+    end     
         xx = C == 1;
         pairs(i, 2) = points_vidx_r_candidate(xx); 
-        clear C
     end 
     
     keep = true(n, 1);
