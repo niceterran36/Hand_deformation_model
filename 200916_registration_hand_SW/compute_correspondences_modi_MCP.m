@@ -6,7 +6,7 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
          distance_threshold = 30;
     end
     if nargin < 6
-        cos_angle_threshold = cos(60 * pi / 180);
+        cos_angle_threshold = cos(30 * pi / 180);
     end
 
     n = size(mesh_vertices, 1); % vertices --> mesh_vertices·Î º¯°æ
@@ -39,7 +39,7 @@ function pairs = compute_correspondences_modi_MCP(mesh_vertices, mesh_normals, p
         cos_angle(j,1) = mesh_normals(i, :) * points_n_candidate(j, :)';
         end
         
-        LIX_angle = cos_angle > cos(30 * pi / 180);
+        LIX_angle = cos_angle > cos_angle_threshold;
         points_v_candidate =  points_v_candidate(LIX_angle,:);
         m = size(points_v_candidate,1);
         
