@@ -1,4 +1,4 @@
-function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold, cos_angle_threshold)
+function pairs = correspondences_rigid(mesh_vertices, mesh_normals, points_vertices, points_normals, distance_threshold, cos_angle_threshold)
 
     if nargin < 5
          distance_threshold = 30;
