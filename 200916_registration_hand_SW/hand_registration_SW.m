@@ -38,12 +38,12 @@ format shortG
 
 %% Load data
 load('hy_mesh_n4.mat'); %template
-LMs = function_get_LM_from_iges('이용진_palm_LMs.igs');
+LMs = function_get_LM_from_iges('LMs3.igs');
 %LMs(5,:) = [];
 LMt = function_get_LM_from_iges('LMt.igs');
 points = {};
 % import problem
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('이용진_straight hand_processed.ply');
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P03.ply');
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 vertices = mesh.vertices;
@@ -103,7 +103,7 @@ normals = per_vertex_normals(vertices, faces);
 
 figure()
 hold on;
-view_angle = [5,90];
+view_angle = [207,10];
 view(view_angle);
 trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.5);
 trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
@@ -711,7 +711,8 @@ keep = ismember(mesh.assignment, FRP_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
 %pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+%pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
 
 
 transform = eye(4);
