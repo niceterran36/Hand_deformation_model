@@ -86,15 +86,15 @@ scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255
 scatter3(V_SgX_dor(:,1),V_SgX_dor(:,2),V_SgX_dor(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
 hold off
 
-%% for command update
+%% things to do - for¹®À¸·Î update
 
 dirLM = dir('D:\GitHub\Hand_deformation_model\201026_hand_t_update\LM_for_dorsal_palmar\*.igs');
 
 Seg_order = [8 7 11 10 9 14 13 12 17 16 15 20 19 18];
-Assignment_order = [208 207 111 110 109 114 113 112 117 116 115 120 119 118;
-                    108 107 211 210 209 214 213 212 217 216 215 220 219 218]';
+Assignment_order = [108 107 111 110 109 114 113 112 117 116 115 120 119 118;
+                    208 207 211 210 209 214 213 212 217 216 215 220 219 218]';
 
-for ii = 1:2
+for ii = 9:14
     LMs = function_get_LM_from_iges(dirLM(ii).name);
     fprintf('%d, %s\n', i, dirLM(ii).name);
     
@@ -123,11 +123,9 @@ for ii = 1:2
     A = SgXf;
     Compare = zeros(size(A,1),1);
     for i = 1:size(A,1)
-        T = PL_com(1)*A(i,1)+PL_com(2)*A(i,2)+PL_com(3)*A(i,3)+PL_com(4);
+        T = dorsal_factor*PL_com(1)*A(i,1)+PL_com(2)*A(i,2)+PL_com(3)*A(i,3)+PL_com(4);
         Compare(i) = T;
     end 
-    Compare = dorsal_factor*Compare;
-    
     for k = 1:size(Compare,1)
         if Compare(k) > 0
            TT(k,1) = Assignment_order(ii,1); % dorsal side
@@ -152,8 +150,6 @@ for ii = 1:2
     %scatter3(LMs(:,1),LMs(:,2),LMs(:,3),'*','MarkerEdgeColor',[242/255, 150/255, 97/255]);
     scatter3(V_SgX_dor(:,1),V_SgX_dor(:,2),V_SgX_dor(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
     hold off
-    
-    clear TT A Compare T LIX 
 end 
 
 
