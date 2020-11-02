@@ -10,13 +10,6 @@ addpath('D:\GitHub\Hand_deformation_model\data_SW');
 addpath('D:\GitHub\Hand_deformation_model\data');
 addpath('D:\GitHub\Hand_deformation_model\external\registration');
 format shortG
-% register library & functions
-addpath(genpath('../external'));
-addpath('D:\GitHub\Hand_deformation_model\functions');
-addpath('D:\GitHub\Hand_deformation_model\data_SW');
-addpath('D:\GitHub\Hand_deformation_model\data');
-addpath('D:\GitHub\Hand_deformation_model\external\registration');
-format shortG
 %% reference functions
 
 % [generation transformation matrix]
@@ -97,6 +90,8 @@ axes = compute_bone_axes_2f(mesh_2f.centers);
 angle = zeros(4,1);
 %  degree information: 1.5 = 90 deg., 0.1 = 6 deg, 1/60 = 1 deg.
 
+%% input joint angle for posture change
+
 % Digit 2 flexion(+)/extension(-) 
 angle(1) = 0/60;
 angle(2) = 0/60;
@@ -104,14 +99,16 @@ angle(3) = 0/60;
 % Digit 2 abduction(+)/adduction(-) 
 angle(4) = 0/60; 
 
-%% MCP abduction/adduction motion
+%% joint rotation by transform matrix
+
+% MCP abduction/adduction motion
 transforms_ad{1} = matrix_rotation( ... % D2 MCP -ab/ad
     angle(4), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
     matrix_apply(transforms{1}, axes{6}(1 : 3, 3)', 0), ... axis - 3: abduction/adduction
     matrix_apply(transforms{1}, axes{6}(1 : 3, 4)') ... % center
 ) * transforms{1};
 
-%% Flexion/extension of Digit 2 
+% Flexion/extension of Digit 2 
 transforms{2} = matrix_rotation( ... % D2 MCP
     angle(1), ... % rotation angle: 0 ~ 2, range 3 = 180 deg. 
     matrix_apply(transforms{1}, axes{6}(1 : 3, 2)', 0), ... % axis - 1: supination, pronation; 2: flexion/extension; 3: abduction/adduction
@@ -132,9 +129,17 @@ transforms{4} = matrix_rotation( ... % D2 DIP
 transformed = mesh_2f;
 transformed = skin_dualquat(transformed, transforms);
 
-[V_2f, F_2f, FB_2f, H] = function_loading_ply_file('hand_template_2fingers.ply');
-V_2f = mesh_2f.vertices;
-function_saving_ply_file(V_2f, FB_2f, H, 'hand_template_2fingers_modi.ply')
+figure()
+hold on;
+axis equal
+axis off
+h = trimesh(transformed.faces, transformed.vertices(:, 1), transformed.vertices(:, 2), transformed.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
+lighting gouraud;
+view([-90, 0]);
+camlight;
+view([90, 0]);
+camlight;
+hold off;
 
 
 
