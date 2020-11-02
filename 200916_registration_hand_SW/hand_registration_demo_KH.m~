@@ -39,14 +39,14 @@ m = size(points.vertices, 1);
 Template_LM = zeros(size(LMs,1),1);
 
 for i=1:size(LMs,1)
-delta = V_2f - repmat(LMt(i, :), n, 1);
+delta = mesh.vertices - repmat(LMt(i, :), n, 1);
 distances = sum(delta .^ 2, 2);
 [~, j] = min(distances);
 Template_LM(i,:) = j;
 end
 % template index based LMt info. update
 for i = 1:size(LMs,1)
-LMt(i,:) = V_2f(Template_LM(i),:);
+LMt(i,:) = mesh.vertices(Template_LM(i),:);
 end 
 
 LMt = LMt'; LMs = LMs';
