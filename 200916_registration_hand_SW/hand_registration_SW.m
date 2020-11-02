@@ -716,7 +716,7 @@ normals = normals(keep, :);
 %pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
 %pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
 %pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-pairs = correspondences_dorsal(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+pairs = correspondences_dorsal(vertices_dorsal, normals_dorsal, points.vertices, points.normals, 20, cos(45*pi/180));
 
 
 transform = eye(4);
