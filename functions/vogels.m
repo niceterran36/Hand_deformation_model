@@ -5,18 +5,19 @@ AVals = sparse(rows,cols); %allocation matrix
 vertDif = zeros(rows,1); %vector corresponding to the minimum difference of the rows
 horizDif = zeros(1,cols); %vector corresponding to the minimum different of the colums
    
-iterationIndex = 1  % editIvan_20200422
-rowIndex = 1  % editIvan_20200422
-printMatrixAtoExcel = 1  % editIvan_20200422
+iterationIndex = 1;  % editIvan_20200929
+rowIndex = 1;  % editIvan_20200929
+printMatrixAtoExcel = 0;  % editIvan_20200929
 if printMatrixAtoExcel == 1  % editIvan_20200422
     filename = 'A_matrix.xlsx'  % editIvan_20200422
 end
 
 while 1
+    % fprintf("Iteration")  % editIvan_20200929
     if printMatrixAtoExcel == 1
         xlswrite(filename,{'iteration ',num2str(iterationIndex)},'sheet1',strcat('A',num2str(rowIndex)));  % editIvan_20200422
     end
-    rowIndex = rowIndex + 1  % editIvan_20200422
+	rowIndex = rowIndex + 1;  % editIvan_20200929
     if printMatrixAtoExcel == 1
         xlswrite(filename,A,'sheet1',strcat('A',num2str(rowIndex)));  % editIvan_20200422
     end
@@ -108,8 +109,8 @@ while 1
     end
     
     if printMatrixAtoExcel == 1
-        rowIndex = rowIndex + 2  % editIvan_20200422
-        iterationIndex = iterationIndex + 1  % editIvan_20200422
+        rowIndex = rowIndex + 2;  % editIvan_20200422
+        iterationIndex = iterationIndex + 1;  % editIvan_20200422
     end
 end
 end
