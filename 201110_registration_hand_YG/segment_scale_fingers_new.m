@@ -7,15 +7,17 @@ function [mesh_tr] = segment_scale_fingers_new(mesh, LMt, LMs)
 % target_length = amount of how much stretch the mesh in terms of the link
 % length 
 
-srf_LMt = LMt(34:45,:); 
-srf_LMs = LMs(34:45,:);
+srf_LMt = LMt(1:12,:); % palmar
+srf_LMs = LMs(1:12,:);
+
+srf2_LMt = LMt(1:12,:); % dorsal
 
 % Digit 2 re-scale
 keep = ismember(mesh.assignment, 9:11);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(12,:); C2 = srf_LMt(11,:); C3 = srf_LMt(10,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(12,:); Cs2 = srf_LMs(11,:); Cs3 = srf_LMs(10,:); CPs1 = [Cs1; Cs2; Cs3];
+C1 = srf_LMt(3,:); C2 = srf_LMt(2,:); C3 = srf_LMt(1,:); CP1 = [C1; C2; C3];
+Cs1 = srf_LMs(3,:); Cs2 = srf_LMs(2,:); Cs3 = srf_LMs(1,:); CPs1 = [Cs1; Cs2; Cs3];
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
 vector1s = CPs1(2,:) - CPs1(1,:);
@@ -60,8 +62,8 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 12:14);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(9,:); C2 = srf_LMt(8,:); C3 = srf_LMt(7,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(9,:); Cs2 = srf_LMs(8,:); Cs3 = srf_LMs(7,:); CPs1 = [Cs1; Cs2; Cs3];
+C1 = srf_LMt(6,:); C2 = srf_LMt(5,:); C3 = srf_LMt(4,:); CP1 = [C1; C2; C3];
+Cs1 = srf_LMs(6,:); Cs2 = srf_LMs(5,:); Cs3 = srf_LMs(4,:); CPs1 = [Cs1; Cs2; Cs3];
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
 vector1s = CPs1(2,:) - CPs1(1,:);
@@ -106,8 +108,8 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 15:17);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(6,:); C2 = srf_LMt(5,:); C3 = srf_LMt(4,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(6,:); Cs2 = srf_LMs(5,:); Cs3 = srf_LMs(4,:); CPs1 = [Cs1; Cs2; Cs3];
+C1 = srf_LMt(9,:); C2 = srf_LMt(8,:); C3 = srf_LMt(7,:); CP1 = [C1; C2; C3];
+Cs1 = srf_LMs(9,:); Cs2 = srf_LMs(8,:); Cs3 = srf_LMs(7,:); CPs1 = [Cs1; Cs2; Cs3];
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
 vector1s = CPs1(2,:) - CPs1(1,:);
@@ -152,8 +154,8 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 18:20);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(3,:); C2 = srf_LMt(2,:); C3 = srf_LMt(1,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(3,:); Cs2 = srf_LMs(2,:); Cs3 = srf_LMs(1,:); CPs1 = [Cs1; Cs2; Cs3];
+C1 = srf_LMt(12,:); C2 = srf_LMt(11,:); C3 = srf_LMt(10,:); CP1 = [C1; C2; C3];
+Cs1 = srf_LMs(12,:); Cs2 = srf_LMs(11,:); Cs3 = srf_LMs(10,:); CPs1 = [Cs1; Cs2; Cs3];
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
 vector1s = CPs1(2,:) - CPs1(1,:);
