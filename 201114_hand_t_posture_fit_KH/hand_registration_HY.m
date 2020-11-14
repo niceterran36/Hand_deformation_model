@@ -20,11 +20,13 @@ clear all
 addpath(genpath('../external'));
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
+addpath('Data');
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
 addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
 format shortG
 
 %% Load data
+global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
 [points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos2.ply'); % target scan
@@ -130,39 +132,74 @@ hold off;
 
 %% segment scale
 [transformed] = segment_scale_fingers_new(mesh, LMt, LMs);
-%mesh = transformed;
+mesh = transformed;
 
-%% parameter for finger root (MCP) registration 
+%% calculate optimal rotation angle for MCP
+% FRP_dorsal_segment = [6 109 112 115 118];
 
-% ==== start here
-% things to do 
-% MCP D2 - rotation angle combination set generation, fitting, dist_arry
-% bath
+% function X = (segment, mesh.v, points.v) ==> Y = (angle X)
+% function X2 = (angle1, angle2) ==> Y = mean distance
 
+% function find_opt_rotation
+FRP_dorsal_segment = 109;
+record = [];
+tic
+for ag1 = -0.5:0.1:0.5
+    for ag2 = 0:0.1:1.5
+        angle = zeros(19,1);
+        angle(4) = ag2;
+        angle(16) = ag1;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag1 ag2 mean_distance];
+    end
+end 
+toc
+[~,col] = min(record(:,3));
+ag1 = record(col,1); ag2 = record(col,2);
 
-FRP_segment = [6 9 12 15 18];
-FRP_dorsal_segment = [6 109 112 115 118];
-FRP_cor = [20 16 12 8 4];
-FRP_digits{1} = [6:8];
-FRP_digits{2} = [9:11];
-FRP_digits{3} = [12:14];
-FRP_digits{4} = [15:17];
-FRP_digits{5} = [18:20];
+% ===== start here ============== 
 
-FRP_cor_tr{1} = [17:19];
-FRP_cor_tr{2} = [13:15];
-FRP_cor_tr{3} = [9:11];
-FRP_cor_tr{4} = [5:7];
-FRP_cor_tr{5} = [1:3];
+% D4: ag1 = 0.5, ag2 = 0
+FRP_dorsal_segment = 115;
+record = [];
+tic
+for ag1 = -0.5:0.1:0.5
+    for ag2 = 0:0.1:1.5
+        angle = zeros(19,1);
+        angle(10) = ag2;
+        angle(18) = ag1;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag1 ag2 mean_distance];
+    end
+end 
+toc
+[~,col] = min(record(:,3));
+ag1 = record(col,1); ag2 = record(col,2);
 
-transform_order= [3 6 9 12 16];
+% FRP_segment = [6 9 12 15 18];
+% FRP_cor = [20 16 12 8 4];
+% FRP_digits{1} = [6:8];
+% FRP_digits{2} = [9:11];
+% FRP_digits{3} = [12:14];
+% FRP_digits{4} = [15:17];
+% FRP_digits{5} = [18:20];
+% 
+% FRP_cor_tr{1} = [17:19];
+% FRP_cor_tr{2} = [13:15];
+% FRP_cor_tr{3} = [9:11];
+% FRP_cor_tr{4} = [5:7];
+% FRP_cor_tr{5} = [1:3];
+% 
+% transform_order= [3 6 9 12 16];
 
 %% D1-D5 finger root (MCP) registration
 h3 = [];
 h4 = [];
 Recorder = [];
 
-for j = 1:3
+for j = 1:5
 
 vertices = mesh.vertices;
 faces = mesh.faces;
@@ -240,161 +277,6 @@ mesh.normals = per_vertex_normals(mesh.vertices, mesh.faces);
 
 end
 
-% optimal problem to find proper threshold distance & angle
-
-for j = 4
-
-vertices = mesh.vertices;
-faces = mesh.faces;
-normals = per_vertex_normals(vertices, faces);
-keep = ismember(mesh.assignment, FRP_segment(j));
-%keep = ismember(assignment_new, FRP_dorsal_segment(j));
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-
-%pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-mean_distance = dist_sum(vertices, points.vertices, pairs)/size(pairs,1)
-
-%pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-%pairs = correspondences_dorsal(vertices_dorsal, normals_dorsal, points.vertices, points.normals, 20, cos(45*pi/180));
-
-transform = eye(4);
-
-figure(2)
-    view(-37,19);
-    for i = 1 : 10
-        delete(h3);
-        delete(h4);
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, mesh.spheres{1,FRP_cor(j)}.center);
-                
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-        
-        mean_distance = [mean_distance; dist_sum(vertices, points.vertices, pairs)/size(pairs,1)]
-        
-%       pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-       pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 25, cos(30*pi/180));
-%        pairs = correspondences_dorsal(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        h4 = plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-    
-   
-transforms{transform_order(j)} = transform;
-   
-keep = ismember(mesh.assignment, FRP_digits{j});
-vi_Dx = mesh.vertices(keep,:);
-vi_Dx = apply_matrix(transform, vi_Dx, 1);
-
-mesh.vertices(keep,:) = vi_Dx;
-mesh.normals = per_vertex_normals(mesh.vertices, mesh.faces);
-
-    for i = [FRP_cor_tr{j}]
-        mesh.spheres{1,i}.center = apply_matrix(transform, mesh.spheres{1,i}.center,1);
-        mesh.centers(i,:) = mesh.spheres{1,i}.center;
-    end
-
-end
-
-for j = 5
-
-vertices = mesh.vertices;
-faces = mesh.faces;
-normals = per_vertex_normals(vertices, faces);
-keep = ismember(mesh.assignment, FRP_segment(j));
-%keep = ismember(assignment_new, FRP_dorsal_segment(j));
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-
-%pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(40*pi/180));
-mean_distance = dist_sum(vertices, points.vertices, pairs)/size(pairs,1)
-
-%pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-%pairs = correspondences_dorsal(vertices_dorsal, normals_dorsal, points.vertices, points.normals, 20, cos(45*pi/180));
-
-transform = eye(4);
-
-figure(2)
-    view(-37,19);
-    for i = 1 : 10
-        delete(h3);
-        delete(h4);
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, mesh.spheres{1,FRP_cor(j)}.center);
-                
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-        
-%       pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-       pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 25, cos(35*pi/180));
-       mean_distance = [mean_distance; dist_sum(vertices, points.vertices, pairs)/size(pairs,1)]
-       
-%        pairs = correspondences_dorsal(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        h4 = plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-    
-   
-transforms{transform_order(j)} = transform;
-   
-keep = ismember(mesh.assignment, FRP_digits{j});
-vi_Dx = mesh.vertices(keep,:);
-vi_Dx = apply_matrix(transform, vi_Dx, 1);
-
-mesh.vertices(keep,:) = vi_Dx;
-mesh.normals = per_vertex_normals(mesh.vertices, mesh.faces);
-
-    for i = [FRP_cor_tr{j}]
-        mesh.spheres{1,i}.center = apply_matrix(transform, mesh.spheres{1,i}.center,1);
-        mesh.centers(i,:) = mesh.spheres{1,i}.center;
-    end
-
-end
 
 figure()
 axis equal
