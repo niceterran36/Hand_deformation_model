@@ -38,6 +38,7 @@ format shortG
 
 %% Load data
 load('hy_mesh_n4.mat'); %template
+load('assignment_new.mat');
 LMs = function_get_LM_from_iges('LMs3.igs');
 %LMs(5,:) = [];
 LMt = function_get_LM_from_iges('LMt.igs');
@@ -635,6 +636,7 @@ hold off;
 %% parameter for finger root (MCP) registration 
 
 FRP_segment = [6 9 12 15 18];
+FRP_dorsal_segment = [6 109 112 115 118];
 FRP_cor = [20 16 12 8 4];
 FRP_digits{1} = [6:8];
 FRP_digits{2} = [9:11];
@@ -706,13 +708,15 @@ for j = 1:5
 vertices = vertices_c;
 faces = faces_c;
 normals = per_vertex_normals(vertices, faces);
-
-keep = ismember(mesh.assignment, FRP_segment(j));
+%keep = ismember(mesh.assignment, FRP_segment(j));
+keep = ismember(assignment_new, FRP_dorsal_segment(j));
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
+
 %pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
 %pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+%pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+pairs = correspondences_dorsal(vertices_dorsal, normals_dorsal, points.vertices, points.normals, 20, cos(45*pi/180));
 
 
 transform = eye(4);
@@ -728,8 +732,9 @@ figure(2)
         vertices = apply_matrix(delta, vertices);
         normals = apply_matrix(delta, normals, 0);
         
-%        pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-        pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 25);
+%       pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
+%       pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 25);
+        pairs = correspondences_dorsal(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
 
         v = get(gca, 'view');
         trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);

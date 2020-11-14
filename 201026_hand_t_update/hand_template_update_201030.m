@@ -3,12 +3,22 @@
 addpath(genpath('external'));
 addpath('F:\[GitHub]\Hand_deformation_model\functions');
 addpath('LM_for_dorsal_palmar')
-LMs = function_get_LM_from_iges('D2seg1.igs');
+LMs = function_get_LM_from_iges('D4seg1.igs');
 
 % assignment information
-% D2 distal phalanx: assignment 11
-% D2 middle phalanx: assignment 10
-% D2 proximal phalanx: asisgnment 9
+% D2 dis. phalanx: assignment 11
+% D2 mid. phalanx: assignment 10
+% D2 pro. phalanx: asisgnment 9
+% D3 dis. phalanx: assignment 14
+% D3 mid. phalanx: assignment 13
+% D3 pro. phalanx: asisgnment 12
+
+% D4 dis. phalanx: assignment 17
+% D4 mid. phalanx: assignment 16
+% D4 pro. phalanx: asisgnment 15
+% D5 dis. phalanx: assignment 20
+% D5 mid. phalanx: assignment 19
+% D5 pro. phalanx: asisgnment 18
 
 figure()
 axis equal
@@ -18,7 +28,7 @@ view(-7,7);
 scatter3(vertices(:,1),vertices(:,2),vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
 scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 scatter3(LMs(:,1),LMs(:,2),LMs(:,3),'*','MarkerEdgeColor',[242/255, 150/255, 97/255]);
-scatter3(Sg11(:,1),Sg11(:,2),Sg11(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
+scatter3(Sg12(:,1),Sg12(:,2),Sg12(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
 hold off
 
 % input points
@@ -29,97 +39,122 @@ p3 = LMs(3,:);
 PL_com = zeros(1,4);
 PL_com = [a, b, c, d];
 clear a b c d
+% assignment_new = mesh.assignment;
 
-LIX = mesh.assignment == 11;
+LIX = mesh.assignment == 12;
 V_IDX = [1:size(mesh.vertices,1)]';
-Sg11 = vertices(LIX,:);
-Sg11_idx = V_IDX(LIX,:);
+Sg12 = vertices(LIX,:);
+Sg12_idx = V_IDX(LIX,:);
 
 % testing value
-stone = [8.6169 -7.8574, 95.0876];
+%stone = [8.6169, -7.8574, 95.0876];% D2 distal
+%stone = [2.501, -5.676, 75.95];% D2 middle
+%stone = [-6.016, -4.884, 47.99];% D2 proximal
+%stone = [-22.39, -6.443, 95.31];% D3 distal
+%stone = [-26.93, -4.14, 75.21];% D3 middle
+stone = [-20.03, 3.01, 53];% D3 proximal
 T = PL_com(1)*stone(1)+PL_com(2)*stone(2)+PL_com(3)*stone(3)+PL_com(4);
 
-% =================================== start here
-
-A = vertices;
+A = Sg12;
 Compare = zeros(size(A,1),1);
 for i = 1:size(A,1)
-    T = a*A(i,1)+b*A(i,2)+c*A(i,3)+d;
+    T = PL_com(1)*A(i,1)+PL_com(2)*A(i,2)+PL_com(3)*A(i,3)+PL_com(4);
     Compare(i) = T;
 end 
+for k = 1:size(Compare,1)
+    if Compare(k) > 0
+       TT(k,1) = 112; % palmar side
+    elseif Compare(k) < 0
+       TT(k,1) = 212; % dorsal side
+    else
+       TT(k,1) = 112;
+    end 
+end 
+assignment_new(Sg12_idx) = TT;
 
-Compare(Compare>0) = 0; % convert negative value as zero
-TT = find(Compare); % find indices of non-zero vertex
+LIX_u = assignment_new == 112;
+V_SgX_dor = vertices(LIX_u,:);
 
-Sorted_V = A(TT,:);
- 
-% Distance calculation - 1 vertex
-% P0 = p3; % point on the plane 
-% Q = [-74.72, -16.89, 71.51]; % any point Q above the plane
-% v_n = [a, b, c]; % othogornal vector of plane 
-% v_b = Q - P0;  % vector between P0 and Q
-% Dstc = sqrt((dot(v_n, v_b))^2)/sqrt(a^2+b^2+c^2) % distance function between Plane and Q
+figure()
+axis equal
+axis off
+hold on
+view(-7,7);
+scatter3(vertices(:,1),vertices(:,2),vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+%scatter3(LMs(:,1),LMs(:,2),LMs(:,3),'*','MarkerEdgeColor',[242/255, 150/255, 97/255]);
+scatter3(V_SgX_dor(:,1),V_SgX_dor(:,2),V_SgX_dor(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
+hold off
 
-% Distance calculation between selected vertex(vi) and Plane 
-P0 = p3;
-v_n = [a, b, c]; 
-TT2 = TT;
-for i = 1:size(TT,1)
-    Q = [A(TT(i),1), A(TT(i),2), A(TT(i),3)];
-    v_b = Q - P0; 
-    Dstc = sqrt((dot(v_n, v_b))^2)/sqrt(a^2+b^2+c^2);
-    TT2(i,2) = Dstc;
-end
+%% for command update
 
-Sorted_F = 
+dirLM = dir('D:\GitHub\Hand_deformation_model\201026_hand_t_update\LM_for_dorsal_palmar\*.igs');
 
-    SS = zeros(3283,1);
-    for i = 1:3283   
-        Dv = a*Sorted_V(i,1) + b*Sorted_V(i,2) + c*Sorted_V(i,3) + d;
-        SS(i) = Dv;
-    end
+Seg_order = [8 7 11 10 9 14 13 12 17 16 15 20 19 18];
+Assignment_order = [208 207 111 110 109 114 113 112 117 116 115 120 119 118;
+                    108 107 211 210 209 214 213 212 217 216 215 220 219 218]';
 
-a*(-73.13) + b*(-17.77) + c*72.31 + d
+for ii = 1:2
+    LMs = function_get_LM_from_iges(dirLM(ii).name);
+    fprintf('%d, %s\n', i, dirLM(ii).name);
+    
+    p1 = LMs(1,:);
+    p2 = LMs(2,:);
+    p3 = LMs(3,:);
+    [a, b, c, d] = generate_plane_3point(p1, p2, p3);
+    PL_com = zeros(1,4);
+    PL_com = [a, b, c, d];
+    clear a b c d SgXf SgXf_idx
+    
+    LIX = mesh.assignment == Seg_order(ii);
+    V_IDX = [1:size(mesh.vertices,1)]';
+    SgXf = vertices(LIX,:);
+    SgXf_idx = V_IDX(LIX,:);
+    
+    stone = [-26.93, -4.14, 75.21];% D3 middle
+    T = PL_com(1)*stone(1)+PL_com(2)*stone(2)+PL_com(3)*stone(3)+PL_com(4);
+    
+    if T < 0
+       dorsal_factor = -1;
+    else 
+       dorsal_factor = 1;
+    end 
+    
+    A = SgXf;
+    Compare = zeros(size(A,1),1);
+    for i = 1:size(A,1)
+        T = PL_com(1)*A(i,1)+PL_com(2)*A(i,2)+PL_com(3)*A(i,3)+PL_com(4);
+        Compare(i) = T;
+    end 
+    Compare = dorsal_factor*Compare;
+    
+    for k = 1:size(Compare,1)
+        if Compare(k) > 0
+           TT(k,1) = Assignment_order(ii,1); % dorsal side
+        elseif Compare(k) < 0
+           TT(k,1) = Assignment_order(ii,2); % palmar side
+        else
+           TT(k,1) = Assignment_order(ii,1);
+        end 
+    end 
+    assignment_new(SgXf_idx) = TT;
+    
+    LIX_u = assignment_new == Assignment_order(ii,1);
+    V_SgX_dor = vertices(LIX_u,:);
 
-face(1,1) 
-
-XX = TT(1) == faces
-
-find(XX(:,1))
-find(XX(:,2))
-find(XX(:,3))
-
-face(2,2)
-
-for i = 1:3701
-S = [TT(i) == faces(:,1)];
-Idx(i) = {find(S)'}
-
-    figure(2) % point cloud 3D plotting
-    hold on
+    figure()
     axis equal
-    scatter3(Sorted_V(:,1),Sorted_V(:,2),Sorted_V(:,3),'.', 'MarkerEdgeColor',[217/255, 217/255, 217/255])
-    scatter3(Sorted_V(1,1),Sorted_V(1,2),Sorted_V(1,3), '*', 'MarkerEdgeColor',[1, 0, 0])
+    axis off
+    hold on
+    view(-7,7);
+    scatter3(vertices(:,1),vertices(:,2),vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
+    scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+    %scatter3(LMs(:,1),LMs(:,2),LMs(:,3),'*','MarkerEdgeColor',[242/255, 150/255, 97/255]);
+    scatter3(V_SgX_dor(:,1),V_SgX_dor(:,2),V_SgX_dor(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
     hold off
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    clear TT A Compare T LIX 
+end 
 
 
 
