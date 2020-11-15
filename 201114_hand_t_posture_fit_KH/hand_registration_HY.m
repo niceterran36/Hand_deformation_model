@@ -5,25 +5,26 @@ clear all
 addpath(genpath('../external'));
 addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('Data');
+addpath('D:\GitHub\Hand_deformation_model\201026_hand_t_update');
 addpath('D:\GitHub\Hand_deformation_model\external\registration');
 
-%% register library - PC lab
-addpath(genpath('../external'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-addpath('F:\[GitHub]\Hand_deformation_model\data_SW');
-addpath('F:\[GitHub]\Hand_deformation_model\data');
-addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
-
-%% register library - Macbook
-clc
-clear all
-addpath(genpath('../external'));
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
-addpath('Data');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
-format shortG
+% %% register library - PC lab
+% addpath(genpath('../external'));
+% addpath('F:\[GitHub]\Hand_deformation_model\functions');
+% addpath('F:\[GitHub]\Hand_deformation_model\data_SW');
+% addpath('F:\[GitHub]\Hand_deformation_model\data');
+% addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+% 
+% %% register library - Macbook
+% clc
+% clear all
+% addpath(genpath('../external'));
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
+% addpath('Data');
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
+% format shortG
 
 %% Load data
 global assignment_new
@@ -133,19 +134,24 @@ hold off;
 %% segment scale
 [transformed] = segment_scale_fingers_new(mesh, LMt, LMs);
 mesh = transformed;
+clear transformed
 
-%% calculate optimal rotation angle for MCP
+mesh_BackUp = mesh;
+%mesh = mesh_BackUp;
+
+%% calculate optimal rotation angle for MCP & deformation
 % FRP_dorsal_segment = [6 109 112 115 118];
 
 % function X = (segment, mesh.v, points.v) ==> Y = (angle X)
 % function X2 = (angle1, angle2) ==> Y = mean distance
-
 % function find_opt_rotation
+
+% D2 MCP
 FRP_dorsal_segment = 109;
 record = [];
 tic
-for ag1 = -0.5:0.1:0.5
-    for ag2 = 0:0.1:1.5
+for ag1 = -0.25:0.05:0.25
+    for ag2 = 0:0.05:1
         angle = zeros(19,1);
         angle(4) = ag2;
         angle(16) = ag1;
@@ -153,19 +159,74 @@ for ag1 = -0.5:0.1:0.5
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
         record = [record; ag1 ag2 mean_distance];
     end
-end 
-toc
+end
 [~,col] = min(record(:,3));
-ag1 = record(col,1); ag2 = record(col,2);
+angle = zeros(19,1);
+angle(4) = record(col,2);
+angle(16) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+toc % 5min for processing
 
-% ===== start here ============== 
+tic
+record = [];
+for ag3 = -0.3:0.0167:0.3
+        angle = zeros(19,1);
+        angle(4) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(4) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-% D4: ag1 = 0.5, ag2 = 0
-FRP_dorsal_segment = 115;
+% D3 MCP
+FRP_dorsal_segment = 112;
 record = [];
 tic
-for ag1 = -0.5:0.1:0.5
-    for ag2 = 0:0.1:1.5
+for ag1 = -0.25:0.05:0.25
+    for ag2 = 0:0.05:1
+        angle = zeros(19,1);
+        angle(7) = ag2;
+        angle(17) = ag1;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag1 ag2 mean_distance];
+    end
+end 
+[~,col] = min(record(:,3));
+Angle_opt.D3_MCP.AdAb = record(col,1); 
+Angle_opt.D3_MCP.FxEt = record(col,2);
+angle = zeros(19,1);
+angle(7) = record(col,2);
+angle(17) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+toc % 5min for processing
+
+tic
+record = [];
+for ag3 = -0.3:0.0167:0.3
+        angle = zeros(19,1);
+        angle(7) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(7) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+Angle_opt.D3_MCP.FxEt2 = record(col,2);
+
+% D4 MCP
+FRP_dorsal_segment = 115;
+record = [];
+ tic
+for ag1 = -0.25:0.05:0.25
+    for ag2 = 0:0.05:1
         angle = zeros(19,1);
         angle(10) = ag2;
         angle(18) = ag1;
@@ -174,357 +235,308 @@ for ag1 = -0.5:0.1:0.5
         record = [record; ag1 ag2 mean_distance];
     end
 end 
+ toc
+[~,col] = min(record(:,3));
+Angle_opt.D4_MCP.AdAb = record(col,1); 
+Angle_opt.D4_MCP.FxEt = record(col,2);
+angle = zeros(19,1);
+angle(10) = record(col,2);
+angle(18) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+% 5min for processing
+tic
+record = [];
+for ag3 = -0.3:0.0167:0.3
+        angle = zeros(19,1);
+        angle(10) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(10) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+Angle_opt.D4_MCP.FxEt2 = record(col,2);
+
+% D5 MCP 
+FRP_dorsal_segment = 118;
+record = [];
+% tic
+for ag1 = -0.25:0.05:0.25
+    for ag2 = 0:0.05:1
+        angle = zeros(19,1);
+        angle(13) = ag2;
+        angle(19) = ag1;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag1 ag2 mean_distance];
+    end
+end 
 toc
 [~,col] = min(record(:,3));
-ag1 = record(col,1); ag2 = record(col,2);
+Angle_opt.D5_MCP.AdAb = record(col,1); 
+Angle_opt.D5_MCP.FxEt = record(col,2);
+angle = zeros(19,1);
+angle(13) = record(col,2);
+angle(19) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+% 5min for processing
+tic
+record = [];
+for ag3 = -0.3:0.0167:0.3
+        angle = zeros(19,1);
+        angle(13) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(13) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+Angle_opt.D5_MCP.FxEt2 = record(col,2);
 
-% FRP_segment = [6 9 12 15 18];
-% FRP_cor = [20 16 12 8 4];
-% FRP_digits{1} = [6:8];
-% FRP_digits{2} = [9:11];
-% FRP_digits{3} = [12:14];
-% FRP_digits{4} = [15:17];
-% FRP_digits{5} = [18:20];
+% load('Angle_opt.mat');
+% save angle
+angle = zeros(19,1);
+angle(17:19,1) = [%Angle_opt.D2_MCP.AdAb; ...
+                  Angle_opt.D3_MCP.AdAb; Angle_opt.D4_MCP.AdAb; Angle_opt.D5_MCP.AdAb];
+%angle(4)  = Angle_opt.D2_MCP.FxEt + Angle_opt.D2_MCP.FxEt2;
+angle(7)  = Angle_opt.D3_MCP.FxEt + Angle_opt.D3_MCP.FxEt2;
+angle(10) = Angle_opt.D4_MCP.FxEt + Angle_opt.D4_MCP.FxEt2;
+angle(13) = Angle_opt.D5_MCP.FxEt + Angle_opt.D5_MCP.FxEt2;
+save Angle_opt.mat angle Angle_opt
+save mesh_HY_pos2.mat mesh % template posture align for HY_pos2.ply 
+
+
+%% things to do - compare the better performance for MCP segment registration
+% segment index of dorsal segment is better than whole part segment for pair generation 
+% and fitting?
+
+% % D4 MCP
+% FRP_dorsal_segment = 15;
+% record = [];
+%  tic
+% for ag1 = -0.25:0.05:0.25
+%     for ag2 = 0:0.05:1
+%         angle = zeros(19,1);
+%         angle(10) = ag2;
+%         angle(18) = ag1;
+%         tr_mesh = transform_angle(mesh, angle);
+%         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, mesh.assignment);
+%         record = [record; ag1 ag2 mean_distance];
+%     end
+% end 
+% % toc
+% [~,col] = min(record(:,3));
+% Angle_opt2.D4_MCP.AdAb = record(col,1); 
+% Angle_opt2.D4_MCP.FxEt = record(col,2);
 % 
-% FRP_cor_tr{1} = [17:19];
-% FRP_cor_tr{2} = [13:15];
-% FRP_cor_tr{3} = [9:11];
-% FRP_cor_tr{4} = [5:7];
-% FRP_cor_tr{5} = [1:3];
-% 
-% transform_order= [3 6 9 12 16];
+% % D5 MCP 
+% FRP_dorsal_segment = 18;
+% record = [];
+% % tic
+% for ag1 = -0.25:0.05:0.25
+%     for ag2 = 0:0.05:1
+%         angle = zeros(19,1);
+%         angle(13) = ag2;
+%         angle(19) = ag1;
+%         tr_mesh = transform_angle(mesh, angle);
+%         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, mesh.assignment);
+%         record = [record; ag1 ag2 mean_distance];
+%     end
+% end 
+% toc
+% [~,col] = min(record(:,3));
+% Angle_opt2.D5_MCP.AdAb = record(col,1); 
+% Angle_opt2.D5_MCP.FxEt = record(col,2);
 
-%% D1-D5 finger root (MCP) registration
-h3 = [];
-h4 = [];
-Recorder = [];
+%% D2 PIP & DIP fitting
+% FRP_dorsal_segment = [6 109 112 115 118];
 
-for j = 1:5
+%mesh_BackUp = mesh;
 
-vertices = mesh.vertices;
-faces = mesh.faces;
-normals = per_vertex_normals(vertices, faces);
-keep = ismember(mesh.assignment, FRP_segment(j));
-%keep = ismember(assignment_new, FRP_dorsal_segment(j));
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-
-%pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 25);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-mean_distance = dist_sum(vertices, points.vertices, pairs)/size(pairs,1)
-
-%pairs = correspondences_rigid(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-%pairs = correspondences_dorsal(vertices_dorsal, normals_dorsal, points.vertices, points.normals, 20, cos(45*pi/180));
-
-transform = eye(4);
-
-figure(2)
-    view(view_angle);
-    for i = 1 : 10
-        delete(h3);
-        delete(h4);
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, mesh.spheres{1,FRP_cor(j)}.center);
-                
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-        
-        mean_distance = [mean_distance; dist_sum(vertices, points.vertices, pairs)/size(pairs,1)]
-        %Recorder = [Recorder; j i mean_distance 20 cos(30*pi/180)];
-        
-%       pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-        pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(30*pi/180));
-%       pairs = correspondences_dorsal(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        h4 = plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-    
-   
-transforms{transform_order(j)} = transform;
-   
-keep = ismember(mesh.assignment, FRP_digits{j});
-vi_Dx = mesh.vertices(keep,:);
-vi_Dx = apply_matrix(transform, vi_Dx, 1);
-
-mesh.vertices(keep,:) = vi_Dx;
-mesh.normals = per_vertex_normals(mesh.vertices, mesh.faces);
-
-    for i = [FRP_cor_tr{j}]
-        mesh.spheres{1,i}.center = apply_matrix(transform, mesh.spheres{1,i}.center,1);
-        mesh.centers(i,:) = mesh.spheres{1,i}.center;
-    end
-
-end
-
-
-figure()
-axis equal
-axis off
-hold on
-view(view_angle);
-scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(mesh.vertices(:,1),mesh.vertices(:,2),mesh.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-%scatter3(mesh.centers(:,1),mesh.centers(:,2),mesh.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-for i = 1:22
-    scatter3(mesh.spheres{1,i}.center(1),mesh.spheres{1,i}.center(2),mesh.spheres{1,i}.center(3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-end 
-hold off
-
-% ====================== start here
-
-%% Apply transformation
-% D1 CMC
-transforms{3} = transforms{3};
-% D1 MCP
-transforms{4} = transforms{4} * transforms{3};
-% D1 IP
-transforms{5} = transforms{5} * transforms{4};
-% D2 MCP
-transforms{6} = transforms{6};
 % D2 PIP
-transforms{7} = transforms{7} * transforms{6};
+FRP_dorsal_segment = 110;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(5) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(5) = record(col,1);
+Angle_opt.D2_PIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
 % D2 DIP
-transforms{8} = transforms{8} * transforms{7};
-% D3 MCP
-transforms{9} = transforms{9};
+FRP_dorsal_segment = 111;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(6) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(6) = record(col,1);
+Angle_opt.D2_DIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+%% D3 PIP & DIP fitting
+% FRP_dorsal_segment = [6 109 112 115 118];
+
+%mesh_BackUp = mesh;
+
 % D3 PIP
-transforms{10} = transforms{10} * transforms{9};
+FRP_dorsal_segment = 113;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(8) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(8) = record(col,1);
+Angle_opt.D3_PIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
 % D3 DIP
-transforms{11} = transforms{11} * transforms{10};
-% D4 MCP
-transforms{12} = transforms{12};
+FRP_dorsal_segment = 114;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(9) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(9) = record(col,1);
+Angle_opt.D3_DIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+%% D4 PIP & DIP fitting
+% FRP_dorsal_segment = [6 109 112 115 118];
+
+%mesh_BackUp = mesh;
+
 % D4 PIP
-transforms{13} = transforms{13} * transforms{12};
+FRP_dorsal_segment = 116;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(11) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(11) = record(col,1);
+Angle_opt.D4_PIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
 % D4 DIP
-transforms{14} = transforms{14}  * transforms{13};
-% D5 MCP
-transforms{16} = transforms{16};
-% D5 PIP
-transforms{17} = transforms{17} * transforms{16};
-% D5 DIP
-transforms{18} = transforms{18} * transforms{17};
-
-%% DQS application & Result display
-
-hand_template = skin_dualquat(hand_template, transforms);
-for i = 1:18
-     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
+FRP_dorsal_segment = 117;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(12) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
 end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(12) = record(col,1);
+Angle_opt.D4_DIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-figure()
-hold on;
-view(view_angle);
-axis equal
-axis off
-h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
-lighting gouraud;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
-hold off;
+%% D45 PIP & DIP fitting
+% FRP_dorsal_segment = [6 109 112 115 118];
 
-figure()
-axis equal
-axis off
-hold on
-view(view_angle);
-scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-% scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-hold off
+%mesh_BackUp = mesh;
 
-vertices_c = hand_template.vertices;
-normals = hand_template.normals;
-
-%% things to do 
-% separate PIP - DIP registration
-% better to register by fingers...
-% segment length check
-% restrict finger motion only for flexion / extension
-
-%% parameter for fingers registration order
-
-P_segment = [7 8 10 11 13 14 16 17 19 20];
-P_cor = [19 18 15 14 11 10 7 6 3 2];
-
-P_digits{1} = [7:8];
-P_digits{2} = 8;
-P_digits{3} = [10:11];
-P_digits{4} = 11;
-P_digits{5} = [13:14];
-P_digits{6} = 14;
-P_digits{7} = [16:17];
-P_digits{8} = 17;
-P_digits{9} = [19:20];
-P_digits{10} = 20;
-
-P_cor_tr{1} = [17:18];
-P_cor_tr{2} = 17;
-P_cor_tr{3} = [13:14];
-P_cor_tr{4} = 13;
-P_cor_tr{5} = [9:10];
-P_cor_tr{6} = 9;
-P_cor_tr{7} = [5:6];
-P_cor_tr{8} = 5;
-P_cor_tr{9} = [1:2];
-P_cor_tr{10} = 1;
-
-transform_order= [4 5 7 8 10 11 13 14 17 18];
-
-%% D1-D5 MCP,PIP,DID registration
-h3 = [];
-h4 = [];
-
-transforms2 = cell(1, 18);
-for i = 1 : 18
-    transforms2{i} = eye(4);
-end
-
-for j = 1:10
-
-vertices = vertices_c;
-faces = faces_c;
-normals = per_vertex_normals(vertices, faces);
-
-keep = ismember(mesh.assignment, P_segment(j));
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-%pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals,20,cos(60*pi/180));
-
-transform = eye(4);
-
-figure(2)
-    view(view_angle);
-    for i = 1 : 10
-        delete(h3);
-        delete(h4);
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, centers_c(P_cor(j),:));
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-%        pairs = compute_correspondences_modi_MCP(vertices, normals, points.vertices, points.normals,20,cos(60*pi/180));
-         pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals,25);
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        h4 = plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-
-transforms2{transform_order(j)} = transform;
-   
-keep = ismember(mesh.assignment, P_digits{j});
-vi_Dx = vertices_c(keep,:);
-vi_Dx = apply_matrix(transform, vi_Dx, 1);
-
-vertices_c(keep,:) = vi_Dx;
-centers_c(P_cor_tr{j},:) = apply_matrix(transform, centers_c(P_cor_tr{j},:), 1);
-normals = per_vertex_normals(vertices_c, faces);
-
-end
-
-%% 
-% D1 MCP
-transforms2{4} = transforms2{4} * transforms2{3};
-% D1 IP
-transforms2{5} = transforms2{5} * transforms2{4};
-% D2 PIP
-transforms2{7} = transforms2{7} * transforms2{6};
-% D2 DIP
-transforms2{8} = transforms2{8} * transforms2{7};
-% D3 PIP
-transforms2{10} = transforms2{10} * transforms2{9};
-% D3 DIP
-transforms2{11} = transforms2{11} * transforms2{10};
 % D4 PIP
-transforms2{13} = transforms2{13} * transforms2{12};
-% D4 DIP
-transforms2{14} = transforms2{14}  * transforms2{13};
-% D5 PIP
-transforms2{17} = transforms2{17} * transforms2{16};
-% D5 DIP
-transforms2{18} = transforms2{18} * transforms2{17};
-
-
-%% DQS application & Result display
-
-hand_template = skin_dualquat(hand_template, transforms2);
-for i = 1:18
-     hand_template.centers(i,:) = hand_template.spheres{1,i}.center;
+FRP_dorsal_segment = 119;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(14) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
 end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(14) = record(col,1);
+Angle_opt.D5_PIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-figure()
-hold on;
-axis equal
-axis off
-h = trimesh(hand_template.faces, hand_template.vertices(:, 1), hand_template.vertices(:, 2), hand_template.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
-lighting gouraud;
-view([-90, 0]);
-camlight;
-view([90, 0]);
-camlight;
-hold off;
+% D4 DIP
+FRP_dorsal_segment = 120;
+tic
+record = [];
+for ag3 = 0:0.0167:1.5
+        angle = zeros(19,1);
+        angle(15) = ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+toc
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(15) = record(col,1);
+Angle_opt.D5_DIP.FxEt = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-figure()
-axis equal
-axis off
-hold on
-scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(hand_template.vertices(:,1),hand_template.vertices(:,2),hand_template.vertices(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-% scatter3(hand_template.centers(:,1),hand_template.centers(:,2),hand_template.centers(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-hold off
+angle = zeros(19,1);
+angle(17:19,1) = [%Angle_opt.D2_MCP.AdAb; ...
+                  Angle_opt.D3_MCP.AdAb; Angle_opt.D4_MCP.AdAb; Angle_opt.D5_MCP.AdAb];
+%angle(4)  = Angle_opt.D2_MCP.FxEt + Angle_opt.D2_MCP.FxEt2;
+angle(7)  = Angle_opt.D3_MCP.FxEt + Angle_opt.D3_MCP.FxEt2;
+angle(10) = Angle_opt.D4_MCP.FxEt + Angle_opt.D4_MCP.FxEt2;
+angle(13) = Angle_opt.D5_MCP.FxEt + Angle_opt.D5_MCP.FxEt2;
+save Angle_opt.mat angle Angle_opt
+save mesh_HY_pos2_2.mat mesh % template posture align for HY_pos2.ply 
 
-%% Things to do
 
-% Apply dual quarternion skinning to root --> pose fitting --> DQS -->
-% iteration
+%% Things to do (thumb registration)
 
 %% ICP registration
 
 targetV = points.vertices;
-sourceV = hand_template.vertices;
+sourceV = mesh.vertices;
 targetF = points.faces;
-sourceF = hand_template.faces;
+sourceF = mesh.faces;
 iterations = 30;
 flag_prealligndata = 1;
 figureOn = 1;
@@ -541,12 +553,12 @@ axis off
 hold on
 scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
 scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+%scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
 %% save mat file
-V_P1 = sourceV;
-save P1_vertices.mat V_P1
+V_HY_pos2 = sourceV;
+save HY_pos2_vertices.mat V_HY_pos2
 
 % save function 
 % Header »ý¼º

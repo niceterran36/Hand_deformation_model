@@ -4,7 +4,7 @@ function pairs = compute_correspondences_new(mesh_vertices, mesh_normals, points
          distance_threshold = 30;
     end
     if nargin < 6
-        cos_angle_threshold = cos(60 * pi / 180);
+        cos_angle_threshold = cos(45 * pi / 180);
     end
 
     n = size(mesh_vertices, 1); 
