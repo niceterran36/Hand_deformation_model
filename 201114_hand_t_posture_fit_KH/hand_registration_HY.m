@@ -19,16 +19,17 @@ addpath('F:\[GitHub]\Hand_deformation_model\201026_hand_t_update');
 addpath('F:\[GitHub]\Hand_deformation_model\data');
 addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 % 
-% %% register library - Macbook
-% clc
-% clear all
-% addpath(genpath('../external'));
-% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
-% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
-% addpath('Data');
-% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
-% addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
-% format shortG
+%% register library - Macbook
+clc
+clear all
+addpath(genpath('../external'));
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
+addpath('Data');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/201026_hand_t_update');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
+format shortG
 
 %% Load data
 global assignment_new
@@ -133,10 +134,9 @@ view([185, 8]);
 camlight;
 hold off;
 
-%% segment scale factor
-
 
 %% segment scale
+
 [transformed] = segment_scale_fingers_new(mesh, LMt, LMs);
 mesh = transformed;
 clear transformed

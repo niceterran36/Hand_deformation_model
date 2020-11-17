@@ -7,26 +7,57 @@ function [mesh_tr] = segment_scale_fingers_new(mesh, LMt, LMs)
 % target_length = amount of how much stretch the mesh in terms of the link
 % length 
 
-srf_LMt = LMt(1:12,:); % palmar
-srf_LMs = LMs(1:12,:);
+D2_J_DIP_t = mean(LMt([1 13 16 43],:));
+D2_J_PIP_t = mean(LMt([2 14 17 44],:));
+D2_J_MCP_t = mean(LMt([3 15 18 45],:));
 
-srf2_LMt = LMt(1:12,:); % dorsal
+D3_J_DIP_t = mean(LMt([4 19 21 40],:));
+D3_J_PIP_t = mean(LMt([5 20 22 41],:));
+D3_J_MCP_t = mean(LMt([6 18 23 42],:));
+
+D4_J_DIP_t = mean(LMt([7 24 26 37],:));
+D4_J_PIP_t = mean(LMt([8 25 27 38],:));
+D4_J_MCP_t = mean(LMt([9 23 28 39],:));
+
+D5_J_DIP_t = mean(LMt([10 29 31 34],:));
+D5_J_PIP_t = mean(LMt([11 30 32 35],:));
+D5_J_MCP_t = mean(LMt([12 28 33 36],:));
+
+D2_J_DIP_s = mean(LMs([1 13 16 43],:));
+D2_J_PIP_s = mean(LMs([2 14 17 44],:));
+D2_J_MCP_s = mean(LMs([3 15 18 45],:));
+
+D3_J_DIP_s = mean(LMs([4 19 21 40],:));
+D3_J_PIP_s = mean(LMs([5 20 22 41],:));
+D3_J_MCP_s = mean(LMs([6 18 23 42],:));
+
+D4_J_DIP_s = mean(LMs([7 24 26 37],:));
+D4_J_PIP_s = mean(LMs([8 25 27 38],:));
+D4_J_MCP_s = mean(LMs([9 23 28 39],:));
+
+D5_J_DIP_s = mean(LMs([10 29 31 34],:));
+D5_J_PIP_s = mean(LMs([11 30 32 35],:));
+D5_J_MCP_s = mean(LMs([12 28 33 36],:));
+
+% 
+% srf_LMt = LMt(1:12,:); % palmar
+% srf_LMs = LMs(1:12,:);
+% 
+% srf2_LMt = LMt(1:12,:); % dorsal
 
 % Digit 2 re-scale
 keep = ismember(mesh.assignment, 9:11);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(3,:); C2 = srf_LMt(2,:); C3 = srf_LMt(1,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(3,:); Cs2 = srf_LMs(2,:); Cs3 = srf_LMs(1,:); CPs1 = [Cs1; Cs2; Cs3];
-vector1 = CP1(2,:) - CP1(1,:);
-vector2 = CP1(3,:) - CP1(2,:);
-vector1s = CPs1(2,:) - CPs1(1,:);
-vector2s = CPs1(3,:) - CPs1(2,:);
-target_length1 = norm(vector1s);
-target_length2 = norm(vector2s);
-scale_factor1 = target_length1/norm(vector1);
-scale_factor2 = target_length2/norm(vector2);
-clear C1 C2 C3 C4 CP1 Cs1 Cs2 Cs3 Cs4 CPs1 vector1 vector2 vector1s vector2s target_length1 target_length2
+t_vector1 = D2_J_PIP_t - D2_J_MCP_t;
+t_vector2 = D2_J_DIP_t - D2_J_PIP_t;
+s_vector1 = D2_J_PIP_s - D2_J_MCP_s;
+s_vector2 = D2_J_DIP_s - D2_J_PIP_s;
+
+scale_factor1 = norm(s_vector1)/norm(t_vector1);
+scale_factor2 = norm(s_vector2)/norm(t_vector2);
+
+clear t_vector1 t_vector2 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,16}.center; 
 C2 = mesh.spheres{1,15}.center; 
@@ -62,17 +93,15 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 12:14);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(6,:); C2 = srf_LMt(5,:); C3 = srf_LMt(4,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(6,:); Cs2 = srf_LMs(5,:); Cs3 = srf_LMs(4,:); CPs1 = [Cs1; Cs2; Cs3];
-vector1 = CP1(2,:) - CP1(1,:);
-vector2 = CP1(3,:) - CP1(2,:);
-vector1s = CPs1(2,:) - CPs1(1,:);
-vector2s = CPs1(3,:) - CPs1(2,:);
-target_length1 = norm(vector1s);
-target_length2 = norm(vector2s);
-scale_factor1 = target_length1/norm(vector1);
-scale_factor2 = target_length2/norm(vector2);
-clear C1 C2 C3 C4 CP1 Cs1 Cs2 Cs3 Cs4 CPs1 vector1 vector2 vector1s vector2s target_length1 target_length2
+t_vector1 = D3_J_PIP_t - D3_J_MCP_t;
+t_vector2 = D3_J_DIP_t - D3_J_PIP_t;
+s_vector1 = D3_J_PIP_s - D3_J_MCP_s;
+s_vector2 = D3_J_DIP_s - D3_J_PIP_s;
+
+scale_factor1 = norm(s_vector1)/norm(t_vector1);
+scale_factor2 = norm(s_vector2)/norm(t_vector2);
+
+clear t_vector1 t_vector2 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,12}.center; 
 C2 = mesh.spheres{1,11}.center; 
@@ -108,17 +137,15 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 15:17);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(9,:); C2 = srf_LMt(8,:); C3 = srf_LMt(7,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(9,:); Cs2 = srf_LMs(8,:); Cs3 = srf_LMs(7,:); CPs1 = [Cs1; Cs2; Cs3];
-vector1 = CP1(2,:) - CP1(1,:);
-vector2 = CP1(3,:) - CP1(2,:);
-vector1s = CPs1(2,:) - CPs1(1,:);
-vector2s = CPs1(3,:) - CPs1(2,:);
-target_length1 = norm(vector1s);
-target_length2 = norm(vector2s);
-scale_factor1 = target_length1/norm(vector1);
-scale_factor2 = target_length2/norm(vector2);
-clear C1 C2 C3 C4 CP1 Cs1 Cs2 Cs3 Cs4 CPs1 vector1 vector2 vector1s vector2s target_length1 target_length2
+t_vector1 = D4_J_PIP_t - D4_J_MCP_t;
+t_vector2 = D4_J_DIP_t - D4_J_PIP_t;
+s_vector1 = D4_J_PIP_s - D4_J_MCP_s;
+s_vector2 = D4_J_DIP_s - D4_J_PIP_s;
+
+scale_factor1 = norm(s_vector1)/norm(t_vector1);
+scale_factor2 = norm(s_vector2)/norm(t_vector2);
+
+clear t_vector1 t_vector2 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,8}.center; 
 C2 = mesh.spheres{1,7}.center; 
@@ -154,17 +181,15 @@ clear b bc C1 C2 C2_n C3 C3_n C4 C4_n CP1 CP2 Diff V_tr vector1 vector1_n vector
 keep = ismember(mesh.assignment, 18:20);
 [vertices, faces] = filter_vertices(mesh.vertices, mesh.faces, keep);
 
-C1 = srf_LMt(12,:); C2 = srf_LMt(11,:); C3 = srf_LMt(10,:); CP1 = [C1; C2; C3];
-Cs1 = srf_LMs(12,:); Cs2 = srf_LMs(11,:); Cs3 = srf_LMs(10,:); CPs1 = [Cs1; Cs2; Cs3];
-vector1 = CP1(2,:) - CP1(1,:);
-vector2 = CP1(3,:) - CP1(2,:);
-vector1s = CPs1(2,:) - CPs1(1,:);
-vector2s = CPs1(3,:) - CPs1(2,:);
-target_length1 = norm(vector1s);
-target_length2 = norm(vector2s);
-scale_factor1 = target_length1/norm(vector1);
-scale_factor2 = target_length2/norm(vector2);
-clear C1 C2 C3 C4 CP1 Cs1 Cs2 Cs3 Cs4 CPs1 vector1 vector2 vector1s vector2s target_length1 target_length2
+t_vector1 = D5_J_PIP_t - D5_J_MCP_t;
+t_vector2 = D5_J_DIP_t - D5_J_PIP_t;
+s_vector1 = D5_J_PIP_s - D5_J_MCP_s;
+s_vector2 = D5_J_DIP_s - D5_J_PIP_s;
+
+scale_factor1 = norm(s_vector1)/norm(t_vector1);
+scale_factor2 = norm(s_vector2)/norm(t_vector2);
+
+clear t_vector1 t_vector2 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,4}.center; 
 C2 = mesh.spheres{1,3}.center; 
