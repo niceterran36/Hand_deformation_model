@@ -38,18 +38,18 @@ load('assignment_new.mat');
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
-LMt = function_get_LM_from_iges('template_LMs.igs');
-LMs = function_get_LM_from_iges('HY_pos2.igs');
+LMt = function_get_LM_from_iges('template_LMs.igs'); % template landmark by hand
+LMs = function_get_LM_from_iges('HY_pos2.igs'); % scan landmark by hand 
 LMt_Idx = zeros(size(LMt,1),1);
 m = size(mesh.vertices, 1);
 for i = 1:size(LMt,1)
 delta = mesh.vertices - repmat(LMt(i, :), m, 1);
 distances = sum(delta .^ 2, 2);
 [~, j] = min(distances);
-LMt_Idx(i,:) = j;
+LMt_Idx(i,:) = j; % template landmark index detection
 end
 for i = 1:size(LMt,1)
-LMt(i,:) = mesh.vertices(LMt_Idx(i),:);
+LMt(i,:) = mesh.vertices(LMt_Idx(i),:); % template landmark update
 end
 clear m delta distances i j 
 
