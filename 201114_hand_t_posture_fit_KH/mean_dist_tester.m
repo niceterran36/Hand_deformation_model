@@ -6,7 +6,7 @@ normals = per_vertex_normals(vertices, faces);
 keep = ismember(assignment_new, FRP_dorsal_segment);
 [vertices, faces] = filter_vertices(vertices, faces, keep);
 normals = normals(keep, :);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals,20,cos(45*pi/180));
+pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals,30,cos(30*pi/180));
 
 dist_array = [];
 verticesA = vertices; verticesB = points.vertices;
