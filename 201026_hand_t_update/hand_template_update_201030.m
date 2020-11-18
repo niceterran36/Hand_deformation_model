@@ -2,10 +2,16 @@
 
 addpath(genpath('external'));
 addpath('F:\[GitHub]\Hand_deformation_model\functions');
+addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('LM_for_dorsal_palmar')
-LMs = function_get_LM_from_iges('D4seg1.igs');
+load('hy_mesh_n5.mat'); %template
+LMs = function_get_LM_from_iges('thumb_sep_LM.igs');
 
 % assignment information
+% D1 thumb. metacarpal: assignment 6
+% D1 pro. phalanx: assignment 7
+% D1 dis. phalanx: assignment 8
+
 % D2 dis. phalanx: assignment 11
 % D2 mid. phalanx: assignment 10
 % D2 pro. phalanx: asisgnment 9
@@ -33,18 +39,18 @@ hold off
 
 % input points
 p1 = LMs(1,:);
-p2 = LMs(2,:);
-p3 = LMs(3,:);
+p2 = LMs(5,:);
+p3 = LMs(6,:);
 [a, b, c, d] = generate_plane_3point(p1, p2, p3);
 PL_com = zeros(1,4);
 PL_com = [a, b, c, d];
 clear a b c d
 % assignment_new = mesh.assignment;
 
-LIX = mesh.assignment == 12;
+LIX = mesh.assignment == 8;
 V_IDX = [1:size(mesh.vertices,1)]';
-Sg12 = vertices(LIX,:);
-Sg12_idx = V_IDX(LIX,:);
+Sg8 = vertices(LIX,:);
+Sg8_idx = V_IDX(LIX,:);
 
 % testing value
 %stone = [8.6169, -7.8574, 95.0876];% D2 distal
@@ -52,10 +58,12 @@ Sg12_idx = V_IDX(LIX,:);
 %stone = [-6.016, -4.884, 47.99];% D2 proximal
 %stone = [-22.39, -6.443, 95.31];% D3 distal
 %stone = [-26.93, -4.14, 75.21];% D3 middle
-stone = [-20.03, 3.01, 53];% D3 proximal
+%stone = [-20.03, 3.01, 53];% D3 proximal
+stone = [39.20, -15.69, 26.81];% D1 distal
+
 T = PL_com(1)*stone(1)+PL_com(2)*stone(2)+PL_com(3)*stone(3)+PL_com(4);
 
-A = Sg12;
+A = Sg8;
 Compare = zeros(size(A,1),1);
 for i = 1:size(A,1)
     T = PL_com(1)*A(i,1)+PL_com(2)*A(i,2)+PL_com(3)*A(i,3)+PL_com(4);
@@ -63,16 +71,16 @@ for i = 1:size(A,1)
 end 
 for k = 1:size(Compare,1)
     if Compare(k) > 0
-       TT(k,1) = 112; % palmar side
+       TT(k,1) = 108; % dorsal side
     elseif Compare(k) < 0
-       TT(k,1) = 212; % dorsal side
+       TT(k,1) = 208; % palmar side
     else
-       TT(k,1) = 112;
+       TT(k,1) = 208;
     end 
 end 
-assignment_new(Sg12_idx) = TT;
+assignment_new(Sg8_idx) = TT;
 
-LIX_u = assignment_new == 112;
+LIX_u = assignment_new == 108;
 V_SgX_dor = vertices(LIX_u,:);
 
 figure()
@@ -81,7 +89,7 @@ axis off
 hold on
 view(-7,7);
 scatter3(vertices(:,1),vertices(:,2),vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
+%scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'*','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 %scatter3(LMs(:,1),LMs(:,2),LMs(:,3),'*','MarkerEdgeColor',[242/255, 150/255, 97/255]);
 scatter3(V_SgX_dor(:,1),V_SgX_dor(:,2),V_SgX_dor(:,3),'.','MarkerEdgeColor',[243/255, 97/255, 166/255]);
 hold off
