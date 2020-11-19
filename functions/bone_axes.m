@@ -30,7 +30,7 @@ function axes = bone_axes(centers)
     % Thumb
     % TODO is thumb normal correct?
     n_thumb = -finger_normal(centers(20, :), centers(19, :), centers(17, :), centers(16, :));
-    n_thumb_IP = -finger_normal(centers(18, :), centers(17, :), centers(19, :), centers(16, :));    
+    %n_thumb_IP = -finger_normal(centers(18, :), centers(17, :), centers(19, :), centers(16, :));    
     axes{3} = build(centers(20, :), centers(19, :) - centers(20, :), n_thumb);
     axes{4} = build(centers(19, :), centers(18, :) - centers(19, :), n_thumb);
     axes{5} = build(centers(18, :), centers(17, :) - centers(18, :), n_thumb);
