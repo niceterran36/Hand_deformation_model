@@ -158,7 +158,7 @@ tic
 %% D2 Register
 
 tic
-
+angle = zeros(19,1);
 % D2 MCP fit
 FRP_dorsal_segment = 109;
 record = [];
