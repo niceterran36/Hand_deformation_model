@@ -68,7 +68,7 @@ if figureOn == 1
         lighting phong;
         set(gca, 'visible', 'off')
         set(gcf, 'Color', [1 1 1])
-        view(2)
+        view([185, 8]);
         set(gca, 'DataAspectRatio', [1 1 1], 'PlotBoxAspectRatio', [1 1 1]);
         tttt = trisurf(targetF, targetV(:, 1), targetV(:, 2), targetV(:, 3), 'Facecolor', 'm', 'Edgecolor', 'none');
         alpha(0.6)

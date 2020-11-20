@@ -1,51 +1,51 @@
-transformed = mesh_tr;
-
-C1 = mesh.spheres{1,16}.center; 
-C2 = mesh.spheres{1,15}.center; 
-C3 = mesh.spheres{1,14}.center; 
-C4 = mesh.spheres{1,13}.center; 
-CP1 = [C1; C2; C3; C4];
-
-Cs1 = transformed.spheres{1,16}.center; 
-Cs2 = transformed.spheres{1,15}.center; 
-Cs3 = transformed.spheres{1,14}.center; 
-Cs4 = transformed.spheres{1,13}.center; 
-CP2 = [Cs1; Cs2; Cs3; Cs4];
-
-figure()
-hold on
-axis equal
-axis off
-%plot3(CP1(1:3,1),CP1(1:3,2),CP1(1:3,3),'*-k')
-plot3(mesh.vertices(:,1),mesh.vertices(:,2),mesh.vertices(:,3),'.k')
-hold off
-
-figure()
-hold on
-axis equal
-axis off
-%plot3(CP2(1:3,1),CP2(1:3,2),CP2(1:3,3),'*R')
-plot3(transformed.vertices(:,1),transformed.vertices(:,2),transformed.vertices(:,3),'.R')
-hold off
-
-
-
-%%
-figure()
-hold on;
-axis equal
-axis off
-scatter3(mesh.centers([16:20 22],1),mesh.centers([16:20 22],2),mesh.centers([16:20 22],3),'*r');
-h = trimesh(mesh.faces, mesh.vertices(:, 1), mesh.vertices(:, 2), mesh.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.5);
-view([-90,0]);
-camlight;
-view([90, 0]);
-camlight;
-view_angle = [207,10];
-view(view_angle);
-lighting gouraud;
-camlight;
-hold off
+% transformed = mesh_tr;
+% 
+% C1 = mesh.spheres{1,16}.center; 
+% C2 = mesh.spheres{1,15}.center; 
+% C3 = mesh.spheres{1,14}.center; 
+% C4 = mesh.spheres{1,13}.center; 
+% CP1 = [C1; C2; C3; C4];
+% 
+% Cs1 = transformed.spheres{1,16}.center; 
+% Cs2 = transformed.spheres{1,15}.center; 
+% Cs3 = transformed.spheres{1,14}.center; 
+% Cs4 = transformed.spheres{1,13}.center; 
+% CP2 = [Cs1; Cs2; Cs3; Cs4];
+% 
+% figure()
+% hold on
+% axis equal
+% axis off
+% %plot3(CP1(1:3,1),CP1(1:3,2),CP1(1:3,3),'*-k')
+% plot3(mesh.vertices(:,1),mesh.vertices(:,2),mesh.vertices(:,3),'.k')
+% hold off
+% 
+% figure()
+% hold on
+% axis equal
+% axis off
+% %plot3(CP2(1:3,1),CP2(1:3,2),CP2(1:3,3),'*R')
+% plot3(transformed.vertices(:,1),transformed.vertices(:,2),transformed.vertices(:,3),'.R')
+% hold off
+% 
+% 
+% 
+% %%
+% figure()
+% hold on;
+% axis equal
+% axis off
+% scatter3(mesh.centers([16:20 22],1),mesh.centers([16:20 22],2),mesh.centers([16:20 22],3),'*r');
+% h = trimesh(mesh.faces, mesh.vertices(:, 1), mesh.vertices(:, 2), mesh.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.5);
+% view([-90,0]);
+% camlight;
+% view([90, 0]);
+% camlight;
+% view_angle = [207,10];
+% view(view_angle);
+% lighting gouraud;
+% camlight;
+% hold off
 
 %%
 figure()
