@@ -46,7 +46,7 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos4.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos8.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
@@ -678,8 +678,8 @@ hold off
 %V_HY_pos2 = sourceV;
 %save HY_pos2_vertices.mat V_HY_pos2
 
-HY_pos2_vertices = sourceV;
-save HY_pos2_vertices.mat HY_pos2_vertices;
+HY_pos8_vertices = sourceV;
+save HY_pos8_vertices.mat HY_pos8_vertices;
 
 
 % save function 
