@@ -46,7 +46,7 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos4.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos1.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
@@ -70,7 +70,7 @@ clear m delta distances i j
 
 % palm scale 
 % Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('HY_pos4_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('HY_pos1_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
@@ -147,7 +147,7 @@ hold off;
 
 %save hy_mesh_n5_palm_fitted.mat mesh %template
 
-mesh.spheres{1,22}.center
+%mesh.spheres{1,22}.center
 
 
 %% segment scale
@@ -523,8 +523,8 @@ angle(10) = Angle_opt.D4_MCP.FxEt + Angle_opt.D4_MCP.FxEt2;
 angle(13) = Angle_opt.D5_MCP.FxEt + Angle_opt.D5_MCP.FxEt2;
 % save Angle_opt.mat angle Angle_opt
 % save mesh_HY_pos2.mat mesh % template posture align for HY_pos2.ply
- save Angle_opt_HY_pos2.mat angle Angle_opt
- save mesh_HY_pos2.mat mesh % template posture align for MJ_pos6.ply 
+ save Angle_opt_HY_pos1.mat angle Angle_opt
+ save mesh_HY_pos1.mat mesh % template posture align for MJ_pos6.ply 
 
 % things to do - compare the better performance for MCP segment registration
 % segment index of dorsal segment is better than whole part segment for pair generation 
@@ -678,8 +678,8 @@ hold off
 %V_HY_pos2 = sourceV;
 %save HY_pos2_vertices.mat V_HY_pos2
 
-HY_pos2_vertices = sourceV;
-save HY_pos2_vertices.mat HY_pos2_vertices;
+HY_pos1_vertices = sourceV;
+save HY_pos1_vertices.mat HY_pos1_vertices;
 
 
 % save function 
