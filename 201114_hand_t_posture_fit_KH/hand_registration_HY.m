@@ -36,7 +36,7 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P03_modi.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos2.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
@@ -60,7 +60,7 @@ clear m delta distances i j
 
 % palm scale 
 % Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('MJ_pos3_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('HY_pos2_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
@@ -144,7 +144,7 @@ hold off;
 mesh = transformed;
 clear transformed
 
-mesh_BackUp = mesh;
+%mesh_BackUp = mesh;
 %mesh = mesh_BackUp;
 
 %% calculate optimal rotation angle for MCP & deformation
@@ -511,14 +511,16 @@ angle(10) = Angle_opt.D4_MCP.FxEt + Angle_opt.D4_MCP.FxEt2;
 angle(13) = Angle_opt.D5_MCP.FxEt + Angle_opt.D5_MCP.FxEt2;
 % save Angle_opt.mat angle Angle_opt
 % save mesh_HY_pos2.mat mesh % template posture align for HY_pos2.ply
- save Angle_opt_MJ_P04.mat angle Angle_opt
- save mesh_MJ_pos4.mat mesh % template posture align for MJ_pos6.ply 
+ save Angle_opt_HY_pos2.mat angle Angle_opt
+ save mesh_HY_pos2.mat mesh % template posture align for MJ_pos6.ply 
 
 % things to do - compare the better performance for MCP segment registration
 % segment index of dorsal segment is better than whole part segment for pair generation 
 % and fitting?
 
 %% Things to do (thumb registration - temporal) 
+
+tic
 
 FRP_dorsal_segment = [6 107 108];
 FRP_cor = [20 19 18];
@@ -527,7 +529,7 @@ FRP_cor_tr{1} = [17:19];
 transform_order= [3 4 5];
 
 axes = compute_bone_axes(mesh.spheres);
-normals = per_vertex_normals(mesh.vertices, mesh.faces)
+normals = per_vertex_normals(mesh.vertices, mesh.faces);
 
 h3 = [];
 h4 = [];
@@ -633,6 +635,8 @@ h4 = [];
 
 end 
 
+toc
+
 %% ICP registration
 
 targetV = points.vertices;
@@ -662,8 +666,8 @@ hold off
 %V_HY_pos2 = sourceV;
 %save HY_pos2_vertices.mat V_HY_pos2
 
-P3_vertices_update = sourceV;
-save P3_vertices_update.mat P3_vertices_update;
+HY_pos2_vertices = sourceV;
+save HY_pos2_vertices.mat HY_pos2_vertices;
 
 
 % save function 
