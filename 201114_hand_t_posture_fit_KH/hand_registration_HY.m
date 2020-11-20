@@ -36,7 +36,7 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P04_modi.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('MJ_P03_modi.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
@@ -60,7 +60,7 @@ clear m delta distances i j
 
 % palm scale 
 % Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('MJ_pos4_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('MJ_pos3_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
@@ -243,7 +243,7 @@ mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
 toc
 
-%% D3 Register
+% D3 Register
 tic
 
 % D3 MCP fit
@@ -310,7 +310,8 @@ angle_supr(2) = record(col,1);
 Angle_opt.D3_PIP.SpPr = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
 
-% D2 DIP
+% D3 DIP
+tic
 FRP_dorsal_segment = 114;
 record = [];
 for ag3 = 0:0.03:0.75 % size = 26
@@ -328,7 +329,7 @@ mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
 toc
 
-%% D4 register
+% D4 register
 
 tic
 
@@ -414,7 +415,7 @@ mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
 toc
 
-%% D5 register
+% D5 register
 
 tic
 
@@ -510,8 +511,8 @@ angle(10) = Angle_opt.D4_MCP.FxEt + Angle_opt.D4_MCP.FxEt2;
 angle(13) = Angle_opt.D5_MCP.FxEt + Angle_opt.D5_MCP.FxEt2;
 % save Angle_opt.mat angle Angle_opt
 % save mesh_HY_pos2.mat mesh % template posture align for HY_pos2.ply
- save Angle_opt_MJ_P03.mat angle Angle_opt
- save mesh_MJ_pos3.mat mesh % template posture align for MJ_pos6.ply 
+ save Angle_opt_MJ_P04.mat angle Angle_opt
+ save mesh_MJ_pos4.mat mesh % template posture align for MJ_pos6.ply 
 
 % things to do - compare the better performance for MCP segment registration
 % segment index of dorsal segment is better than whole part segment for pair generation 

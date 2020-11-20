@@ -35,10 +35,17 @@ figure()
 hold on;
 axis equal
 axis off
-%h = trimesh(tr_mesh.faces, tr_mesh.vertices(:, 1), tr_mesh.vertices(:, 2), tr_mesh.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 1);
-lighting gouraud;
-view([193, -4]);
+scatter3(mesh.centers([16:20 22],1),mesh.centers([16:20 22],2),mesh.centers([16:20 22],3),'*r');
+h = trimesh(mesh.faces, mesh.vertices(:, 1), mesh.vertices(:, 2), mesh.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.5);
+view([-90,0]);
 camlight;
+view([90, 0]);
+camlight;
+view_angle = [207,10];
+view(view_angle);
+lighting gouraud;
+camlight;
+hold off
 
 %%
 figure()
