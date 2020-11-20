@@ -19,6 +19,16 @@ addpath('F:\[GitHub]\Hand_deformation_model\201026_hand_t_update');
 addpath('F:\[GitHub]\Hand_deformation_model\data');
 addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
 % 
+
+%% register library - PC lab2
+addpath(genpath('../external'));
+addpath('D:\GitHub\Hand_deformation_model\functions');
+addpath('D:\GitHub\Hand_deformation_model\data_SW');
+addpath('Data');
+addpath('D:\GitHub\Hand_deformation_model\201026_hand_t_update');
+addpath('D:\GitHub\Hand_deformation_model\data');
+addpath('D:\GitHub\Hand_deformation_model\external\registration');
+% 
 %% register library - Macbook
 clc
 clear all
@@ -36,7 +46,7 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos2.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos4.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
@@ -60,7 +70,7 @@ clear m delta distances i j
 
 % palm scale 
 % Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('HY_pos2_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('HY_pos4_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
@@ -136,6 +146,8 @@ camlight;
 hold off;
 
 %save hy_mesh_n5_palm_fitted.mat mesh %template
+
+mesh.spheres{1,22}.center
 
 
 %% segment scale

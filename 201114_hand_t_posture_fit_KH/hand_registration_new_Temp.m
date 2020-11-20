@@ -19,7 +19,6 @@ view([-90,0]);
 camlight;
 view([90, 0]);
 camlight;
-view(view_angle);
 axis equal;
 grid off;
 lighting gouraud;
