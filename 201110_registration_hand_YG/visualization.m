@@ -16,8 +16,8 @@
 % hold on
 % axis equal
 % axis off
-% %plot3(CP1(1:3,1),CP1(1:3,2),CP1(1:3,3),'*-k')
-% plot3(mesh.vertices(:,1),mesh.vertices(:,2),mesh.vertices(:,3),'.k')
+% plot3(CP1(1:4,1),CP1(1:4,2),CP1(1:4,3),'*-k')
+% %plot3(mesh.vertices(:,1),mesh.vertices(:,2),mesh.vertices(:,3),'.k')
 % hold off
 % 
 % figure()
@@ -60,7 +60,6 @@ trimesh(mesh.faces, mesh.vertices(:, 1), mesh.vertices(:, 2), mesh.vertices(:, 3
 trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.5);
 %quiver3(vertices(:, 1), vertices(:, 2), vertices(:, 3), normals(:, 1), normals(:, 2), normals(:, 3), 'Color', [0.4, 0.9, 0.4]);
 %quiver3(points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), points.normals(:, 1), points.normals(:, 2), points.normals(:, 3), 'Color', [0.8, 0.8, 0.8]);
-hold off;
 view([-90,0]);
 camlight;
 view([90, 0]);

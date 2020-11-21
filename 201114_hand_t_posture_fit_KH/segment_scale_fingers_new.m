@@ -10,34 +10,42 @@ function [mesh_tr] = segment_scale_fingers_new(mesh, LMt, LMs)
 D2_J_DIP_t = mean(LMt([1 13 16 43],:));
 D2_J_PIP_t = mean(LMt([2 14 17 44],:));
 D2_J_MCP_t = mean(LMt([3 15 18 45],:));
+D2_tip_t = LMt(46,:);
 
 D3_J_DIP_t = mean(LMt([4 19 21 40],:));
 D3_J_PIP_t = mean(LMt([5 20 22 41],:));
 D3_J_MCP_t = mean(LMt([6 18 23 42],:));
+D3_tip_t = LMt(47,:);
 
 D4_J_DIP_t = mean(LMt([7 24 26 37],:));
 D4_J_PIP_t = mean(LMt([8 25 27 38],:));
 D4_J_MCP_t = mean(LMt([9 23 28 39],:));
+D4_tip_t = LMt(48,:);
 
 D5_J_DIP_t = mean(LMt([10 29 31 34],:));
 D5_J_PIP_t = mean(LMt([11 30 32 35],:));
 D5_J_MCP_t = mean(LMt([12 28 33 36],:));
+D5_tip_t = LMt(49,:);
 
 D2_J_DIP_s = mean(LMs([1 13 16 43],:));
 D2_J_PIP_s = mean(LMs([2 14 17 44],:));
 D2_J_MCP_s = mean(LMs([3 15 18 45],:));
+D2_tip_s = LMs(46,:);
 
 D3_J_DIP_s = mean(LMs([4 19 21 40],:));
 D3_J_PIP_s = mean(LMs([5 20 22 41],:));
 D3_J_MCP_s = mean(LMs([6 18 23 42],:));
+D3_tip_s = LMs(47,:);
 
 D4_J_DIP_s = mean(LMs([7 24 26 37],:));
 D4_J_PIP_s = mean(LMs([8 25 27 38],:));
 D4_J_MCP_s = mean(LMs([9 23 28 39],:));
+D4_tip_s = LMs(48,:);
 
 D5_J_DIP_s = mean(LMs([10 29 31 34],:));
 D5_J_PIP_s = mean(LMs([11 30 32 35],:));
 D5_J_MCP_s = mean(LMs([12 28 33 36],:));
+D5_tip_s = LMs(49,:);
 
 % 
 % srf_LMt = LMt(1:12,:); % palmar
@@ -51,13 +59,16 @@ keep = ismember(mesh.assignment, 9:11);
 
 t_vector1 = D2_J_PIP_t - D2_J_MCP_t;
 t_vector2 = D2_J_DIP_t - D2_J_PIP_t;
+t_vector3 = D2_tip_t - D2_J_DIP_t;
 s_vector1 = D2_J_PIP_s - D2_J_MCP_s;
 s_vector2 = D2_J_DIP_s - D2_J_PIP_s;
+s_vector3 = D2_tip_s - D2_J_DIP_s;
 
 scale_factor1 = norm(s_vector1)/norm(t_vector1);
 scale_factor2 = norm(s_vector2)/norm(t_vector2);
+scale_factor3 = norm(s_vector3)/norm(t_vector3);
 
-clear t_vector1 t_vector2 s_vector1 s_vector2
+clear t_vector1 t_vector2 t_vector3 s_vector3 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,16}.center; 
 C2 = mesh.spheres{1,15}.center; 
@@ -67,20 +78,22 @@ CP1 = [C1; C2; C3; C4];
 
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
+vector3 = CP1(4,:) - CP1(3,:);
 
 vector1_n = scale_factor1*vector1;
 vector2_n = scale_factor2*vector2;
+vector3_n = scale_factor3*vector3;
 
 C2_n = CP1(1,:) + vector1_n;
 C3_n = C2_n + vector2_n;
-C4_n = C3_n + vector2_n;
+C4_n = C3_n + vector3_n;
 CP2 = [CP1(1,:); C2_n; C3_n; C4_n];
 
-[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:3,:));
+[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:4,:));
 W = bbw_biharmonic_bounded(vertices, faces, b, bc);
 W = W./repmat(sum(W,2),1,size(W,2));
-Diff = CP2(1:3,:) - CP1(1:3,:);
-V_tr = bbw_simple_deform(vertices, faces, CP1(1:3,:), W, Diff);
+Diff = CP2(1:4,:) - CP1(1:4,:);
+V_tr = bbw_simple_deform(vertices, faces, CP1(1:4,:), W, Diff);
 
 mesh.vertices(keep,:) = V_tr;
 mesh.spheres{1,15}.center = C2_n; 
@@ -95,13 +108,17 @@ keep = ismember(mesh.assignment, 12:14);
 
 t_vector1 = D3_J_PIP_t - D3_J_MCP_t;
 t_vector2 = D3_J_DIP_t - D3_J_PIP_t;
+t_vector3 = D3_tip_t - D3_J_DIP_t;
+
 s_vector1 = D3_J_PIP_s - D3_J_MCP_s;
 s_vector2 = D3_J_DIP_s - D3_J_PIP_s;
+s_vector3 = D3_tip_s - D3_J_DIP_s;
 
 scale_factor1 = norm(s_vector1)/norm(t_vector1);
 scale_factor2 = norm(s_vector2)/norm(t_vector2);
+scale_factor3 = norm(s_vector3)/norm(t_vector3);
 
-clear t_vector1 t_vector2 s_vector1 s_vector2
+clear t_vector1 t_vector2 t_vector3 s_vector3 s_vector1 s_vector2
 
 C1 = mesh.spheres{1,12}.center; 
 C2 = mesh.spheres{1,11}.center; 
@@ -111,20 +128,22 @@ CP1 = [C1; C2; C3; C4];
 
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
+vector2 = CP1(4,:) - CP1(3,:);
 
 vector1_n = scale_factor1*vector1;
 vector2_n = scale_factor2*vector2;
+vector3_n = scale_factor3*vector3;
 
 C2_n = CP1(1,:) + vector1_n;
 C3_n = C2_n + vector2_n;
-C4_n = C3_n + vector2_n;
+C4_n = C3_n + vector3_n;
 CP2 = [CP1(1,:); C2_n; C3_n; C4_n];
 
-[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:3,:));
+[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:4,:));
 W = bbw_biharmonic_bounded(vertices, faces, b, bc);
 W = W./repmat(sum(W,2),1,size(W,2));
-Diff = CP2(1:3,:) - CP1(1:3,:);
-V_tr = bbw_simple_deform(vertices, faces, CP1(1:3,:), W, Diff);
+Diff = CP2(1:4,:) - CP1(1:4,:);
+V_tr = bbw_simple_deform(vertices, faces, CP1(1:4,:), W, Diff);
 
 mesh.vertices(keep,:) = V_tr;
 mesh.spheres{1,11}.center = C2_n; 
@@ -139,13 +158,16 @@ keep = ismember(mesh.assignment, 15:17);
 
 t_vector1 = D4_J_PIP_t - D4_J_MCP_t;
 t_vector2 = D4_J_DIP_t - D4_J_PIP_t;
+t_vector3 = D4_tip_t - D4_J_DIP_t;
 s_vector1 = D4_J_PIP_s - D4_J_MCP_s;
 s_vector2 = D4_J_DIP_s - D4_J_PIP_s;
+s_vector3 = D4_tip_s - D4_J_DIP_s;
 
 scale_factor1 = norm(s_vector1)/norm(t_vector1);
 scale_factor2 = norm(s_vector2)/norm(t_vector2);
+scale_factor3 = norm(s_vector3)/norm(t_vector3);
 
-clear t_vector1 t_vector2 s_vector1 s_vector2
+clear t_vector1 t_vector2 t_vector3 s_vector1 s_vector2 s_vector3
 
 C1 = mesh.spheres{1,8}.center; 
 C2 = mesh.spheres{1,7}.center; 
@@ -155,20 +177,22 @@ CP1 = [C1; C2; C3; C4];
 
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
+vector3 = CP1(4,:) - CP1(3,:);
 
 vector1_n = scale_factor1*vector1;
 vector2_n = scale_factor2*vector2;
+vector3_n = scale_factor3*vector3;
 
 C2_n = CP1(1,:) + vector1_n;
 C3_n = C2_n + vector2_n;
-C4_n = C3_n + vector2_n;
+C4_n = C3_n + vector3_n;
 CP2 = [CP1(1,:); C2_n; C3_n; C4_n];
 
-[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:3,:));
+[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:4,:));
 W = bbw_biharmonic_bounded(vertices, faces, b, bc);
 W = W./repmat(sum(W,2),1,size(W,2));
-Diff = CP2(1:3,:) - CP1(1:3,:);
-V_tr = bbw_simple_deform(vertices, faces, CP1(1:3,:), W, Diff);
+Diff = CP2(1:4,:) - CP1(1:4,:);
+V_tr = bbw_simple_deform(vertices, faces, CP1(1:4,:), W, Diff);
 
 mesh.vertices(keep,:) = V_tr;
 mesh.spheres{1,7}.center = C2_n; 
@@ -183,13 +207,16 @@ keep = ismember(mesh.assignment, 18:20);
 
 t_vector1 = D5_J_PIP_t - D5_J_MCP_t;
 t_vector2 = D5_J_DIP_t - D5_J_PIP_t;
+t_vector3 = D5_tip_t - D5_J_DIP_t;
 s_vector1 = D5_J_PIP_s - D5_J_MCP_s;
 s_vector2 = D5_J_DIP_s - D5_J_PIP_s;
+s_vector3 = D5_tip_s - D5_J_DIP_s;
 
 scale_factor1 = norm(s_vector1)/norm(t_vector1);
 scale_factor2 = norm(s_vector2)/norm(t_vector2);
+scale_factor3 = norm(s_vector3)/norm(t_vector3);
 
-clear t_vector1 t_vector2 s_vector1 s_vector2
+clear t_vector1 t_vector2 t_vector3 s_vector1 s_vector2 s_vector3
 
 C1 = mesh.spheres{1,4}.center; 
 C2 = mesh.spheres{1,3}.center; 
@@ -199,20 +226,22 @@ CP1 = [C1; C2; C3; C4];
 
 vector1 = CP1(2,:) - CP1(1,:);
 vector2 = CP1(3,:) - CP1(2,:);
+vector3 = CP1(4,:) - CP1(3,:);
 
 vector1_n = scale_factor1*vector1;
 vector2_n = scale_factor2*vector2;
+vector3_n = scale_factor3*vector3;
 
 C2_n = CP1(1,:) + vector1_n;
 C3_n = C2_n + vector2_n;
-C4_n = C3_n + vector2_n;
+C4_n = C3_n + vector3_n;
 CP2 = [CP1(1,:); C2_n; C3_n; C4_n];
 
-[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:3,:));
+[b,bc] = bbw_boundary_conditions(vertices, faces, CP1(1:4,:));
 W = bbw_biharmonic_bounded(vertices, faces, b, bc);
 W = W./repmat(sum(W,2),1,size(W,2));
-Diff = CP2(1:3,:) - CP1(1:3,:);
-V_tr = bbw_simple_deform(vertices, faces, CP1(1:3,:), W, Diff);
+Diff = CP2(1:4,:) - CP1(1:4,:);
+V_tr = bbw_simple_deform(vertices, faces, CP1(1:4,:), W, Diff);
 
 mesh.vertices(keep,:) = V_tr;
 mesh.spheres{1,3}.center = C2_n; 

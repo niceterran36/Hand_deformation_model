@@ -47,12 +47,13 @@ global assignment_new
 load('hy_mesh_n5.mat'); %template
 %load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('HY_pos8.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('JB_pos2.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
 %% search template LM index
 LMt = function_get_LM_from_iges('template_LMs.igs'); % template landmark by hand
-LMs = function_get_LM_from_iges('HY_pos2.igs'); % scan landmark by hand 
+LMt(46:49,:) = function_get_LM_from_iges('template_tip_scale_LMs.igs'); %template landmark tip
+LMs = function_get_LM_from_iges('JB_pos2_scale_LM.igs'); % scan landmark by hand 
 LMt_Idx = zeros(size(LMt,1),1);
 m = size(mesh.vertices, 1);
 for i = 1:size(LMt,1)
@@ -71,7 +72,7 @@ clear m delta distances i j
 
 % palm scale 
 % Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('HY_pos8_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('JB_pos2_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
@@ -146,9 +147,8 @@ view([185, 8]);
 camlight;
 hold off;
 
-%save hy_mesh_n5_palm_fitted.mat mesh %template
-
-mesh.spheres{1,22}.center
+% save hy_mesh_n5_palm_fitted.mat mesh %template
+% mesh.spheres{1,22}.center
 
 
 %% segment scale
@@ -174,7 +174,9 @@ tic
 angle = zeros(19,1);
 % D2 MCP fit
 FRP_dorsal_segment = 109;
-record = [];
+record = zeros(250,3);
+record(:,3) = 1000;
+w = 1;
 for ag1 = -0.25:0.05:0.25 % size = 11
     for ag2 = 0:0.05:1 % size = 21
         angle = zeros(19,1);
@@ -182,17 +184,22 @@ for ag1 = -0.25:0.05:0.25 % size = 11
         angle(16) = ag1;
         tr_mesh = transform_angle(mesh, angle);
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag1 ag2 mean_distance];
+        record(w,:) = [ag1 ag2 mean_distance];
+        w = w+1;
     end
 end
 [~,col] = min(record(:,3));
-Angle_opt.D2_MCP.AdAb = record(col,1); 
-Angle_opt.D2_MCP.FxEt = record(col,2);
+%Angle_opt.D2_MCP.AdAb = record(col,1); 
+%Angle_opt.D2_MCP.FxEt = record(col,2);
 angle = zeros(19,1);
 angle(4) = record(col,2);
 angle(16) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
+toc
 
+%% 
+tic
 record = [];
 for ag3 = -0.3:0.0167:0.3 % size = 36
         angle = zeros(19,1);
@@ -205,8 +212,10 @@ end
 angle = zeros(19,1);
 angle(4) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-Angle_opt.D2_MCP.FxEt2 = record(col,2);
-
+visualization
+%Angle_opt.D2_MCP.FxEt2 = record(col,2);
+toc
+%%
 % D2 PIP fit
 FRP_dorsal_segment = 110;
 record = [];
@@ -241,7 +250,7 @@ mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update 
 % D2 DIP
 FRP_dorsal_segment = 111;
 record = [];
-for ag3 = 0:0.03:0.75 % size = 26
+for ag3 = -0.25:0.03:1.25 % size = 26
         angle = zeros(19,1);
         angle(6) = ag3;
         tr_mesh = transform_angle(mesh, angle);
@@ -253,9 +262,10 @@ angle = zeros(19,1);
 angle(6) = record(col,1);
 Angle_opt.D2_DIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
+visualization
 toc
 
+%% 
 % D3 Register
 tic
 
@@ -279,7 +289,10 @@ angle = zeros(19,1);
 angle(7) = record(col,2);
 angle(17) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
 
+toc 
+%%
 record = [];
 for ag3 = -0.3:0.0167:0.3 % size = 36
         angle = zeros(19,1);
@@ -292,8 +305,9 @@ end
 angle = zeros(19,1);
 angle(7) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-Angle_opt.D3_MCP.FxEt2 = record(col,2);
+%Angle_opt.D3_MCP.FxEt2 = record(col,2);
 
+%% D3 PIP fit
 FRP_dorsal_segment = 113;
 record = [];
 for ag3 = 0:0.03:2 % size = 67
@@ -306,9 +320,11 @@ end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(8) = record(col,1);
-Angle_opt.D3_PIP.FxEt = record(col,1);
+%Angle_opt.D3_PIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
 
+%%
 record = [];
 for ag3 = -0.28:0.07:0.28 % size = 9
         angle_supr = zeros(4,1);
@@ -323,11 +339,11 @@ angle_supr(2) = record(col,1);
 Angle_opt.D3_PIP.SpPr = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
 
-% D3 DIP
+%% D3 DIP
 tic
 FRP_dorsal_segment = 114;
 record = [];
-for ag3 = 0:0.03:0.75 % size = 26
+for ag3 = -0.25:0.03:1.25 % size = 26
         angle = zeros(19,1);
         angle(9) = ag3;
         tr_mesh = transform_angle(mesh, angle);
@@ -339,9 +355,9 @@ angle = zeros(19,1);
 angle(9) = record(col,1);
 Angle_opt.D3_DIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
+visualization
 toc
-
+%%
 % D4 register
 
 tic
@@ -366,7 +382,10 @@ angle = zeros(19,1);
 angle(10) = record(col,2);
 angle(18) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
 
+%%
+FRP_dorsal_segment = 115;
 record = [];
 for ag3 = -0.3:0.0167:0.3 % size = 36
         angle = zeros(19,1);
@@ -379,7 +398,8 @@ end
 angle = zeros(19,1);
 angle(10) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-Angle_opt.D4_MCP.FxEt2 = record(col,2);
+%Angle_opt.D4_MCP.FxEt2 = record(col,2);
+visualization
 
 FRP_dorsal_segment = 116;
 record = [];
@@ -393,9 +413,11 @@ end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(11) = record(col,1);
-Angle_opt.D4_PIP.FxEt = record(col,1);
+%Angle_opt.D4_PIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
 
+%%
 record = [];
 for ag3 = -0.28:0.07:0.28 % size = 9
         angle_supr = zeros(4,1);
@@ -409,11 +431,11 @@ angle_supr = zeros(4,1);
 angle_supr(3) = record(col,1);
 Angle_opt.D4_PIP.SpPr = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
-
+%%
 % D4 DIP
 FRP_dorsal_segment = 117;
 record = [];
-for ag3 = 0:0.03:1.3 % size = 26
+for ag3 = -0.25:0.03:1.25 % size = 26
         angle = zeros(19,1);
         angle(12) = ag3;
         tr_mesh = transform_angle(mesh, angle);
@@ -427,7 +449,7 @@ Angle_opt.D4_DIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
 toc
-
+%%
 % D5 register
 
 tic
@@ -466,7 +488,9 @@ angle = zeros(19,1);
 angle(13) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 Angle_opt.D5_MCP.FxEt2 = record(col,2);
+visualization
 
+%%
 FRP_dorsal_segment = 119;
 record = [];
 for ag3 = 0:0.03:2 % size = 67
@@ -495,11 +519,13 @@ angle_supr = zeros(4,1);
 angle_supr(4) = record(col,1);
 Angle_opt.D5_PIP.SpPr = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
+visualization
 
+%%
 % D5 DIP
 FRP_dorsal_segment = 120;
 record = [];
-for ag3 = 0:0.03:1.3 % size = 26
+for ag3 = -0.25:0.03:1.25 % size = 26
         angle = zeros(19,1);
         angle(15) = ag3;
         tr_mesh = transform_angle(mesh, angle);
@@ -511,6 +537,7 @@ angle = zeros(19,1);
 angle(15) = record(col,1);
 Angle_opt.D5_DIP.FxEt = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+visualization
 
 toc
 
@@ -679,8 +706,9 @@ hold off
 %V_HY_pos2 = sourceV;
 %save HY_pos2_vertices.mat V_HY_pos2
 
-HY_pos2_vertices = sourceV;
-save HY_pos2_vertices.mat HY_pos2_vertices;
+JB_pos2_vertices = sourceV;
+mesh.vertices = sourceV;
+save JB_pos2_vertices.mat JB_pos2_vertices;
 
 
 % save function 
