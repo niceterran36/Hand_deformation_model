@@ -13,15 +13,15 @@ figure()
 hold on;
 axis equal
 axis off
-% scatter3(A1(:,1),A1(:,2),A1(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
-% scatter3(A1(LMt_Idx,1),A1(LMt_Idx,2),A1(LMt_Idx,3),'*r');
+scatter3(A1(:,1),A1(:,2),A1(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
+scatter3(A1(LMt_Idx,1),A1(LMt_Idx,2),A1(LMt_Idx,3),'*r');
 % scatter3(A2(:,1),A2(:,2),A2(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
 % scatter3(A2(LMt_Idx,1),A2(LMt_Idx,2),A2(LMt_Idx,3),'*r');
 % scatter3(A3(:,1),A3(:,2),A3(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
 % scatter3(A3(LMt_Idx,1),A3(LMt_Idx,2),A3(LMt_Idx,3),'*r');
 % scatter3(A4(:,1),A4(:,2),A4(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
 % scatter3(A4(LMt_Idx,1),A4(LMt_Idx,2),A4(LMt_Idx,3),'*r');
-scatter3(A5(:,1),A5(:,2),A5(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
-scatter3(A5(LMt_Idx,1),A5(LMt_Idx,2),A5(LMt_Idx,3),'*r');
+% scatter3(A5(:,1),A5(:,2),A5(:,3),'.', 'MarkerEdgeColor',[213/255, 213/255, 213/255]);
+% scatter3(A5(LMt_Idx,1),A5(LMt_Idx,2),A5(LMt_Idx,3),'*r');
 
 hold off
