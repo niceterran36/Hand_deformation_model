@@ -2,7 +2,7 @@ clc
 clear all
 close all
 
-addpath('C:\Users\user\Desktop\SHu');
+addpath('C:\Users\user\Desktop\TG');
 addpath('angle data\');
 addpath('Data\');
 addpath("Fitted vertices\");
@@ -12,8 +12,8 @@ addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('D:\GitHub\Hand_deformation_model\external\registration\');
 addpath('D:\GitHub\Hand_deformation_model\200916_registration_hand_SW\');
 
-dirLM = dir('C:\Users\user\Desktop\SHu\*.igs');
-dir3D = dir('C:\Users\user\Desktop\SHu\*.ply');
+dirLM = dir('C:\Users\user\Desktop\TG\*.igs');
+dir3D = dir('C:\Users\user\Desktop\TG\*.ply');
 
 centers22 = zeros(size(dir3D,1),3);
 
