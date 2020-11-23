@@ -1,4 +1,4 @@
-function [mesh_tr] = segment_scale_fingers_new(mesh, LMt, LMs)
+function [mesh_tr] = segment_scale_fingers_new2(mesh, A, B)
 % jCOR1 = fixed COR, jCOR2 = transformed COR
 % V = vertices
 % F = faces
@@ -7,45 +7,45 @@ function [mesh_tr] = segment_scale_fingers_new(mesh, LMt, LMs)
 % target_length = amount of how much stretch the mesh in terms of the link
 % length 
 
-D2_J_DIP_t = mean(LMt([1 13 16 43],:));
-D2_J_PIP_t = mean(LMt([2 14 17 44],:));
-D2_J_MCP_t = mean(LMt([3 15 18 45],:));
-D2_tip_t = LMt(46,:);
+D2_J_DIP_t = A(14,:);
+D2_J_PIP_t = A(15,:);
+D2_J_MCP_t = A(16,:);
+D2_tip_t = A(13,:);
 
-D3_J_DIP_t = mean(LMt([4 19 21 40],:));
-D3_J_PIP_t = mean(LMt([5 20 22 41],:));
-D3_J_MCP_t = mean(LMt([6 18 23 42],:));
-D3_tip_t = LMt(47,:);
+D3_J_DIP_t = A(10,:);
+D3_J_PIP_t = A(11,:);
+D3_J_MCP_t = A(12,:);
+D3_tip_t = A(9,:);
 
-D4_J_DIP_t = mean(LMt([7 24 26 37],:));
-D4_J_PIP_t = mean(LMt([8 25 27 38],:));
-D4_J_MCP_t = mean(LMt([9 23 28 39],:));
-D4_tip_t = LMt(48,:);
+D4_J_DIP_t = A(6,:);
+D4_J_PIP_t = A(7,:);
+D4_J_MCP_t = A(8,:);
+D4_tip_t = A(5,:);
 
-D5_J_DIP_t = mean(LMt([10 29 31 34],:));
-D5_J_PIP_t = mean(LMt([11 30 32 35],:));
-D5_J_MCP_t = mean(LMt([12 28 33 36],:));
-D5_tip_t = LMt(49,:);
+D5_J_DIP_t = A(2,:);
+D5_J_PIP_t = A(3,:);
+D5_J_MCP_t = A(4,:);
+D5_tip_t = A(1,:);
 
-D2_J_DIP_s = mean(LMs([1 13 16 43],:));
-D2_J_PIP_s = mean(LMs([2 14 17 44],:));
-D2_J_MCP_s = mean(LMs([3 15 18 45],:));
-D2_tip_s = LMs(46,:);
+D2_J_DIP_s = B(14,:);
+D2_J_PIP_s = B(15,:);
+D2_J_MCP_s = B(16,:);
+D2_tip_s = B(13,:);
 
-D3_J_DIP_s = mean(LMs([4 19 21 40],:));
-D3_J_PIP_s = mean(LMs([5 20 22 41],:));
-D3_J_MCP_s = mean(LMs([6 18 23 42],:));
-D3_tip_s = LMs(47,:);
+D3_J_DIP_s = B(10,:);
+D3_J_PIP_s = B(11,:);
+D3_J_MCP_s = B(12,:);
+D3_tip_s = B(9,:);
 
-D4_J_DIP_s = mean(LMs([7 24 26 37],:));
-D4_J_PIP_s = mean(LMs([8 25 27 38],:));
-D4_J_MCP_s = mean(LMs([9 23 28 39],:));
-D4_tip_s = LMs(48,:);
+D4_J_DIP_s = B(6,:);
+D4_J_PIP_s = B(7,:);
+D4_J_MCP_s = B(8,:);
+D4_tip_s = B(5,:);
 
-D5_J_DIP_s = mean(LMs([10 29 31 34],:));
-D5_J_PIP_s = mean(LMs([11 30 32 35],:));
-D5_J_MCP_s = mean(LMs([12 28 33 36],:));
-D5_tip_s = LMs(49,:);
+D5_J_DIP_s = B(2,:);
+D5_J_PIP_s = B(3,:);
+D5_J_MCP_s = B(4,:);
+D5_tip_s = B(1,:);
 
 % 
 % srf_LMt = LMt(1:12,:); % palmar

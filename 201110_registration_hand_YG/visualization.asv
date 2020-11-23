@@ -29,6 +29,27 @@
 % hold off
 % 
 % 
+%%
+centers = zeros(22,3);
+for i = 1:22
+centers(i,:) = mesh.spheres{1,i}.center;
+end
+A = centers;
+
+figure()
+hold on
+axis equal
+axis off
+plot3(A(:,1),A(:,2),A(:,3),'k*')
+plot3(A(1:4,1),A(1:4,2),A(1:4,3),'-b')
+plot3(A(5:8,1),A(5:8,2),A(5:8,3),'-b')
+plot3(A(9:12,1),A(9:12,2),A(9:12,3),'-b')
+plot3(A(13:16,1),A(13:16,2),A(13:16,3),'-b')
+plot3(A(17:20,1),A(17:20,2),A(17:20,3),'-b')
+plot3(A([4 22 5],1),A([4 22 5],2),A([4 22 5],3),'-b')
+plot3(A([4 22 5],1),A([4 22 5],2),A([4 22 5],3),'-b')
+hold off
+
  
  %%
 % figure()

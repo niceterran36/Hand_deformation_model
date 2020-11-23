@@ -11,14 +11,6 @@ addpath(genpath('../external'));
 addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('D:\GitHub\Hand_deformation_model\external\registration\');
 addpath('D:\GitHub\Hand_deformation_model\200916_registration_hand_SW\');
-% addpath('angle data\');
-% addpath('Data\');
-% addpath("Fitted vertices\");
-% addpath('F:\[GitHub]\Hand_deformation_model\data_SW\');
-% addpath(genpath('../external'));
-% addpath('F:\[GitHub]\Hand_deformation_model\functions');
-% addpath('F:\[GitHub]\Hand_deformation_model\external\registration\');
-% addpath('F:\[GitHub]\Hand_deformation_model\200916_registration_hand_SW\');
 
 %load('HY_mesh_t2.mat');
 load('hy_mesh_n5.mat'); %template

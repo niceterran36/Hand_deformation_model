@@ -11,25 +11,6 @@ addpath('D:\GitHub\Hand_deformation_model\external\registration');
 addpath 'D:\GitHub\Hand_deformation_model\200916_registration_hand_SW'
 addpath('D:\GitHub\Hand_deformation_model\data');
 
-%% register library - PC lab
-addpath(genpath('../external'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-addpath('F:\[GitHub]\Hand_deformation_model\data_SW');
-addpath('Data');
-addpath('F:\[GitHub]\Hand_deformation_model\201026_hand_t_update');
-addpath('F:\[GitHub]\Hand_deformation_model\data');
-addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
-% 
-
-%% register library - PC lab2
-addpath(genpath('../external'));
-addpath('D:\GitHub\Hand_deformation_model\functions');
-addpath('D:\GitHub\Hand_deformation_model\data_SW');
-addpath('Data');
-addpath('D:\GitHub\Hand_deformation_model\201026_hand_t_update');
-addpath('D:\GitHub\Hand_deformation_model\data');
-addpath('D:\GitHub\Hand_deformation_model\external\registration');
-% 
 %% register library - Macbook
 clc
 clear all
