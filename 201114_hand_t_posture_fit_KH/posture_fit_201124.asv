@@ -15,9 +15,9 @@ addpath('D:\GitHub\Hand_deformation_model\data');
 global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('JB_pos3.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('JB_pos1.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
-LMs_PLM = function_get_LM_from_iges('JB_pos3_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('JB_pos1_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 
 
@@ -138,14 +138,6 @@ hold off
 mesh = transformed;
 clear transformed
 
-%% Flexion angle code
-
-angle = zeros(19,1);
-% load('Ags.mat');
-% angle = Ags(:,5);
-tr_mesh = transform_angle(mesh, angle);
-mesh = tr_mesh;
-
 %% MCP adjustment code
 
 % rotation direction of MCP
@@ -154,7 +146,7 @@ mesh = tr_mesh;
 % D4 MCP = +: ccw , -: cw
 % D5 MCP = +: ccw , -: cw
 
-%axes = bone_axes(mesh.spheres);
+axes = bone_axes(mesh.spheres);
 
 v1 = A(16,:)-A(15,:); v1 = v1/norm(v1);
 v2 = A(16,:)-B(15,:); v2 = v2/norm(v2);
@@ -176,7 +168,7 @@ v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH4 = acos(cosTH);
 
-angle(16:19,1) = [-TH1; TH2; TH3; TH4];
+angle(16:19,1) = [-TH1; -TH2; TH3; TH4];
 mesh = transform_angle(mesh, angle);
 
 angle = zeros(19,1);
@@ -508,156 +500,7 @@ mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
 %toc
 
-%% Things to do (thumb registration - temporal) 
 
-load('assignment_new.mat');
-
-%tic
-
-FRP_dorsal_segment = [6 107 108];
-FRP_cor = [20 19 18];
-FRP_digits{1} = [6:8];
-FRP_cor_tr{1} = [17:19];
-transform_order= [3 4 5];
-
-axes = compute_bone_axes(mesh.spheres);
-normals = per_vertex_normals(mesh.vertices, mesh.faces);
-
-h3 = [];
-h4 = [];
-
-transforms = cell(1, 18);
-for i = 1 : 18
-    transforms{i} = eye(4);
-end
-
-for j = 1:3
-vertices = mesh.vertices;
-faces = mesh.faces;
-normals = per_vertex_normals(vertices, faces);
-keep = ismember(assignment_new, FRP_dorsal_segment(j));
-[vertices, faces] = filter_vertices(vertices, faces, keep);
-normals = normals(keep, :);
-pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 20, cos(45*pi/180));
-
-transform = eye(4);
-
-figure()
-    view(view_angle);
-    for i = 1 : 15
-        delete(h3);
-        delete(h4);
-        delta = compute_transformation(vertices, points.vertices, points.normals, pairs);
-        delta = constraint_transformation(delta, mesh.spheres{1,FRP_cor(j)}.center); %centers_c(FRP_cor(j),:));
-        transform = delta * transform;
-        vertices = apply_matrix(delta, vertices);
-        normals = apply_matrix(delta, normals, 0);
-        
-       pairs = compute_correspondences_new(vertices, normals, points.vertices, points.normals, 25, cos(45*pi/180));
-
-        v = get(gca, 'view');
-        trimesh(faces, vertices(:, 1), vertices(:, 2), vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.4, 0.9, 0.4], 'FaceAlpha', 0.1);
-        hold on;
-        h3 = trimesh(points.faces, points.vertices(:, 1), points.vertices(:, 2), points.vertices(:, 3), 'EdgeColor', 'none', 'FaceColor', [0.8, 0.8, 0.8], 'FaceAlpha', 0.1);
-        h4 = plot3( ...
-            [vertices(pairs(:, 1), 1), points.vertices(pairs(:, 2), 1)]', ...
-            [vertices(pairs(:, 1), 2), points.vertices(pairs(:, 2), 2)]', ...
-            [vertices(pairs(:, 1), 3), points.vertices(pairs(:, 2), 3)]', ...
-        'Color', 'red');
-        hold off;
-        view([-90, 0]);
-        camlight;
-        view([90, 0]);
-        camlight;
-        axis equal;
-        grid off;
-        lighting gouraud;
-        axis off;
-        title(['After ', num2str(i), ' rigid transformation']);
-        set(gca, 'view', v);
-        pause(0.01);
-    end
-
-transforms{transform_order(j)} = transform;
-
-% D1 CMC
-transforms{3} = transforms{3};
-% D1 MCP
-transforms{4} = transforms{4} * transforms{3};
-% D1 IP
-transforms{5} = transforms{5} * transforms{4};
-% D2 MCP
-transforms{6} = transforms{6};
-% D2 PIP
-transforms{7} = transforms{7} * transforms{6};
-% D2 DIP
-transforms{8} = transforms{8} * transforms{7};
-% D3 MCP
-transforms{9} = transforms{9};
-% D3 PIP
-transforms{10} = transforms{10} * transforms{9};
-% D3 DIP
-transforms{11} = transforms{11} * transforms{10};
-% D4 MCP
-transforms{12} = transforms{12};
-% D4 PIP
-transforms{13} = transforms{13} * transforms{12};
-% D4 DIP
-transforms{14} = transforms{14}  * transforms{13};
-% D5 MCP
-transforms{16} = transforms{16};
-% D5 PIP
-transforms{17} = transforms{17} * transforms{16};
-% D5 DIP
-transforms{18} = transforms{18} * transforms{17};
-
-transformed = skin_dualquat(mesh, transforms);
-    for i = 1:18
-         transformed.centers(i,:) = transformed.spheres{1,i}.center;
-    end
-mesh = transformed;
-
-h3 = [];
-h4 = [];
-
-    transforms = cell(1, 18);
-    for i = 1 : 18
-        transforms{i} = eye(4);
-    end
-
-end 
-
-%toc
-
-%% Non-rigid Registration (ICP)
-targetV = points.vertices;
-sourceV = mesh.vertices;
-targetF = points.faces;
-sourceF = mesh.faces;
-iterations = 30;
-flag_prealligndata = 1;
-figureOn = 1;
-rigidICP = 0;
-
-[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP)
-
-vertices_c = sourceV;
-% clear targetV sourceV targetF sourceF 
-
-figure()
-axis equal
-axis off
-hold on
-scatter3(points.vertices(:,1),points.vertices(:,2),points.vertices(:,3),'.', 'MarkerEdgeColor',[180/255, 180/255, 180/255]);
-scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255, 240/255, 251/255]);
-%scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
-hold off
-
-%% Save vertices
-JB_pos1_vertices = sourceV; 
-mesh.vertices = JB_pos1_vertices;
-visualization
-save JB_pos1_vertices2.mat JB_pos1_vertices;
 
 
 
