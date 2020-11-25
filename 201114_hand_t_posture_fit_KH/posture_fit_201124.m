@@ -146,7 +146,151 @@ angle = zeros(19,1);
 tr_mesh = transform_angle(mesh, angle);
 mesh = tr_mesh;
 
-%% MCP adjustment code
+%% MCP flexion/extension detection
+
+load('assignment_new.mat');
+
+% set angle range = according to the posture #
+
+% MCP flexion/extension guide
+% posture 1 : -30 deg ~ 30 deg ==> -0.5 ~ 0.5
+
+intv0 = 0.0167; % 1 deg.
+lb1 = -1;
+up1 = 0;
+
+
+% D2 MCP fit
+angle = zeros(19,1);
+FRP_dorsal_segment = 109;
+record = [];
+for ag2 = lb1:intv0:up1 % size = 60
+    angle = zeros(19,1);
+    angle(4) = ag2;
+    tr_mesh = transform_angle(mesh, angle);
+    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+    record = [record; ag2 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(4) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+
+% D3 MCP fit
+FRP_dorsal_segment = 112;
+record = [];
+for ag2 = lb1:intv0:up1 % size = 48
+    angle = zeros(19,1);
+    angle(7) = ag2;
+    tr_mesh = transform_angle(mesh, angle);
+    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+    record = [record; ag2 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(7) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+tic
+% D4 MCP fit
+FRP_dorsal_segment = 115;
+record = [];
+for ag2 = lb1:intv0:up1  % size = 48
+    angle = zeros(19,1);
+    angle(10) = ag2;
+    tr_mesh = transform_angle(mesh, angle);
+    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+    record = [record; ag2 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(10) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+toc
+
+tic
+FRP_dorsal_segment = 118;
+record = [];
+for ag2 = lb1:intv0:up1 % size = 48
+    angle = zeros(19,1);
+    angle(13) = ag2;
+    tr_mesh = transform_angle(mesh, angle);
+    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+    record = [record; ag2 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(13) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+toc
+
+
+% D2 MCP fit
+% angle = zeros(19,1);
+% FRP_dorsal_segment = 109;
+% record = [];
+% for ag2 = -ag_rg1:intv1:ag_rg1 % size = 60
+%     angle = zeros(19,1);
+%     angle(4) = ag2;
+%     tr_mesh = transform_angle(mesh, angle);
+%     mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+%     record = [record; ag2 mean_distance];
+% end
+% [~,col] = min(record(:,2));
+% angle = zeros(19,1);
+% angle(4) = record(col,1);
+% mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+% D4 MCP fit
+% FRP_dorsal_segment = 115;
+% record = [];
+% for ag2 = -0.4:0.0167:0.4 % size = 48
+%     angle = zeros(19,1);
+%     angle(10) = ag2;
+%     tr_mesh = transform_angle(mesh, angle);
+%     mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+%     record = [record; ag2 mean_distance];
+% end
+% [~,col] = min(record(:,2));
+% angle = zeros(19,1);
+% angle(10) = record(col,1);
+% mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+
+
+% D3 MCP fit
+% FRP_dorsal_segment = 112;
+% record = [];
+% for ag2 = -ag_rg1:intv1:ag_rg1 % size = 48
+%     angle = zeros(19,1);
+%     angle(7) = ag2;
+%     tr_mesh = transform_angle(mesh, angle);
+%     mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+%     record = [record; ag2 mean_distance];
+% end
+% [~,col] = min(record(:,2));
+% angle = zeros(19,1);
+% angle(7) = record(col,1);
+% mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+
+% D5 MCP fit
+% FRP_dorsal_segment = 118;
+% record = [];
+% for ag2 = -0.4:0.0167:0.4 % size = 48
+%     angle = zeros(19,1);
+%     angle(13) = ag2;
+%     tr_mesh = transform_angle(mesh, angle);
+%     mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+%     record = [record; ag2 mean_distance];
+% end
+% [~,col] = min(record(:,2));
+% angle = zeros(19,1);
+% angle(13) = record(col,1);
+% mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+%% MCP adjustment code - valid when MCP flexion/extension if aligned
 
 % rotation direction of MCP
 % D2 MCP = +: ccw , -: cw
@@ -154,7 +298,12 @@ mesh = tr_mesh;
 % D4 MCP = +: ccw , -: cw
 % D5 MCP = +: ccw , -: cw
 
-%axes = bone_axes(mesh.spheres);
+% A update
+centers = zeros(30,3);
+for i = 1:30
+centers(i,:) = mesh.spheres{1,i}.center;
+end
+A = centers(1:22,:); % template's CoR
 
 v1 = A(16,:)-A(15,:); v1 = v1/norm(v1);
 v2 = A(16,:)-B(15,:); v2 = v2/norm(v2);
@@ -176,10 +325,16 @@ v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH4 = acos(cosTH);
 
-angle(16:19,1) = [-TH1; TH2; TH3; TH4];
+angle = zeros(19,1);
+angle(16:19,1) = [TH1; -TH2; -TH3; -TH4];
+% angle(4) = -TH1
+% angle(7) = -TH2
+% angle(10) = -TH3
+% angle(13) = -TH4/2
+% angle(19) = -TH4
 mesh = transform_angle(mesh, angle);
 
-angle = zeros(19,1);
+
 
 % % call MCP axes
 % 
@@ -231,8 +386,11 @@ angle = zeros(19,1);
 % 
 % % point to plane distance = P-P0 dot plane normal 
 
-%% D2 Register
+save mesh_backup.mat mesh
 
+%% PIP fit
+
+tic 
 load('assignment_new.mat');
 
 % set angle range = according to the posture #
@@ -246,39 +404,84 @@ intv2 = 0.0167;
 ag_rg3 = 0.5;
 intv3 = 0.0167;
 
-tic 
-% D2 MCP fit
-angle = zeros(19,1);
-FRP_dorsal_segment = 109;
-record = [];
-for ag2 = -ag_rg1:intv1:ag_rg1 % size = 60
-    angle = zeros(19,1);
-    angle(4) = ag2;
-    tr_mesh = transform_angle(mesh, angle);
-    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-    record = [record; ag2 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(4) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+PIP_initial = 1.3;
 
 % D2 PIP fit
 FRP_dorsal_segment = 110;
 record = [];
 for ag3 = -ag_rg2:intv2:ag_rg2 % size = 60
         angle = zeros(19,1);
-        angle(5) = ag3;
+        angle(5) = PIP_initial + ag3;
         tr_mesh = transform_angle(mesh, angle);
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
+        record = [record; PIP_initial+ag3 mean_distance];
 end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(5) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-% D2 MCP supination/pronation fit
+% D3 PIP fit
+FRP_dorsal_segment = 113;
+record = [];
+for ag3 = -ag_rg2:intv2:ag_rg2 % size = 67
+        angle = zeros(19,1);
+        angle(8) = PIP_initial + ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; PIP_initial+ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(8) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+% D4 PIP fit
+FRP_dorsal_segment = 116;
+record = [];
+for ag3 = -ag_rg2:intv2:ag_rg2 % size = 67
+        angle = zeros(19,1);
+        angle(11) = PIP_initial + ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; PIP_initial+ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(11) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+% D5 PIP fit
+FRP_dorsal_segment = 119;
+record = [];
+for ag3 = -ag_rg2:intv2:ag_rg2 % size = 67
+        angle = zeros(19,1);
+        angle(14) = PIP_initial + ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; PIP_initial+ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(14) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+toc
+
+%% PIP base supination fit
+
+tic
+% D3 Register
+
+% M1 = [-ag_rg1:intv1:ag_rg1];
+% M2 = [-ag_rg2:intv2:ag_rg2];
+% M3 = [-0.15:intv1:0.15];
+% M4 = [-(ag_rg3/3):intv3:ag_rg3];
+% 
+% calc_size = size(M1,2) + size(M2,2) + size(M3,2) + size(M4,2);
+% fprintf('calculation size is %.0f\n',calc_size);
+
+% D2 MCP supination/pronation
 FRP_dorsal_segment = 110;
 record = [];
 for ag3 = -0.5:intv1*2:0.28 % size = 24
@@ -293,64 +496,7 @@ angle_supr = zeros(4,1);
 angle_supr(1) = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
 
-% D2 DIP
-FRP_dorsal_segment = 111;
-record = [];
-for ag3 = -(ag_rg3/3):intv3:ag_rg3 % size = 40
-        angle = zeros(19,1);
-        angle(6) = ag3;
-        tr_mesh = transform_angle(mesh, angle);
-        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(6) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-toc
-
-%% D3 Register
-
-M1 = [-ag_rg1:intv1:ag_rg1];
-M2 = [-ag_rg2:intv2:ag_rg2];
-M3 = [-0.15:intv1:0.15];
-M4 = [-(ag_rg3/3):intv3:ag_rg3];
-
-calc_size = size(M1,2) + size(M2,2) + size(M3,2) + size(M4,2);
-fprintf('calculation size is %.0f\n',calc_size);
-
-tic
-
-% D3 MCP fit
-FRP_dorsal_segment = 112;
-record = [];
-for ag2 = -ag_rg1:intv1:ag_rg1 % size = 48
-    angle = zeros(19,1);
-    angle(7) = ag2;
-    tr_mesh = transform_angle(mesh, angle);
-    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-    record = [record; ag2 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(7) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-FRP_dorsal_segment = 113;
-record = [];
-for ag3 = -ag_rg2:intv2:ag_rg2 % size = 67
-        angle = zeros(19,1);
-        angle(8) = ag3;
-        tr_mesh = transform_angle(mesh, angle);
-        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(8) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
+% D3 MCP supination/pronation
 FRP_dorsal_segment = 113;
 record = [];
 for ag3 = -0.15:intv1:0.15 % size = 9
@@ -365,149 +511,105 @@ angle_supr = zeros(4,1);
 angle_supr(2) = record(col,1);
 mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
 
+% D4 MCP supination/pronation
+FRP_dorsal_segment = 116;
+record = [];
+for ag3 = -0.28:0.07:0.28 % size = 9
+        angle_supr = zeros(4,1);
+        angle_supr(3) = ag3;
+        tr_mesh = transform_sup_pro_angle(mesh, angle_supr);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle_supr = zeros(4,1);
+angle_supr(3) = record(col,1);
+mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
+
+% D5 MCP supination/pronation
+FRP_dorsal_segment = 119;
+record = [];
+for ag3 = -0.28:0.07:0.28 % size = 9
+        angle_supr = zeros(4,1);
+        angle_supr(4) = ag3;
+        tr_mesh = transform_sup_pro_angle(mesh, angle_supr);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle_supr = zeros(4,1);
+angle_supr(4) = record(col,1);
+Angle_opt.D5_PIP.SpPr = record(col,1);
+mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
+
+toc
+
+%% DIP fit - initial angle = 0.75
+tic
+DIP_initial = 0.75;
+
+% D2 DIP
+FRP_dorsal_segment = 111;
+record = [];
+for ag3 = -(ag_rg3/3):intv3:ag_rg3 % size = 40
+        angle = zeros(19,1);
+        angle(6) = DIP_initial + ag3;
+        tr_mesh = transform_angle(mesh, angle);
+        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
+        record = [record; DIP_initial + ag3 mean_distance];
+end
+[~,col] = min(record(:,2));
+angle = zeros(19,1);
+angle(6) = record(col,1);
+mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
+
+% D3 DIP fit
 FRP_dorsal_segment = 114;
 record = [];
 for ag3 = -(ag_rg3/3):intv3:ag_rg3 % size = 26
         angle = zeros(19,1);
-        angle(9) = ag3;
+        angle(9) = DIP_initial + ag3;
         tr_mesh = transform_angle(mesh, angle);
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
+        record = [record; DIP_initial + ag3 mean_distance];
 end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(9) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-toc
-
-%% 
-
-tic
-
-% D4 MCP fit
-FRP_dorsal_segment = 115;
-record = [];
-for ag2 = -0.4:0.0167:0.4 % size = 48
-    angle = zeros(19,1);
-    angle(10) = ag2;
-    tr_mesh = transform_angle(mesh, angle);
-    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-    record = [record; ag2 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(10) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-FRP_dorsal_segment = 116;
-record = [];
-for ag3 = -0.4:0.0167:0.4 % size = 67
-        angle = zeros(19,1);
-        angle(11) = ag3;
-        tr_mesh = transform_angle(mesh, angle);
-        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(11) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-% FRP_dorsal_segment = 116;
-% record = [];
-% for ag3 = -0.28:0.07:0.28 % size = 9
-%         angle_supr = zeros(4,1);
-%         angle_supr(3) = ag3;
-%         tr_mesh = transform_sup_pro_angle(mesh, angle_supr);
-%         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-%         record = [record; ag3 mean_distance];
-% end
-% [~,col] = min(record(:,2));
-% angle_supr = zeros(4,1);
-% angle_supr(3) = record(col,1);
-% mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
-
 % D4 DIP fit
 FRP_dorsal_segment = 117;
 record = [];
 for ag3 = -0.4:0.0167:0.4 % size = 26
         angle = zeros(19,1);
-        angle(12) = ag3;
+        angle(12) = DIP_initial + ag3;
         tr_mesh = transform_angle(mesh, angle);
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
+        record = [record; DIP_initial + ag3 mean_distance];
 end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(12) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-toc
-
-%%
-
-% D5 MCP fit
-FRP_dorsal_segment = 118;
-record = [];
-for ag2 = -0.4:0.0167:0.4 % size = 48
-    angle = zeros(19,1);
-    angle(13) = ag2;
-    tr_mesh = transform_angle(mesh, angle);
-    mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-    record = [record; ag2 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(13) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-FRP_dorsal_segment = 119;
-record = [];
-for ag3 = -0.4:0.0167:0.4 % size = 67
-        angle = zeros(19,1);
-        angle(14) = ag3;
-        tr_mesh = transform_angle(mesh, angle);
-        mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
-end
-[~,col] = min(record(:,2));
-angle = zeros(19,1);
-angle(14) = record(col,1);
-mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
-
-% FRP_dorsal_segment = 119;
-% record = [];
-% for ag3 = -0.28:0.07:0.28 % size = 9
-%         angle_supr = zeros(4,1);
-%         angle_supr(4) = ag3;
-%         tr_mesh = transform_sup_pro_angle(mesh, angle_supr);
-%         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-%         record = [record; ag3 mean_distance];
-% end
-% [~,col] = min(record(:,2));
-% angle_supr = zeros(4,1);
-% angle_supr(4) = record(col,1);
-% Angle_opt.D5_PIP.SpPr = record(col,1);
-% mesh = transform_sup_pro_angle(mesh, angle_supr); % adjust MCP posture & update mesh
+%
 
 % D5 DIP
 FRP_dorsal_segment = 120;
 record = [];
 for ag3 = -0.4:0.0167:0.4 % size = 26
         angle = zeros(19,1);
-        angle(15) = ag3;
+        angle(15) = DIP_initial + ag3;
         tr_mesh = transform_angle(mesh, angle);
         mean_distance = mean_dist_tester(tr_mesh, points, FRP_dorsal_segment, assignment_new);
-        record = [record; ag3 mean_distance];
+        record = [record; DIP_initial + ag3 mean_distance];
 end
 [~,col] = min(record(:,2));
 angle = zeros(19,1);
 angle(15) = record(col,1);
 mesh = transform_angle(mesh, angle); % adjust MCP posture & update mesh
 
-%toc
-
+toc
 %% Things to do (thumb registration - temporal) 
 
 load('assignment_new.mat');
@@ -654,10 +756,10 @@ scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255,
 hold off
 
 %% Save vertices
-JB_pos1_vertices = sourceV; 
-mesh.vertices = JB_pos1_vertices;
+JB_pos3_vertices = sourceV; 
+mesh.vertices = JB_pos3_vertices;
 visualization
-save JB_pos1_vertices2.mat JB_pos1_vertices;
+save JB_pos3_vertices.mat JB_pos3_vertices;
 
 
 
