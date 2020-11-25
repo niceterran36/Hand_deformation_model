@@ -11,6 +11,16 @@ addpath('D:\GitHub\Hand_deformation_model\external\registration');
 addpath 'D:\GitHub\Hand_deformation_model\200916_registration_hand_SW'
 addpath('D:\GitHub\Hand_deformation_model\data');
 
+clc
+clear all
+addpath(genpath('../external'));
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/200916_registration_hand_SW');
+format shortG
+
 %% Load data
 global assignment_new
 load('hy_mesh_n5.mat'); %template
