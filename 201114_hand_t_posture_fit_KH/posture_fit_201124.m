@@ -318,7 +318,7 @@ cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH4 = acos(cosTH);
 
 angle = zeros(19,1);
-angle(16:19,1) = [TH1; TH2; TH3; -TH4];
+angle(16:19,1) = [TH1; -TH2; -TH3; -TH4];
 % angle(4) = -TH1
 % angle(7) = -TH2
 % angle(10) = -TH3
@@ -397,8 +397,8 @@ intv2 = 0.0167;
 
 PIP_initial = 1.6;
 PIP_initial2 = 1.8;
-PIP_initial3 = 2;
-PIP_initial4 = 2;
+PIP_initial3 = 2.1;
+PIP_initial4 = 2.1;
 PIP_initial5 = 1.8;
 
 
@@ -543,7 +543,7 @@ toc
 %% DIP fit - initial angle = ?
 tic
 
-DIP_initial = 0.8;
+DIP_initial = 0.6;
 ag_rg3 = 0.5;
 intv3 = 0.0167;
 
@@ -823,10 +823,10 @@ scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255,
 hold off
 
 %% Save vertices
-JB_pos7_vertices = sourceV; 
-mesh.vertices = JB_pos7_vertices;
+JB_pos9_vertices = sourceV; 
+mesh.vertices = JB_pos9_vertices;
 visualization
-save JB_pos7_vertices.mat JB_pos7_vertices;
+save JB_pos9_vertices.mat JB_pos9_vertices;
 
 
 
