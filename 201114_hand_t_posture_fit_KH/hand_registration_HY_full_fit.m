@@ -11,50 +11,34 @@ addpath('D:\GitHub\Hand_deformation_model\external\registration');
 addpath 'D:\GitHub\Hand_deformation_model\200916_registration_hand_SW'
 addpath('D:\GitHub\Hand_deformation_model\data');
 
-%% register library - Macbook
-clc
-clear all
-addpath(genpath('../external'));
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
-addpath('Data');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/201026_hand_t_update');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
-addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
-format shortG
-
 %% Load data
 global assignment_new
 load('hy_mesh_n5.mat'); %template
-%load('hy_mesh_n5_palm_fitted.mat'); % palm_fitted template 
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('JB_pos2.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('JB_pos3.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
+LMs_PLM = function_get_LM_from_iges('JB_pos3_PLM.igs'); % LM for scan
+LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 
-%% search template LM index
-LMt = function_get_LM_from_iges('template_LMs.igs'); % template landmark by hand
-LMt(46:49,:) = function_get_LM_from_iges('template_tip_scale_LMs.igs'); %template landmark tip
-LMs = function_get_LM_from_iges('JB_pos2_scale_LM.igs'); % scan landmark by hand 
-LMt_Idx = zeros(size(LMt,1),1);
-m = size(mesh.vertices, 1);
-for i = 1:size(LMt,1)
-delta = mesh.vertices - repmat(LMt(i, :), m, 1);
-distances = sum(delta .^ 2, 2);
-[~, j] = min(distances);
-LMt_Idx(i,:) = j; % template landmark index detection
-end
-for i = 1:size(LMt,1)
-LMt(i,:) = mesh.vertices(LMt_Idx(i),:); % template landmark update
-end
-clear m delta distances i j 
+% %% search template LM index
+% LMt = function_get_LM_from_iges('template_LMs.igs'); % template landmark by hand
+% LMt(46:49,:) = function_get_LM_from_iges('template_tip_scale_LMs.igs'); %template landmark tip
+% LMs = function_get_LM_from_iges('JB_pos2_scale_LM.igs'); % scan landmark by hand 
+% LMt_Idx = zeros(size(LMt,1),1);
+% m = size(mesh.vertices, 1);
+% for i = 1:size(LMt,1)
+% delta = mesh.vertices - repmat(LMt(i, :), m, 1);
+% distances = sum(delta .^ 2, 2);
+% [~, j] = min(distances);
+% LMt_Idx(i,:) = j; % template landmark index detection
+% end
+% for i = 1:size(LMt,1)
+% LMt(i,:) = mesh.vertices(LMt_Idx(i),:); % template landmark update
+% end
+% clear m delta distances i j 
 
 %% palm fitting
-% function = palm scale & fit
 
-% palm scale 
-% Landmarks for palm alignment & hand scale
-LMs_PLM = function_get_LM_from_iges('JB_pos2_PLM.igs'); % LM for scan
-LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 LMs_PLM = LMs_PLM'; LMt_PLM = LMt_PLM';
 [regParams,~,~] = absor(LMt_PLM,LMs_PLM);
 
@@ -131,15 +115,45 @@ hold off;
 % save hy_mesh_n5_palm_fitted.mat mesh %template
 % mesh.spheres{1,22}.center
 
+%%
+centers = zeros(30,3);
+for i = 1:30
+centers(i,:) = mesh.spheres{1,i}.center;
+end
 
-%% segment scale
+A = centers(1:22,:); % template's CoR
+B = []; %import data from excel sheet
 
-[transformed] = segment_scale_fingers_new(mesh, LMt, LMs);
+figure()
+hold on
+axis equal
+axis off
+plot3(A(:,1),A(:,2),A(:,3),'k*')
+plot3(A(1:4,1),A(1:4,2),A(1:4,3),'-b')
+plot3(A(5:8,1),A(5:8,2),A(5:8,3),'-b')
+plot3(A(9:12,1),A(9:12,2),A(9:12,3),'-b')
+plot3(A(13:16,1),A(13:16,2),A(13:16,3),'-b')
+plot3(A([17:20 22],1),A([17:20 22],2),A([17:20 22],3),'-b')
+plot3(A([4 22 8],1),A([4 22 8],2),A([4 22 8],3),'-b')
+plot3(A([12 22 16],1),A([12 22 16],2),A([12 22 16],3),'-b')
+plot3(B(:,1),B(:,2),B(:,3),'r*');
+plot3(B(1:4,1),B(1:4,2),B(1:4,3),'-r');
+plot3(B(5:8,1),B(5:8,2),B(5:8,3),'-r');
+plot3(B(9:12,1),B(9:12,2),B(9:12,3),'-r');
+plot3(B(13:16,1),B(13:16,2),B(13:16,3),'-r');
+plot3(B([4 22 8],1),B([4 22 8],2),B([4 22 8],3),'-r')
+plot3(B([12 22 16],1),B([12 22 16],2),B([12 22 16],3),'-r')
+hold off
+
+%% scale
+% compare_factor = compare_factor_cal(A,B);
+% A_tr = segment_scale_simple(A, compare_factor);
+% A = A_tr;
+
+[transformed] = segment_scale_fingers_new2(mesh, A, B);
 mesh = transformed;
 clear transformed
 
-%mesh_BackUp = mesh;
-%mesh = mesh_BackUp;
 
 %% calculate optimal rotation angle for MCP & deformation
 % FRP_dorsal_segment = [6 109 112 115 118];

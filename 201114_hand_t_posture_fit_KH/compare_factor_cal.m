@@ -27,8 +27,4 @@ compare_link(12,1) = norm(A(15,:)-A(16,:));
 compare_link(12,2) = norm(B(15,:)-A(16,:)); 
 compare_factor = compare_link(:,2)./compare_link(:,1);
 
-compare_factor(1) = 1;
-compare_factor(4) = 1;
-compare_factor(7) = 1;
-compare_factor(10) = 1;
 end 
