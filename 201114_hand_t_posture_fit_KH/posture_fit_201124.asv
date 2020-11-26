@@ -347,68 +347,31 @@ v2 = A(15,:)-B(14,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH_PIP_1 = acos(cosTH);
 
-v1 = A(11,:)-A(10,:); v1 = v1/norm(v1);
-v2 = A(11,:)-B(10,:); v2 = v2/norm(v2);
+v1 = A(12,:)-A(11,:); v1 = v1/norm(v1);
+v2 = A(12,:)-B(11,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH_PIP_2 = acos(cosTH);
 
-v1 = A(7,:)-A(6,:); v1 = v1/norm(v1);
-v2 = A(7,:)-B(6,:); v2 = v2/norm(v2);
+v1 = A(8,:)-A(7,:); v1 = v1/norm(v1);
+v2 = A(8,:)-B(7,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH_PIP_3 = acos(cosTH);
 
-v1 = A(3,:)-A(2,:); v1 = v1/norm(v1);
-v2 = A(3,:)-B(2,:); v2 = v2/norm(v2);
+v1 = A(4,:)-A(3,:); v1 = v1/norm(v1);
+v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH_PIP_4 = acos(cosTH);
 
 angle = zeros(19,1);
-angle(5) = TH_PIP_1;
-angle(8) = TH_PIP_2;
-angle(11) = TH_PIP_3;
-angle(14) = TH_PIP_4;
-angle_record([5 8 11 14],1) = [TH_PIP_1; TH_PIP_2; TH_PIP_3; TH_PIP_4];
-mesh = transform_angle(mesh, angle);
-update_cor_plot;
-visualization;
+angle_record = zeros(19,1);
+angle(4) = TH1;
+angle(7) = TH2;
+angle(10) = TH3;
+angle(13) = TH7;
+angle_record([4 7 10 13],1) = [TH1; TH2; TH3; TH7];
+mesh = transform_angle(mesh, angle); 
 
-rotating_factor5 = -1;
-rotating_factor6 = -1;
-rotating_factor7 = -1;
-rotating_factor8 = +1;
 
-v1 = A(15,:)-A(14,:); v1 = v1/norm(v1);
-v2 = A(15,:)-B(14,:); v2 = v2/norm(v2);
-cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH_PIP_5 = acos(cosTH);
-
-v1 = A(11,:)-A(10,:); v1 = v1/norm(v1);
-v2 = A(11,:)-B(10,:); v2 = v2/norm(v2);
-cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH_PIP_6 = acos(cosTH);
-
-v1 = A(7,:)-A(6,:); v1 = v1/norm(v1);
-v2 = A(7,:)-B(6,:); v2 = v2/norm(v2);
-cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH_PIP_7 = acos(cosTH);
-
-v1 = A(3,:)-A(2,:); v1 = v1/norm(v1);
-v2 = A(3,:)-B(2,:); v2 = v2/norm(v2);
-cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH_PIP_8 = acos(cosTH);
-
-angle_supr = zeros(4,1);
-angle_supr_record = zeros(4,1);
-angle_supr(1) = TH_PIP_5 * rotating_factor5;
-angle_supr(2) = TH_PIP_6 * rotating_factor6;
-angle_supr(3) = TH_PIP_7 * rotating_factor7;
-angle_supr(4) = TH_PIP_8 * rotating_factor8;
-angle_supr_record(1:4,1) = [TH_PIP_5; TH_PIP_6; TH_PIP_7; TH_PIP_8];
-mesh = transform_sup_pro_angle(mesh, -angle_supr);
-update_cor_plot;
-visualization;
-
-%% ============================== start here
 
 % set angle range = according to the posture #
 
