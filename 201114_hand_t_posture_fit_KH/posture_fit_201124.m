@@ -15,9 +15,9 @@ addpath('D:\GitHub\Hand_deformation_model\data');
 global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('XJ_pos6.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('XJ_pos7.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
-LMs_PLM = function_get_LM_from_iges('XJ_pos6_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('XJ_pos7_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 
 
@@ -281,10 +281,10 @@ load('assignment_new.mat');
 % MCP flexion/extension guide
 % posture 1 : -30 deg ~ 30 deg ==> -0.5 ~ 0.5
 temp2 = zeros(1,4); % PIP flexion/extension angle record
-PIP_initial2 = 0;
-PIP_initial3 = 0;
-PIP_initial4 = 0;
-PIP_initial5 = 0;
+PIP_initial2 = 1.5;
+PIP_initial3 = 1.5;
+PIP_initial4 = 1.5;
+PIP_initial5 = 1.5;
 ag_rg2 = 0.5;
 intv2 = 0.0167;
 
@@ -439,7 +439,7 @@ toc
 %% DIP fit - initial angle = ?
 tic
 
-DIP_initial = 0.1;
+DIP_initial = 1.5;
 ag_rg3 = 0.5;
 intv3 = 0.0167;
 
@@ -719,11 +719,11 @@ scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255,
 hold off
 
 %% Save vertices
-XJ_pos6_vertices = sourceV; 
-mesh.vertices = XJ_pos6_vertices;
+XJ_pos7_vertices = sourceV; 
+mesh.vertices = XJ_pos7_vertices;
 visualization
-save XJ_pos6_vertices.mat XJ_pos6_vertices;
-save XJ_pos6_mesh.mat mesh;
+save XJ_pos7_vertices.mat XJ_pos7_vertices;
+save XJ_pos7_mesh.mat mesh;
 
 
 
