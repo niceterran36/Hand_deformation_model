@@ -2,7 +2,9 @@ clc
 clear all
 close all
 
-%% register library - Window OS
+%% register library
+
+% window OS
 addpath(genpath('../external'));
 addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('Data');
@@ -12,46 +14,46 @@ addpath('D:\GitHub\Hand_deformation_model\external\registration');
 addpath 'D:\GitHub\Hand_deformation_model\200916_registration_hand_SW'
 addpath('D:\GitHub\Hand_deformation_model\data');
 
+% Mac OS
+addpath(genpath('../external'));
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/functions');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/external/registration');
+addpath('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/200916_registration_hand_SW');
+format shortG
+
 %% Load data
 global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
 load('JcorMx.mat');
-dirLM = dir('D:\GitHub\Hand_deformation_model\data_SW\*.igs');
-dir3D = dir('D:\GitHub\Hand_deformation_model\data_SW\*.ply');
+%dirLM = dir('D:\GitHub\Hand_deformation_model\data_SW\*.igs');
+%dir3D = dir('D:\GitHub\Hand_deformation_model\data_SW\*.ply');
+dirLM = dir('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW/*.igs');
+dir3D = dir('/Users/hayoungjung/Documents/GitHub/Hand_deformation_model/data_SW/*.ply');
 
-% JW_LMs_PLM = 28 ~ 36
-% JW_3D_PLY  = 27 ~ 35
+% ZC_LMs_PLM = 73 ~ 81
+% JW_3D_PLY  = 72 ~ 80
 
-iii = 9;
+iii = 7;
 % j = i + 26;
 % k = j+1;
 
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file(dir3D(iii+26).name); 
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file(dir3D(iii+71).name); 
 % target scan -- e.g.) 'JW_pos01.ply'
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
-LMs_PLM = function_get_LM_from_iges(dirLM(iii+27).name); % LM for scan -- e.g.) 'DH_pos9_PLM.igs'
+LMs_PLM = function_get_LM_from_iges(dirLM(iii+72).name); % LM for scan -- e.g.) 'DH_pos9_PLM.igs'
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 fprintf('%s is loaded \n',dir3D(iii+26).name);
 fprintf('%s is loaded \n',dirLM(iii+27).name);
 %sprintf('%s', dir3D(i).name)
 
-B = JcorMx.JW(-21+22*iii:22*iii,:);
+B = JcorMx.ZC(-21+22*iii:22*iii,:);
 % iii =1 1:22   -21+22*iii ~ 22*iii
 % iii =2 23:44  -21+22*iii ~ 22*iii
 % iii =3 45:66  -21+22*iii ~ 22*iii
-
-% p = 1
-% formatSpec = '%d.%s';
-% A2 = 'png';
-% filename = sprintf(formatSpec,p,A2);
-% 
-% function_saving_ply_file(V, FB, H, fullfile('Re-alignment', sprintf('%03d - %s', i, dir3D(i).name)));
-% csvwrite(fullfile('Re-alignment', sprintf('%03d - %s.asc', i, dirLM(i).name(1:end-4))), LM);
-
-
-
 
 %% palm fitting
 
@@ -242,10 +244,10 @@ hold off
 
 % adjust rotation factor
 % dorsal plane based rotation input
-rotating_factor1 = -1;
-rotating_factor2 = -1;
-rotating_factor3 = -1;
-rotating_factor4 = -1;
+rotating_factor1 = +1;
+rotating_factor2 = +1;
+rotating_factor3 = +1;
+rotating_factor4 = +1;
 
 angle = zeros(19,1);
 angle_record = zeros(19,1);
@@ -376,7 +378,7 @@ TH4_supr = acos(cosTH);
 rotating_factor1 = +1;
 rotating_factor2 = +1;
 rotating_factor3 = +1;
-rotating_factor4 = -1;
+rotating_factor4 = +1;
 
 angle_supr = zeros(4,1);
 angle_supr_record = zeros(4,1);
@@ -582,11 +584,11 @@ fprintf('Non-rigid ICP registration is completed\n');
 
 %% Save vertices
 
-JW_pos9_vertices = sourceV; 
-mesh.vertices = JW_pos9_vertices;
+ZC_pos7_vertices = sourceV; 
+mesh.vertices = ZC_pos7_vertices;
 visualization
-save JW_pos9_vertices.mat JW_pos9_vertices;
-save JW_pos9_mesh.mat mesh;
+save ZC_pos7_vertices.mat ZC_pos7_vertices;
+save ZC_pos7_mesh.mat mesh;
 
 fprintf('Saving vertices and mesh is completed\n');
 
