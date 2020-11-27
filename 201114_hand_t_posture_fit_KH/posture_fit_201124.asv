@@ -23,24 +23,24 @@ dir3D = dir('D:\GitHub\Hand_deformation_model\data_SW\*.ply');
 % JW_LMs_PLM = 28 ~ 36
 % JW_3D_PLY  = 27 ~ 35
 
-iii = 9;
+i = 1;
 % j = i + 26;
 % k = j+1;
 
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file(dir3D(iii+26).name); 
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file(dir3D(i+26).name); 
 % target scan -- e.g.) 'JW_pos01.ply'
 points.normals = per_vertex_normals(points.vertices, points.faces);
 
-LMs_PLM = function_get_LM_from_iges(dirLM(iii+27).name); % LM for scan -- e.g.) 'DH_pos9_PLM.igs'
+LMs_PLM = function_get_LM_from_iges(dirLM(i+27).name); % LM for scan -- e.g.) 'DH_pos9_PLM.igs'
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
-fprintf('%s is loaded \n',dir3D(iii+26).name);
-fprintf('%s is loaded \n',dirLM(iii+27).name);
+fprintf('%s is loaded \n',dir3D(i+26).name);
+fprintf('%s is loaded \n',dirLM(i+27).name);
 %sprintf('%s', dir3D(i).name)
 
-B = JcorMx.JW(-21+22*iii:22*iii,:);
-% iii =1 1:22   -21+22*iii ~ 22*iii
-% iii =2 23:44  -21+22*iii ~ 22*iii
-% iii =3 45:66  -21+22*iii ~ 22*iii
+B = JcorMx.JW(-21+22*i:22*i,:);
+% i =1 1:22   -21+22*i ~ 22*i
+% i =2 23:44  -21+22*i ~ 22*i
+% i =3 45:66  -21+22*i ~ 22*i
 
 % p = 1
 % formatSpec = '%d.%s';
@@ -243,9 +243,9 @@ hold off
 % adjust rotation factor
 % dorsal plane based rotation input
 rotating_factor1 = -1;
-rotating_factor2 = -1;
-rotating_factor3 = -1;
-rotating_factor4 = -1;
+rotating_factor2 = 0;
+rotating_factor3 = +1;
+rotating_factor4 = +1;
 
 angle = zeros(19,1);
 angle_record = zeros(19,1);
@@ -282,7 +282,7 @@ v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH4 = acos(cosTH);
 
-rotating_factor1 = +1;
+rotating_factor1 = -1;
 rotating_factor2 = +1;
 rotating_factor3 = +1;
 rotating_factor4 = +1;
@@ -332,10 +332,10 @@ v2 = A(3,:)-B(2,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH8 = acos(cosTH);
 
-rotating_factor1 = +1;
-rotating_factor2 = +1;
-rotating_factor3 = +1;
-rotating_factor4 = +1;
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
 
 angle = zeros(19,1);
 angle(5) = TH5 * rotating_factor1;
@@ -374,9 +374,9 @@ TH4_supr = acos(cosTH);
 % input rotation factor at palmar side hand
 
 rotating_factor1 = +1;
-rotating_factor2 = +1;
-rotating_factor3 = +1;
-rotating_factor4 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = +1;
 
 angle_supr = zeros(4,1);
 angle_supr_record = zeros(4,1);
@@ -413,10 +413,10 @@ v2 = A(2,:)-B(1,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH12 = acos(cosTH);
 
-rotating_factor1 = +1;
+rotating_factor1 = -1;
 rotating_factor2 = +1;
-rotating_factor3 = +1;
-rotating_factor4 = +1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
 
 angle = zeros(19,1);
 angle(6) = TH9 * rotating_factor1;
@@ -429,7 +429,6 @@ update_cor_plot;
 visualization;
 
 fprintf('DIP flexion/extension is completed\n');
-
 %% Things to do (thumb registration - temporal) 
 
 load('assignment_new.mat');
@@ -554,7 +553,6 @@ fprintf('Thumb joint fitting is completed\n');
 %toc
 
 %% Non-rigid Registration (ICP)
-
 targetV = points.vertices;
 sourceV = mesh.vertices;
 targetF = points.faces;
@@ -581,19 +579,21 @@ hold off
 fprintf('Non-rigid ICP registration is completed\n');
 
 %% Save vertices
-
-JW_pos9_vertices = sourceV; 
-mesh.vertices = JW_pos9_vertices;
+DH_pos9_vertices = sourceV; 
+mesh.vertices = DH_pos9_vertices;
 visualization
-save JW_pos9_vertices.mat JW_pos9_vertices;
-save JW_pos9_mesh.mat mesh;
+save DH_pos9_vertices.mat DH_pos9_vertices;
+save DH_pos9_mesh.mat mesh;
 
 fprintf('Saving vertices and mesh is completed\n');
 
-% p = 'JW';
-% formatSpec = '%s_pos%d_%s';
-% A2 = 'vertices';
-% filename = sprintf(formatSpec,p,iii,A2);
+p = 'DH';
+formatSpec = '%d_%s';
+A2 = 'vertices';
+filename = sprintf(formatSpec,p,A2);
+% 
+% function_saving_ply_file(V, FB, H, fullfile('Re-alignment', sprintf('%03d - %s', i, dir3D(i).name)));
+% csvwrite(fullfile('Re-alignment', sprintf('%03d - %s.asc', i, dirLM(i).name(1:end-4))), LM);
 
 %% things to do - need fine fitting??
 
