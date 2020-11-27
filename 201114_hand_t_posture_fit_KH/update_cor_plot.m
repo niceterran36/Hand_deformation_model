@@ -5,6 +5,7 @@ end
 A = centers(1:22,:);
 
 figure()
+view([0,0]);
 hold on
 axis equal
 axis off

@@ -15,9 +15,9 @@ addpath('D:\GitHub\Hand_deformation_model\data');
 global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('XJ_pos9.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('DH_pos1.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
-LMs_PLM = function_get_LM_from_iges('XJ_pos9_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('DH_pos1_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 
 
@@ -145,13 +145,20 @@ for i = 1:30
 centers(i,:) = mesh.spheres{1,i}.center;
 end
 A = centers(1:22,:); % update A value after scale adjustment
-visualization;
+visualization; update_cor_plot;
 fprintf('scale adjustment is completed\n');
 
 %% MCP Abduction/Adduction detection & transform
 
 load('assignment_new.mat');
 axes_d = bone_axes(mesh.spheres);
+
+% adjust rotation factor
+
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = +1;
+rotating_factor4 = +1;
 
 % set angle range = according to the posture #
 o = A(16,:);
@@ -196,13 +203,6 @@ TH4_abad = acos(cosTH);
 
 Pjt_pts = [Pjt_pt1; Pjt_pt2; Pjt_pt3; Pjt_pt4];
 
-% adjust rotation factor
-
-rotating_factor1 = +1;
-rotating_factor2 = -1;
-rotating_factor3 = -1;
-rotating_factor4 = -1;
-
 angle = zeros(19,1);
 angle_record = zeros(19,1);
 angle(16) = TH1_abad * rotating_factor1;
@@ -238,9 +238,9 @@ v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH4 = acos(cosTH);
 
-rotating_factor1 = +1;
-rotating_factor2 = +1;
-rotating_factor3 = +1;
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
 rotating_factor4 = +1;
 
 angle = zeros(19,1);
@@ -289,9 +289,9 @@ cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH8 = acos(cosTH);
 
 rotating_factor1 = +1;
-rotating_factor2 = +1;
-rotating_factor3 = +1;
-rotating_factor4 = +1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
 
 angle = zeros(19,1);
 angle(5) = TH5 * rotating_factor1;
@@ -367,10 +367,10 @@ v2 = A(2,:)-B(1,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
 TH12 = acos(cosTH);
 
-rotating_factor1 = +1;
-rotating_factor2 = +1;
-rotating_factor3 = +1;
-rotating_factor4 = +1;
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
 
 angle = zeros(19,1);
 angle(6) = TH9 * rotating_factor1;
@@ -1026,6 +1026,8 @@ h4 = [];
 
 end 
 
+fprintf('Thumb joint fitting is completed\n');
+
 %toc
 
 %% Non-rigid Registration (ICP)
@@ -1038,7 +1040,7 @@ flag_prealligndata = 1;
 figureOn = 1;
 rigidICP = 0;
 
-[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP)
+[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP);
 
 vertices_c = sourceV;
 % clear targetV sourceV targetF sourceF 
@@ -1052,12 +1054,16 @@ scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255,
 %scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
+fprintf('Non-rigid ICP registration is completed\n');
+
 %% Save vertices
-XJ_pos9_vertices = sourceV; 
-mesh.vertices = XJ_pos9_vertices;
+DH_pos1_vertices = sourceV; 
+mesh.vertices = DH_pos1_vertices;
 visualization
-save XJ_pos9_vertices.mat XJ_pos9_vertices;
-save XJ_pos9_mesh.mat mesh;
+save DH_pos1_vertices.mat DH_pos1_vertices;
+save DH_pos1_mesh.mat mesh;
+
+fprintf('Save vertices and mesh is completed\n');
 
 
 
