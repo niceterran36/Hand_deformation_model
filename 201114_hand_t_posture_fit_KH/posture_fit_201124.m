@@ -1,7 +1,7 @@
 clc
 clear all
 
-%% register library - PC Home
+%% register library - Window OS
 addpath(genpath('../external'));
 addpath('D:\GitHub\Hand_deformation_model\functions');
 addpath('Data');
@@ -15,9 +15,9 @@ addpath('D:\GitHub\Hand_deformation_model\data');
 global assignment_new
 load('hy_mesh_n5.mat'); %template
 load('assignment_new.mat');
-[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('XJ_pos9.ply'); % target scan
+[points.vertices, points.faces, points.FB, points.H] = function_loading_ply_file('DH_pos1.ply'); % target scan
 points.normals = per_vertex_normals(points.vertices, points.faces);
-LMs_PLM = function_get_LM_from_iges('XJ_pos9_PLM.igs'); % LM for scan
+LMs_PLM = function_get_LM_from_iges('DH_pos1_PLM.igs'); % LM for scan
 LMt_PLM = function_get_LM_from_iges('LMt.igs'); % LM for template
 
 
@@ -96,15 +96,17 @@ view([185, 8]);
 camlight;
 hold off;
 
+fprintf('palm registration is completed\n');
+
 % save hy_mesh_n5_palm_fitted.mat mesh %template
 % mesh.spheres{1,22}.center
 
 %%
+
 centers = zeros(30,3);
 for i = 1:30
 centers(i,:) = mesh.spheres{1,i}.center;
 end
-
 A = centers(1:22,:); % template's CoR
 B = []; %import data from excel sheet
 
@@ -112,6 +114,7 @@ figure()
 hold on
 axis equal
 axis off
+%plot3(Pjt_pts(:,1),Pjt_pts(:,2),Pjt_pts(:,3),'ko')
 plot3(A(:,1),A(:,2),A(:,3),'k*')
 plot3(A(1:4,1),A(1:4,2),A(1:4,3),'-b')
 plot3(A(5:8,1),A(5:8,2),A(5:8,3),'-b')
@@ -138,11 +141,82 @@ hold off
 mesh = transformed;
 clear transformed
 
-%% MCP flexion/extension detection
+for i = 1:30
+centers(i,:) = mesh.spheres{1,i}.center;
+end
+A = centers(1:22,:); % update A value after scale adjustment
+visualization; update_cor_plot;
+fprintf('scale adjustment is completed\n');
+
+%% MCP Abduction/Adduction detection & transform
 
 load('assignment_new.mat');
+axes_d = bone_axes(mesh.spheres);
+
+% adjust rotation factor
+
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = +1;
+rotating_factor4 = +1;
 
 % set angle range = according to the posture #
+o = A(16,:);
+pt2 = A(16,:) + axes_d{6}(1 : 3, 1)';
+pt3 = A(16,:) + axes_d{6}(1 : 3, 2)';
+target_pt = B(15,:);
+Pjt_pt1 = vector_projection(o, pt2, pt3, target_pt);
+v1 = A(16,:)-A(15,:); v1 = v1/norm(v1);
+v2 = A(16,:)-Pjt_pt1; v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH1_abad = acos(cosTH);
+
+o = A(12,:);
+pt2 = A(12,:) + axes_d{9}(1 : 3, 1)';
+pt3 = A(12,:) + axes_d{9}(1 : 3, 2)';
+target_pt = B(11,:);
+Pjt_pt2 = vector_projection(o, pt2, pt3, target_pt);
+v1 = A(12,:)-A(11,:); v1 = v1/norm(v1);
+v2 = A(12,:)-Pjt_pt2; v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH2_abad = acos(cosTH);
+
+o = A(8,:);
+pt2 = A(8,:) + axes_d{12}(1 : 3, 1)';
+pt3 = A(8,:) + axes_d{12}(1 : 3, 2)';
+target_pt = B(7,:);
+Pjt_pt3 = vector_projection(o, pt2, pt3, target_pt);
+v1 = A(8,:)-A(7,:); v1 = v1/norm(v1);
+v2 = A(8,:)-Pjt_pt3; v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH3_abad = acos(cosTH);
+
+o = A(4,:);
+pt2 = A(4,:) + axes_d{12}(1 : 3, 1)';
+pt3 = A(4,:) + axes_d{12}(1 : 3, 2)';
+target_pt = B(3,:);
+Pjt_pt4 = vector_projection(o, pt2, pt3, target_pt);
+v1 = A(4,:)-A(3,:); v1 = v1/norm(v1);
+v2 = A(4,:)-Pjt_pt4; v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH4_abad = acos(cosTH);
+
+Pjt_pts = [Pjt_pt1; Pjt_pt2; Pjt_pt3; Pjt_pt4];
+
+angle = zeros(19,1);
+angle_record = zeros(19,1);
+angle(16) = TH1_abad * rotating_factor1;
+angle(17) = TH2_abad * rotating_factor2;
+angle(18) = TH3_abad * rotating_factor3;
+angle(19) = TH4_abad * rotating_factor4;
+angle_record(16:19,1) = [angle(16); angle(17); angle(18); angle(19)];
+mesh = transform_angle(mesh, angle);
+visualization;
+update_cor_plot;
+
+fprintf('MCP abduction/adduction is completed\n');
+
+%% MCP flexion/extension detection
 
 v1 = A(16,:)-A(15,:); v1 = v1/norm(v1);
 v2 = A(16,:)-B(15,:); v2 = v2/norm(v2);
@@ -162,31 +236,160 @@ TH3 = acos(cosTH);
 v1 = A(4,:)-A(3,:); v1 = v1/norm(v1);
 v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH7 = acos(cosTH);
+TH4 = acos(cosTH);
+
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = +1;
 
 angle = zeros(19,1);
-angle_record = zeros(19,1);
-angle(4) = TH1;
-angle(7) = TH2;
-angle(10) = TH3;
-angle(13) = TH7;
-angle_record([4 7 10 13],1) = [TH1; TH2; TH3; TH7];
-mesh = transform_angle(mesh, angle); 
+angle(4) = TH1 * rotating_factor1;
+angle(7) = TH2 * rotating_factor2;
+angle(10) = TH3 * rotating_factor3;
+angle(13) = TH3 * rotating_factor4;
+angle_record([4 7 10 13],1) = [angle(4); angle(7); angle(10); angle(13)];
+mesh = transform_angle(mesh, angle);
+% visualization;
+% update_cor_plot;
 
-%%
-centers = zeros(30,3);
-for i = 1:30
-centers(i,:) = mesh.spheres{1,i}.center;
-end
-A = centers(1:22,:);
 v1 = A(4,:)-A(3,:); v1 = v1/norm(v1);
 v2 = A(4,:)-B(3,:); v2 = v2/norm(v2);
 cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
-TH8 = acos(cosTH);
+TH4 = acos(cosTH);
 angle = zeros(19,1);
-angle(19) = -TH8;
-mesh = transform_angle(mesh, angle); 
+angle(13) = TH3 * rotating_factor4;
+angle_record(13,1) = angle_record(13,1) + angle(13);
+mesh = transform_angle(mesh, angle);
+visualization;
+update_cor_plot;
 
+fprintf('MCP flexion/extension is completed\n');
+
+%% PIP flexion/extension detection
+
+v1 = A(15,:)-A(14,:); v1 = v1/norm(v1);
+v2 = A(15,:)-B(14,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH5 = acos(cosTH);
+
+v1 = A(11,:)-A(10,:); v1 = v1/norm(v1);
+v2 = A(11,:)-B(10,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH6 = acos(cosTH);
+
+v1 = A(7,:)-A(6,:); v1 = v1/norm(v1);
+v2 = A(7,:)-B(6,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH7 = acos(cosTH);
+
+v1 = A(3,:)-A(2,:); v1 = v1/norm(v1);
+v2 = A(3,:)-B(2,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH8 = acos(cosTH);
+
+rotating_factor1 = +1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
+
+angle = zeros(19,1);
+angle(5) = TH5 * rotating_factor1;
+angle(8) = TH6 * rotating_factor2;
+angle(11) = TH7 * rotating_factor3;
+angle(14) = TH8 * rotating_factor4;
+angle_record([5 8 11 14],1) = [angle(5); angle(8); angle(11); angle(14)];
+mesh = transform_angle(mesh, angle);
+visualization;
+update_cor_plot;
+
+fprintf('PIP flexion/extension is completed\n');
+
+%% PIP based MCP supination/pronation detection & transform
+
+v1 = A(15,:)-A(14,:); v1 = v1/norm(v1);
+v2 = A(15,:)-B(14,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH1_supr = acos(cosTH);
+
+v1 = A(11,:)-A(10,:); v1 = v1/norm(v1);
+v2 = A(11,:)-B(10,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH2_supr = acos(cosTH);
+
+v1 = A(7,:)-A(6,:); v1 = v1/norm(v1);
+v2 = A(7,:)-B(6,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH3_supr = acos(cosTH);
+
+v1 = A(3,:)-A(2,:); v1 = v1/norm(v1);
+v2 = A(3,:)-B(2,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH4_supr = acos(cosTH);
+
+rotating_factor1 = +1;
+rotating_factor2 = +1;
+rotating_factor3 = +1;
+rotating_factor4 = -1;
+
+angle_supr = zeros(4,1);
+angle_supr_record = zeros(4,1);
+angle_supr(1) = TH1_supr * rotating_factor1;
+angle_supr(2) = TH2_supr * rotating_factor2;
+angle_supr(3) = TH3_supr * rotating_factor3;
+angle_supr(4) = TH4_supr * rotating_factor4;
+angle_supr_record = angle_supr;
+mesh = transform_sup_pro_angle(mesh, -angle_supr);
+update_cor_plot;
+visualization;
+
+fprintf('PIP based MCP supination/pronation is completed\n');
+
+%% DIP flexion/extension detection & transform
+
+v1 = A(14,:)-A(13,:); v1 = v1/norm(v1);
+v2 = A(14,:)-B(13,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH9 = acos(cosTH);
+
+v1 = A(10,:)-A(9,:); v1 = v1/norm(v1);
+v2 = A(10,:)-B(9,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH10 = acos(cosTH);
+
+v1 = A(6,:)-A(5,:); v1 = v1/norm(v1);
+v2 = A(6,:)-B(5,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH11 = acos(cosTH);
+
+v1 = A(2,:)-A(1,:); v1 = v1/norm(v1);
+v2 = A(2,:)-B(1,:); v2 = v2/norm(v2);
+cosTH = dot(v1,v2)/(norm(v1)*norm(v2));
+TH12 = acos(cosTH);
+
+rotating_factor1 = -1;
+rotating_factor2 = -1;
+rotating_factor3 = -1;
+rotating_factor4 = -1;
+
+angle = zeros(19,1);
+angle(6) = TH9 * rotating_factor1;
+angle(9) = TH10 * rotating_factor2;
+angle(12) = TH11 * rotating_factor3;
+angle(15) = TH12 * rotating_factor4;
+angle_record([6 9 12 15],1) = [angle(6); angle(9); angle(12); angle(15)];
+mesh = transform_angle(mesh, angle);
+update_cor_plot;
+visualization;
+
+fprintf('DIP flexion/extension is completed\n');
+
+%% things to do - need fine fitting??
+
+% ============================== updated up to here  =====================
+% update template's rotation axis based on the scan's axis
+% apply fine fitting? with small range of motion
+% ============================== jump to ICP =============================
 
 %%
 
@@ -265,9 +468,6 @@ TH6 = acos(cosTH);
 angle = zeros(19,1);
 angle(16:18,1) = [rotating_factor1*TH4; rotating_factor2*TH5; rotating_factor3*TH6;]; % MCP abduction/adduction angle record
 mesh = transform_angle(mesh, angle);
-
-
-
 
 %% 
 % D5 MCP fit
@@ -826,6 +1026,8 @@ h4 = [];
 
 end 
 
+fprintf('Thumb joint fitting is completed\n');
+
 %toc
 
 %% Non-rigid Registration (ICP)
@@ -838,7 +1040,7 @@ flag_prealligndata = 1;
 figureOn = 1;
 rigidICP = 0;
 
-[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP)
+[sourceV] = ICP_nonrigidICP(targetV, sourceV, targetF, sourceF, iterations, flag_prealligndata, figureOn, rigidICP);
 
 vertices_c = sourceV;
 % clear targetV sourceV targetF sourceF 
@@ -852,12 +1054,16 @@ scatter3(sourceV(:,1),sourceV(:,2),sourceV(:,3),'.', 'MarkerEdgeColor',[190/255,
 %scatter3(centers_c(:,1),centers_c(:,2),centers_c(:,3),'o','MarkerEdgeColor',[255/255, 0/255, 0/255]);
 hold off
 
+fprintf('Non-rigid ICP registration is completed\n');
+
 %% Save vertices
-XJ_pos7_vertices = sourceV; 
-mesh.vertices = XJ_pos7_vertices;
+DH_pos1_vertices = sourceV; 
+mesh.vertices = DH_pos1_vertices;
 visualization
-save XJ_pos7_vertices.mat XJ_pos7_vertices;
-save XJ_pos7_mesh.mat mesh;
+save DH_pos1_vertices.mat DH_pos1_vertices;
+save DH_pos1_mesh.mat mesh;
+
+fprintf('Save vertices and mesh is completed\n');
 
 
 

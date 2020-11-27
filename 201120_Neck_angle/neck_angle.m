@@ -1,26 +1,18 @@
 clc
 clear all
 addpath(genpath('../external'));
-addpath('F:\[GitHub]\Hand_deformation_model\functions');
-addpath('F:\[GitHub]\Hand_deformation_model\data_SW');
-addpath('F:\[GitHub]\Hand_deformation_model\data');
-addpath('F:\[GitHub]\Hand_deformation_model\external\registration');
+addpath('D:\GitHub\Hand_deformation_model\functions');
+addpath('D:\GitHub\Hand_deformation_model\data_SW');
+addpath('D:\GitHub\Hand_deformation_model\data');
+addpath('D:\GitHub\Hand_deformation_model\external\registration');
+addpath('LM_data');
+addpath('LM_p1');
+addpath('LM_p2');
 format shortG
 
-addpath('S02_박가온');
-addpath('S03_박수아');
-addpath('S03_박수아2');
-addpath('S04_정도현');
-addpath('S05_문아인');
-addpath('S06_이서현');
-addpath('S07_이현주');
-addpath('S08_김한결');
-addpath('S09_박지한');
-addpath('S10_김아윤');
-addpath('LM_data');
-dirLM = dir('F:\[3D Head] 양산부산대 소아사경\LM_data\*.igs');
+dirLM = dir('D:\GitHub\Hand_deformation_model\201120_Neck_angle\LM_p2\*.igs');
 
-n = 21;
+n = 20;
 Angle = zeros(n,6);
 
 % LM2 = [-137.39,85.41,-21.98; 
@@ -32,10 +24,26 @@ Angle = zeros(n,6);
 %     -221.84,-155.03,-83.93;
 %     116.42,-136.84,-90.63];
 
-for i = 22:42
-LM = function_get_LM_from_iges(dirLM(i).name);
+for i = 1:20
+LM2 = function_get_LM_from_iges(dirLM(i).name);
+
+LM(1,1:3) = LM2(2,1:3);
+LM(2,1:3) = LM2(4,1:3);
+LM(3,1:3) = LM2(5,1:3);
+LM(4,1:3) = LM2(6,1:3);
+LM(5,1:3) = LM2(7,1:3);
+LM(6,1:3) = LM2(8,1:3);
+
 LM(7,1:3) = (LM(2,:)+LM(3,:))/2;
 LM(8,1:3) = (LM(5,:)+LM(6,:))/2;
+
+% v_f1 = (LM(4,:)-LM(2,:))/norm(LM(4,:)-LM(2,:));
+% v_f2 = (LM(5,:)-LM(2,:))/norm(LM(5,:)-LM(2,:));
+% v_t1 = (LM(7,:)-LM(6,:))/norm(LM(7,:)-LM(6,:));
+% v_t2 = (LM(8,:)-LM(6,:))/norm(LM(8,:)-LM(6,:));
+
+
+
 
 % figure()
 % hold on
@@ -55,25 +63,25 @@ LM(8,1:3) = (LM(5,:)+LM(6,:))/2;
 % plot3(LM([6 8], 1), LM([6 8], 2), LM([6 8], 3), 'k-');
 % hold off
 
-figure()
-hold on
-axis equal
-axis off
-plot3(LM(1, 1), LM(1, 2), LM(1, 3), 'g*');
-plot3(LM(2, 1), LM(2, 2), LM(2, 3), 'g*');
-plot3(LM(3, 1), LM(3, 2), LM(3, 3), 'g*');
-plot3(LM(4, 1), LM(4, 2), LM(4, 3), 'b*');
-plot3(LM(5, 1), LM(5, 2), LM(5, 3), 'b*');
-plot3(LM(6, 1), LM(6, 2), LM(6, 3), 'b*');
-plot3(LM(7, 1), LM(7, 2), LM(7, 3), 'g*');
-plot3(LM(8, 1), LM(8, 2), LM(8, 3), 'b*');
-plot3(LM([1 2], 1), LM([1 2], 2), LM([1 2], 3), 'k-');
-plot3(LM([1 3], 1), LM([1 3], 2), LM([1 3], 3), 'k-');
-plot3(LM(4:5, 1), LM(4:5, 2), LM(4:5, 3), 'k-');
-plot3(LM([4 6], 1), LM([4 6], 2), LM([4 6], 3), 'k-');
-plot3(LM([1 7], 1), LM([1 7], 2), LM([1 7], 3), 'g-');
-plot3(LM([4 8], 1), LM([4 8], 2), LM([4 8], 3), 'b-');
-hold off
+% figure()
+% hold on
+% axis equal
+% axis off
+% plot3(LM(1, 1), LM(1, 2), LM(1, 3), 'g*');
+% plot3(LM(2, 1), LM(2, 2), LM(2, 3), 'g*');
+% plot3(LM(3, 1), LM(3, 2), LM(3, 3), 'g*');
+% plot3(LM(4, 1), LM(4, 2), LM(4, 3), 'b*');
+% plot3(LM(5, 1), LM(5, 2), LM(5, 3), 'b*');
+% plot3(LM(6, 1), LM(6, 2), LM(6, 3), 'b*');
+% plot3(LM(7, 1), LM(7, 2), LM(7, 3), 'g*');
+% plot3(LM(8, 1), LM(8, 2), LM(8, 3), 'b*');
+% plot3(LM([1 2], 1), LM([1 2], 2), LM([1 2], 3), 'k-');
+% plot3(LM([1 3], 1), LM([1 3], 2), LM([1 3], 3), 'k-');
+% plot3(LM(4:5, 1), LM(4:5, 2), LM(4:5, 3), 'k-');
+% plot3(LM([4 6], 1), LM([4 6], 2), LM([4 6], 3), 'k-');
+% plot3(LM([1 7], 1), LM([1 7], 2), LM([1 7], 3), 'g-');
+% plot3(LM([4 8], 1), LM([4 8], 2), LM([4 8], 3), 'b-');
+% hold off
 
 % v_f1 = (LM(4,:)-LM(2,:))/norm(LM(4,:)-LM(2,:));
 % v_f2 = (LM(5,:)-LM(2,:))/norm(LM(5,:)-LM(2,:));
@@ -100,22 +108,22 @@ z = [0 0 1];
 AXIS = [v_f; v_t; o; x; y; z; m_vf; m_vt];
 
 % torsor orthogornal vector = blue, face orthogornal vector = green
-figure()
-hold on
-axis equal
-axis on
-plot3(AXIS(1,1), AXIS(1,2), AXIS(1,3), 'g*');
-plot3(AXIS(2,1), AXIS(2,2), AXIS(2,3), 'b*');
-plot3(AXIS(3,1), AXIS(3,2), AXIS(3,3), 'k*');
-%plot3(AXIS(7,1), AXIS(7,2), AXIS(7,3), 'c*');
-plot3(AXIS(8,1), AXIS(8,2), AXIS(8,3), 'm*');
-plot3(AXIS([1 3],1), AXIS([1 3],2), AXIS([1 3],3), 'g-');
-plot3(AXIS([2 3],1), AXIS([2 3],2), AXIS([2 3],3), 'b-');
-plot3(AXIS([3 4],1), AXIS([3 4],2), AXIS([3 4],3), 'k-');
-plot3(AXIS([3 5],1), AXIS([3 5],2), AXIS([3 5],3), 'k-');
-plot3(AXIS([3 6],1), AXIS([3 6],2), AXIS([3 6],3), 'k-');
-plot3(AXIS([3 8],1), AXIS([3 8],2), AXIS([3 8],3), 'm-');
-hold off
+% figure()
+% hold on
+% axis equal
+% axis on
+% plot3(AXIS(1,1), AXIS(1,2), AXIS(1,3), 'g*');
+% plot3(AXIS(2,1), AXIS(2,2), AXIS(2,3), 'b*');
+% plot3(AXIS(3,1), AXIS(3,2), AXIS(3,3), 'k*');
+% %plot3(AXIS(7,1), AXIS(7,2), AXIS(7,3), 'c*');
+% plot3(AXIS(8,1), AXIS(8,2), AXIS(8,3), 'm*');
+% plot3(AXIS([1 3],1), AXIS([1 3],2), AXIS([1 3],3), 'g-');
+% plot3(AXIS([2 3],1), AXIS([2 3],2), AXIS([2 3],3), 'b-');
+% plot3(AXIS([3 4],1), AXIS([3 4],2), AXIS([3 4],3), 'k-');
+% plot3(AXIS([3 5],1), AXIS([3 5],2), AXIS([3 5],3), 'k-');
+% plot3(AXIS([3 6],1), AXIS([3 6],2), AXIS([3 6],3), 'k-');
+% plot3(AXIS([3 8],1), AXIS([3 8],2), AXIS([3 8],3), 'm-');
+% hold off
 
 % %x-z angle
 % v_f = AXIS(1,[1 3]);
